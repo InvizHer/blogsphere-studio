@@ -27,7 +27,7 @@ export function BookmarkModal({ open, onClose }: BookmarkModalProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="fixed right-4 top-16 z-[61] w-[360px] max-h-[70vh] overflow-hidden rounded-2xl border border-border bg-card shadow-xl sm:right-8"
+            className="fixed right-2 top-16 z-[61] w-[360px] max-h-[70vh] overflow-hidden rounded-2xl border border-border bg-card shadow-xl sm:right-8"
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
