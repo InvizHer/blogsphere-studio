@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ArrowRight, Sparkles, BookOpen, Zap, Code2, Layers } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowRight, Sparkles, Zap, Code2, Layers } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -44,14 +44,9 @@ function getTopicIcon(name: string) {
     if (lower.includes(key)) return icon;
   }
   const fallbacks = [
-    "fa-solid fa-code",
-    "fa-solid fa-terminal",
-    "fa-solid fa-microchip",
-    "fa-solid fa-database",
-    "fa-solid fa-server",
-    "fa-solid fa-globe",
-    "fa-solid fa-bolt",
-    "fa-solid fa-cube",
+    "fa-solid fa-code", "fa-solid fa-terminal", "fa-solid fa-microchip",
+    "fa-solid fa-database", "fa-solid fa-server", "fa-solid fa-globe",
+    "fa-solid fa-bolt", "fa-solid fa-cube",
   ];
   return fallbacks[name.charCodeAt(0) % fallbacks.length];
 }
@@ -59,19 +54,20 @@ function getTopicIcon(name: string) {
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
+    opacity: 1, y: 0,
     transition: { duration: 0.5, delay: i * 0.06, ease: "easeOut" as const },
   }),
 };
 
 export default function Index() {
   const site = useSiteSettings();
+  const navigate = useNavigate();
   const [recentPosts, setRecentPosts] = useState<PostWithCategories[]>([]);
   const [recentProjects, setRecentProjects] = useState<PostWithCategories[]>([]);
   const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
   const [showAllTopics, setShowAllTopics] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -137,6 +133,14 @@ export default function Index() {
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
 
+  const handleTerminalSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/posts?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+    }
+  };
+
   return (
     <>
       <SEOHead title="Home" description={site.site_description || "Inkwell — A modern platform for coding tutorials, programming resources, tech articles and developer knowledge."} />
@@ -148,7 +152,7 @@ export default function Index() {
           <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full opacity-[0.07]" style={{ background: "var(--gradient-primary)", filter: "blur(100px)" }} />
 
           <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-14 sm:px-8 md:pb-24 md:pt-20 lg:pb-28">
-            <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-20">
+            <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
               <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
                 <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -157,7 +161,7 @@ export default function Index() {
                 </motion.div>
 
                 <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-4xl font-extrabold leading-[1.08] text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-                  Code. Create.{" "}<br />
+                  Code. Create.{" "}<br className="hidden sm:block" />
                   <span className="gradient-text">Innovate.</span>
                 </motion.h1>
 
@@ -165,7 +169,12 @@ export default function Index() {
                   Your gateway to programming tutorials, innovative projects, and cutting-edge development resources.
                 </motion.p>
 
-                <motion.div variants={fadeUp} custom={3} className="flex flex-col gap-3 sm:flex-row">
+                {/* Terminal card — visible on mobile */}
+                <motion.div variants={fadeUp} custom={3} className="mb-8 lg:hidden">
+                  <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
+                </motion.div>
+
+                <motion.div variants={fadeUp} custom={4} className="flex flex-col gap-3 sm:flex-row">
                   <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
@@ -174,39 +183,22 @@ export default function Index() {
                     Browse Posts <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
-                    to="/posts?category="
+                    to="/projects"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
                   >
-                    <BookOpen className="h-4 w-4" /> Categories
+                    <Layers className="h-4 w-4" /> Projects
                   </Link>
                 </motion.div>
               </motion.div>
 
-              {/* Terminal card */}
+              {/* Terminal card — desktop only */}
               <motion.div
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
                 className="hidden lg:block"
               >
-                <div className="rounded-2xl border border-border bg-[hsl(225,35%,8%)] overflow-hidden">
-                  <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
-                    <div className="flex gap-2">
-                      <div className="h-3 w-3 rounded-full bg-red-400" />
-                      <div className="h-3 w-3 rounded-full bg-yellow-400" />
-                      <div className="h-3 w-3 rounded-full bg-green-400" />
-                    </div>
-                    <span className="font-mono text-xs text-white/40">inkwell.sh</span>
-                  </div>
-                  <div className="p-6 font-mono text-sm leading-relaxed">
-                    <p className="text-green-400">→ ~ inkwell</p>
-                    <p className="mt-3 text-white/70">Welcome to Inkwell Blog Platform</p>
-                    <p className="mt-1 text-white/40">Discover tutorials, guides & resources...</p>
-                    <p className="mt-4 text-white/50">Enter your search query...</p>
-                    <p className="mt-2 text-white/30">Press <span className="rounded border border-white/20 px-1.5 py-0.5 text-xs text-white/60">Enter</span> to search</p>
-                    <p className="mt-4 text-primary">█</p>
-                  </div>
-                </div>
+                <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
               </motion.div>
             </div>
           </div>
@@ -227,17 +219,10 @@ export default function Index() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {loading
-              ? Array.from({ length: 6 }).map((_, i) => (
-                  <PostCardSkeleton key={i} />
-                ))
+              ? Array.from({ length: 6 }).map((_, i) => <PostCardSkeleton key={i} />)
               : recentPosts.map((post, i) => (
-                  <motion.div
-                    key={post.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: i * 0.06 }}
-                  >
-                    <PostCard {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
+                  <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06 }}>
+                    <PostCard id={post.id} {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
                   </motion.div>
                 ))}
           </div>
@@ -271,16 +256,9 @@ export default function Index() {
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {loading
-                ? Array.from({ length: 3 }).map((_, i) => (
-                    <ProjectCardSkeleton key={i} />
-                  ))
+                ? Array.from({ length: 3 }).map((_, i) => <ProjectCardSkeleton key={i} />)
                 : recentProjects.map((post, i) => (
-                    <motion.div
-                      key={post.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: i * 0.06 }}
-                    >
+                    <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06 }}>
                       <ProjectCard {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
                     </motion.div>
                   ))}
@@ -330,16 +308,9 @@ export default function Index() {
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {loading
-                  ? Array.from({ length: 6 }).map((_, i) => (
-                      <TopicCardSkeleton key={i} />
-                    ))
+                  ? Array.from({ length: 6 }).map((_, i) => <TopicCardSkeleton key={i} />)
                   : visibleTopics.map((cat, i) => (
-                      <motion.div
-                        key={cat.id}
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: i * 0.04 }}
-                      >
+                      <motion.div key={cat.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
                         <Link
                           to={`/posts?category=${encodeURIComponent(cat.slug)}`}
                           className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/20 hover:-translate-y-0.5"
@@ -389,14 +360,8 @@ export default function Index() {
                     transition={{ duration: 0.4, delay: i * 0.08 }}
                     className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1"
                   >
-                    <div
-                      className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-[0.07]"
-                      style={{ background: s.gradient }}
-                    />
-                    <div
-                      className="flex h-12 w-12 items-center justify-center rounded-xl text-white transition-transform duration-300 group-hover:scale-110"
-                      style={{ background: s.gradient }}
-                    >
+                    <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-[0.07]" style={{ background: s.gradient }} />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl text-white transition-transform duration-300 group-hover:scale-110" style={{ background: s.gradient }}>
                       <i className={`${s.icon} text-lg`}></i>
                     </div>
                     <div className="text-center">
@@ -413,5 +378,43 @@ export default function Index() {
 
       <PublicFooter />
     </>
+  );
+}
+
+/* ── Terminal Search Component ── */
+function TerminalSearch({ query, setQuery, onSubmit }: { query: string; setQuery: (v: string) => void; onSubmit: (e: React.FormEvent) => void }) {
+  return (
+    <div className="rounded-2xl border border-border bg-[hsl(225,35%,8%)] overflow-hidden shadow-lg">
+      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="flex gap-2">
+          <div className="h-3 w-3 rounded-full bg-red-400" />
+          <div className="h-3 w-3 rounded-full bg-yellow-400" />
+          <div className="h-3 w-3 rounded-full bg-green-400" />
+        </div>
+        <span className="font-mono text-xs text-white/40">search.sh</span>
+      </div>
+      <form onSubmit={onSubmit} className="p-5 sm:p-6 font-mono text-sm leading-relaxed">
+        <p className="text-green-400">→ ~ search</p>
+        <div className="mt-3 flex items-center gap-2">
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Enter your search query..."
+            className="flex-1 bg-transparent text-white/70 placeholder:text-white/30 outline-none caret-green-400"
+          />
+        </div>
+        <p className="mt-3 text-white/30">
+          Press{" "}
+          <button
+            type="submit"
+            className="inline rounded border border-white/20 px-2 py-0.5 text-xs text-white/60 transition-colors hover:border-white/40 hover:text-white/80"
+          >
+            Enter
+          </button>
+          {" "}to search
+        </p>
+      </form>
+    </div>
   );
 }

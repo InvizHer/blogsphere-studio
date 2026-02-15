@@ -1,16 +1,20 @@
 import { Link } from "react-router-dom";
-import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail } from "lucide-react";
+import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail, Bookmark } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/use-site-settings";
+import { BookmarkModal } from "@/components/BookmarkModal";
+import { useBookmarks } from "@/hooks/use-bookmarks";
 
 export function PublicHeader() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [visible, setVisible] = useState(true);
+  const [bookmarkOpen, setBookmarkOpen] = useState(false);
   const lastScrollY = useRef(0);
   const navigate = useNavigate();
   const site = useSiteSettings();
+  const { bookmarks } = useBookmarks();
 
   useEffect(() => {
     const onScroll = () => {
@@ -20,6 +24,12 @@ export function PublicHeader() {
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const handler = () => setBookmarkOpen(true);
+    window.addEventListener("open-bookmarks", handler);
+    return () => window.removeEventListener("open-bookmarks", handler);
   }, []);
 
   useEffect(() => {
@@ -50,7 +60,6 @@ export function PublicHeader() {
 
   return (
     <>
-      {/* Fixed header bar */}
       <header
         className="fixed top-0 left-0 w-full z-50 transition-transform duration-300"
         style={{ transform: visible ? "translateY(0)" : "translateY(-100%)" }}
@@ -69,7 +78,7 @@ export function PublicHeader() {
               <span className="font-display text-xl font-bold gradient-text">{site.site_title}</span>
             </Link>
 
-            {/* Desktop nav + fixed-width search */}
+            {/* Desktop nav */}
             <div className="hidden items-center gap-1 md:flex">
               {[
                 { to: "/", label: "Home" },
@@ -95,27 +104,48 @@ export function PublicHeader() {
                   <Search className="h-3.5 w-3.5" />
                 </button>
               </form>
+              {/* Bookmark button */}
+              <button
+                onClick={() => setBookmarkOpen(!bookmarkOpen)}
+                className="relative ml-1 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <Bookmark className="h-4.5 w-4.5" />
+                {bookmarks.length > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {bookmarks.length}
+                  </span>
+                )}
+              </button>
             </div>
 
-            {/* Mobile hamburger */}
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted md:hidden"
-            >
-              {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            {/* Mobile: bookmark + hamburger */}
+            <div className="flex items-center gap-1 md:hidden">
+              <button
+                onClick={() => setBookmarkOpen(!bookmarkOpen)}
+                className="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted"
+              >
+                <Bookmark className="h-5 w-5" />
+                {bookmarks.length > 0 && (
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                    {bookmarks.length}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => setMenuOpen(!menuOpen)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted"
+              >
+                {menuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              </button>
+            </div>
           </div>
 
-          {/* Mobile menu — inside the same rounded card */}
+          {/* Mobile menu */}
           <div
             className="md:hidden overflow-hidden transition-all duration-300 ease-in-out"
-            style={{
-              maxHeight: menuOpen ? "500px" : "0px",
-              opacity: menuOpen ? 1 : 0,
-            }}
+            style={{ maxHeight: menuOpen ? "500px" : "0px", opacity: menuOpen ? 1 : 0 }}
           >
             <div className="border-t border-border/40 px-4 pb-4 pt-3">
-              {/* Search */}
               <form onSubmit={handleSearch} className="relative mb-3">
                 <input
                   value={query}
@@ -128,7 +158,6 @@ export function PublicHeader() {
                 </button>
               </form>
 
-              {/* Menu items */}
               <nav className="flex flex-col gap-1">
                 {menuItems.map((item, i) => (
                   <Link
@@ -155,7 +184,6 @@ export function PublicHeader() {
                 ))}
               </nav>
 
-              {/* Bottom buttons */}
               <div className="mt-3 flex gap-3 border-t border-border/40 pt-3">
                 <Link to="/about" onClick={() => setMenuOpen(false)} className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
                   <Info className="h-4 w-4" /> About
@@ -169,13 +197,11 @@ export function PublicHeader() {
         </div>
       </header>
 
-      {/* Backdrop for mobile menu */}
       {menuOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-black/20 md:hidden"
-          onClick={() => setMenuOpen(false)}
-        />
+        <div className="fixed inset-0 z-40 bg-black/20 md:hidden" onClick={() => setMenuOpen(false)} />
       )}
+
+      <BookmarkModal open={bookmarkOpen} onClose={() => setBookmarkOpen(false)} />
     </>
   );
 }
