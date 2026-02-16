@@ -9,6 +9,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { CommentSection } from "@/components/CommentSection";
 import { SharePost } from "@/components/SharePost";
 import { RelatedPosts } from "@/components/RelatedPosts";
+import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { PostDetailSkeleton } from "@/components/skeletons/PostDetailSkeleton";
 import {
   LinkShortenerProvider,
@@ -28,12 +29,6 @@ interface PostData {
   view_count: number;
   categories: string[];
   comments_enabled: boolean;
-}
-
-function estimateReadTime(html: string | null): number {
-  if (!html) return 1;
-  const text = html.replace(/<[^>]*>/g, "");
-  return Math.max(1, Math.ceil(text.split(/\s+/).length / 200));
 }
 
 export default function PostDetail() {
@@ -71,9 +66,7 @@ export default function PostDetail() {
     if (cleanSlug) fetchPost();
   }, [cleanSlug]);
 
-  if (loading) {
-    return <PostDetailSkeleton />;
-  }
+  if (loading) return <PostDetailSkeleton />;
 
   if (!post) {
     return (
@@ -113,20 +106,6 @@ export default function PostDetail() {
             transition={{ duration: 0.4 }}
             className="py-10 md:py-14"
           >
-            {post.categories.length > 0 && (
-              <div className="mb-5 flex flex-wrap gap-2">
-                {post.categories.map((cat) => (
-                  <span
-                    key={cat}
-                    className="inline-block rounded-md px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
-            )}
-
             <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl">
               {post.title}
             </h1>
@@ -159,7 +138,7 @@ export default function PostDetail() {
           </motion.div>
         </div>
 
-        {/* Divider between header and content */}
+        {/* Divider */}
         <div className="relative">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <div className="h-px w-full bg-border/60" />
@@ -182,12 +161,27 @@ export default function PostDetail() {
               className="prose-content max-w-none text-foreground [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:max-w-full [&_table]:overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
-            <div className="mt-10 space-y-6 lg:hidden">
+
+            {/* Engagement section - categories + like/unlike/bookmark */}
+            <div className="mt-10 border-t border-border pt-8">
+              <ArticleEngagement
+                postId={post.id}
+                postTitle={post.title}
+                postSlug={post.slug}
+                postThumbnailUrl={post.thumbnail_url}
+                postExcerpt={post.excerpt}
+                categories={post.categories}
+              />
+            </div>
+
+            {/* Mobile: share, comments, related */}
+            <div className="mt-8 space-y-6 lg:hidden">
               <SharePost title={post.title} slug={post.slug} />
               <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
             </div>
           </article>
+
           <aside className="hidden lg:block lg:w-80 xl:w-96">
             <div className="sticky top-24 space-y-6">
               <SharePost title={post.title} slug={post.slug} />

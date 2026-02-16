@@ -394,17 +394,18 @@ function TerminalSearch({ query, setQuery, onSubmit }: { query: string; setQuery
         <span className="font-mono text-xs text-white/40">search.sh</span>
       </div>
       <form onSubmit={onSubmit} className="p-5 sm:p-6 font-mono text-sm leading-relaxed">
-        <p className="text-green-400">→ ~ search</p>
+        <p className="text-green-400 text-left">→ ~ search</p>
         <div className="mt-3 flex items-center gap-2">
+          <span className="text-green-400 shrink-0">$</span>
           <input
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Enter your search query..."
-            className="flex-1 bg-transparent text-white/70 placeholder:text-white/30 outline-none caret-green-400"
+            className="flex-1 bg-transparent text-white/70 placeholder:text-white/30 outline-none caret-green-400 text-left"
           />
         </div>
-        <p className="mt-3 text-white/30">
+        <p className="mt-3 text-white/30 text-left">
           Press{" "}
           <button
             type="submit"

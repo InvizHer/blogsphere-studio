@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { X, Bookmark, Trash2, Calendar } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useBookmarks } from "@/hooks/use-bookmarks";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface BookmarkModalProps {
   open: boolean;
@@ -10,6 +11,7 @@ interface BookmarkModalProps {
 
 export function BookmarkModal({ open, onClose }: BookmarkModalProps) {
   const { bookmarks, removeBookmark } = useBookmarks();
+  const isMobile = useIsMobile();
 
   return (
     <AnimatePresence>
@@ -27,11 +29,17 @@ export function BookmarkModal({ open, onClose }: BookmarkModalProps) {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.97 }}
             transition={{ duration: 0.2 }}
-            className="fixed right-2 top-16 z-[61] w-[360px] max-h-[70vh] overflow-hidden rounded-2xl border border-border bg-card shadow-xl sm:right-8"
+            className={`fixed z-[61] w-[340px] max-h-[70vh] overflow-hidden rounded-2xl border border-border bg-card shadow-xl sm:w-[360px] ${
+              isMobile
+                ? "left-1/2 top-16 -translate-x-1/2"
+                : "right-4 top-16 sm:right-8"
+            }`}
           >
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
               <div className="flex items-center gap-2">
-                <Bookmark className="h-4 w-4 text-primary" />
+                <div className="flex h-6 w-6 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
+                  <Bookmark className="h-3 w-3 text-primary-foreground" />
+                </div>
                 <h3 className="font-display text-sm font-bold text-foreground">
                   Bookmarks
                 </h3>

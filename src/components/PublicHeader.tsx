@@ -107,11 +107,14 @@ export function PublicHeader() {
               {/* Bookmark button */}
               <button
                 onClick={() => setBookmarkOpen(!bookmarkOpen)}
-                className="relative ml-1 flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                className="relative ml-1 flex h-10 w-10 items-center justify-center rounded-xl transition-colors hover:bg-muted"
+                style={bookmarks.length > 0 ? {} : {}}
               >
-                <Bookmark className="h-4.5 w-4.5" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: bookmarkOpen ? "var(--gradient-primary)" : undefined }}>
+                  <Bookmark className={`h-4 w-4 ${bookmarkOpen ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                </div>
                 {bookmarks.length > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
                     {bookmarks.length}
                   </span>
                 )}
@@ -122,11 +125,13 @@ export function PublicHeader() {
             <div className="flex items-center gap-1 md:hidden">
               <button
                 onClick={() => setBookmarkOpen(!bookmarkOpen)}
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted"
+                className="relative flex h-10 w-10 items-center justify-center rounded-xl"
               >
-                <Bookmark className="h-5 w-5" />
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: bookmarkOpen ? "var(--gradient-primary)" : undefined }}>
+                  <Bookmark className={`h-4.5 w-4.5 ${bookmarkOpen ? "text-primary-foreground" : "text-muted-foreground"}`} />
+                </div>
                 {bookmarks.length > 0 && (
-                  <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  <span className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full px-1 text-[10px] font-bold text-primary-foreground" style={{ background: "var(--gradient-primary)" }}>
                     {bookmarks.length}
                   </span>
                 )}
