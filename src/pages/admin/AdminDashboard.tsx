@@ -1,26 +1,29 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, FolderOpen, Eye, TrendingUp, Plus } from "lucide-react";
+import { FileText, FolderOpen, Eye, Heart, Plus, CheckCircle, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalPosts: 0, totalCategories: 0, totalViews: 0 });
+  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalLikes: 0 });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
 
   useEffect(() => {
     const fetch = async () => {
-      const [postsRes, catsRes, recentRes] = await Promise.all([
-        supabase.from("posts").select("id, view_count"),
-        supabase.from("categories").select("id", { count: "exact", head: true }),
-        supabase.from("posts").select("id, title, slug, status, created_at, view_count").order("created_at", { ascending: false }).limit(5),
+      const [postsRes, recentRes] = await Promise.all([
+        supabase.from("posts").select("id, view_count, likes_count, status"),
+        supabase.from("posts").select("id, title, slug, status, created_at, view_count, likes_count").order("created_at", { ascending: false }).limit(5),
       ]);
 
-      const totalViews = postsRes.data?.reduce((sum, p) => sum + (p.view_count || 0), 0) || 0;
+      const posts = postsRes.data || [];
+      const totalViews = posts.reduce((sum, p) => sum + (p.view_count || 0), 0);
+      const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
       setStats({
-        totalPosts: postsRes.data?.length || 0,
-        totalCategories: catsRes.count || 0,
+        totalPosts: posts.length,
+        published: posts.filter((p) => p.status === "published").length,
+        drafts: posts.filter((p) => p.status === "draft").length,
         totalViews,
+        totalLikes,
       });
       setRecentPosts(recentRes.data || []);
     };
@@ -29,8 +32,10 @@ export default function AdminDashboard() {
 
   const statCards = [
     { label: "Total Posts", value: stats.totalPosts, icon: FileText, gradient: "from-primary to-accent" },
-    { label: "Categories", value: stats.totalCategories, icon: FolderOpen, gradient: "from-accent to-primary" },
+    { label: "Published", value: stats.published, icon: CheckCircle, gradient: "from-primary to-accent" },
+    { label: "Drafts", value: stats.drafts, icon: Clock, gradient: "from-accent to-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, gradient: "from-primary to-primary" },
+    { label: "Total Likes", value: stats.totalLikes, icon: Heart, gradient: "from-accent to-primary" },
   ];
 
   return (
@@ -55,7 +60,7 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Stats */}
-          <div className="mb-8 grid gap-4 sm:grid-cols-3">
+          <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
             {statCards.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
                 <div className="mb-3 flex items-center justify-between">
@@ -64,7 +69,7 @@ export default function AdminDashboard() {
                     <s.icon className="h-4 w-4 text-primary-foreground" />
                   </div>
                 </div>
-                <p className="font-display text-3xl font-bold text-card-foreground">{s.value}</p>
+                <p className="font-display text-3xl font-bold text-card-foreground">{s.value.toLocaleString()}</p>
               </div>
             ))}
           </div>
@@ -90,13 +95,11 @@ export default function AdminDashboard() {
                       </p>
                     </div>
                     <div className="ml-3 flex items-center gap-3">
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                        post.status === "published" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
-                      }`}>
-                        {post.status}
-                      </span>
                       <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
                         <Eye className="h-3 w-3" /> {post.view_count}
+                      </span>
+                      <span className="hidden items-center gap-1 text-xs text-red-400 sm:flex">
+                        <Heart className="h-3 w-3" /> {post.likes_count || 0}
                       </span>
                     </div>
                   </div>

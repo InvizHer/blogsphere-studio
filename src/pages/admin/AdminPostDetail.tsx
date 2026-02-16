@@ -16,6 +16,7 @@ interface PostData {
   thumbnail_url: string | null;
   status: string;
   view_count: number;
+  likes_count: number;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -50,7 +51,7 @@ export default function AdminPostDetail() {
         supabase.from("post_categories").select("categories(name)").eq("post_id", id),
       ]);
 
-      if (postRes.data) setPost(postRes.data);
+      if (postRes.data) setPost(postRes.data as any);
       setComments(commentsRes.data || []);
       setCategories(catRes.data?.map((p: any) => p.categories?.name).filter(Boolean) ?? []);
       setLoading(false);
@@ -70,7 +71,7 @@ export default function AdminPostDetail() {
 
   const totalComments = comments.filter((c) => !c.parent_id).length;
   const totalReplies = comments.filter((c) => c.parent_id).length;
-  const totalLikes = comments.reduce((sum, c) => sum + c.likes_count, 0);
+  const commentLikes = comments.reduce((sum, c) => sum + c.likes_count, 0);
   const wordCount = post?.content ? post.content.replace(/<[^>]*>/g, "").split(/\s+/).filter(Boolean).length : 0;
   const readTime = Math.max(1, Math.ceil(wordCount / 200));
 
@@ -140,12 +141,13 @@ export default function AdminPostDetail() {
             </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
               {[
                 { label: "Views", value: post.view_count, icon: Eye, color: "hsl(217, 91%, 60%)" },
+                { label: "Post Likes", value: post.likes_count || 0, icon: Heart, color: "hsl(0, 72%, 51%)" },
                 { label: "Comments", value: totalComments, icon: MessageCircle, color: "hsl(271, 81%, 56%)" },
                 { label: "Replies", value: totalReplies, icon: MessageCircle, color: "hsl(200, 70%, 50%)" },
-                { label: "Likes", value: totalLikes, icon: Heart, color: "hsl(0, 72%, 51%)" },
+                { label: "Comment Likes", value: commentLikes, icon: Heart, color: "hsl(330, 60%, 55%)" },
                 { label: "Words", value: wordCount, icon: FileText, color: "hsl(160, 60%, 48%)" },
                 { label: "Read Time", value: `${readTime}m`, icon: Clock, color: "hsl(40, 80%, 55%)" },
               ].map((s) => (
@@ -159,7 +161,7 @@ export default function AdminPostDetail() {
                     <s.icon className="h-3.5 w-3.5" style={{ color: s.color }} />
                     <span className="text-xs font-medium text-muted-foreground">{s.label}</span>
                   </div>
-                  <p className="font-display text-xl font-bold text-card-foreground">{s.value}</p>
+                  <p className="font-display text-xl font-bold text-card-foreground">{typeof s.value === 'number' ? s.value.toLocaleString() : s.value}</p>
                 </motion.div>
               ))}
             </div>
