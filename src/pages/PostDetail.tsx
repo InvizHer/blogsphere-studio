@@ -162,20 +162,18 @@ export default function PostDetail() {
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
-            {/* Engagement section - categories + like/unlike/bookmark */}
-            <div className="mt-10 border-t border-border pt-8">
-              <ArticleEngagement
-                postId={post.id}
-                postTitle={post.title}
-                postSlug={post.slug}
-                postThumbnailUrl={post.thumbnail_url}
-                postExcerpt={post.excerpt}
-                categories={post.categories}
-              />
-            </div>
-
-            {/* Mobile: share, comments, related */}
-            <div className="mt-8 space-y-6 lg:hidden">
+            {/* Mobile: engagement, share, comments, related */}
+            <div className="mt-10 space-y-6 lg:hidden">
+              <div className="border-t border-border pt-8">
+                <ArticleEngagement
+                  postId={post.id}
+                  postTitle={post.title}
+                  postSlug={post.slug}
+                  postThumbnailUrl={post.thumbnail_url}
+                  postExcerpt={post.excerpt}
+                  categories={post.categories}
+                />
+              </div>
               <SharePost title={post.title} slug={post.slug} />
               <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
@@ -184,6 +182,14 @@ export default function PostDetail() {
 
           <aside className="hidden lg:block lg:w-80 xl:w-96">
             <div className="sticky top-24 space-y-6">
+              <ArticleEngagement
+                postId={post.id}
+                postTitle={post.title}
+                postSlug={post.slug}
+                postThumbnailUrl={post.thumbnail_url}
+                postExcerpt={post.excerpt}
+                categories={post.categories}
+              />
               <SharePost title={post.title} slug={post.slug} />
               <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />

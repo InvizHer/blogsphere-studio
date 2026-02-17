@@ -62,6 +62,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   is_project       BOOLEAN NOT NULL DEFAULT false,
   comments_enabled BOOLEAN NOT NULL DEFAULT true,
   view_count       BIGINT NOT NULL DEFAULT 0,
+  likes_count      BIGINT NOT NULL DEFAULT 0,
   author_id        UUID,
   published_at     TIMESTAMPTZ,
   created_at       TIMESTAMPTZ NOT NULL DEFAULT now(),
@@ -95,7 +96,14 @@ CREATE TABLE IF NOT EXISTS public.comment_likes (
   UNIQUE (comment_id, visitor_id)
 );
 
-CREATE TABLE IF NOT EXISTS public.site_settings (
+CREATE TABLE IF NOT EXISTS public.post_likes (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  post_id    UUID NOT NULL REFERENCES public.posts(id) ON DELETE CASCADE,
+  visitor_id TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (post_id, visitor_id)
+);
+
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   site_title           TEXT NOT NULL DEFAULT 'Inkwell',
   site_description     TEXT NOT NULL DEFAULT 'A modern blog platform',
@@ -241,6 +249,7 @@ ALTER TABLE public.posts           ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.post_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments        ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comment_likes   ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.post_likes      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_settings   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shortened_links ENABLE ROW LEVEL SECURITY;
 
@@ -330,6 +339,13 @@ CREATE POLICY "Anyone can insert comment_likes"
 
 CREATE POLICY "Anyone can delete own comment_likes"
   ON public.comment_likes FOR DELETE USING (true);
+
+-- post_likes
+CREATE POLICY "Anyone can read post_likes"
+  ON public.post_likes FOR SELECT USING (true);
+
+CREATE POLICY "Anyone can insert post_likes"
+  ON public.post_likes FOR INSERT WITH CHECK (true);
 
 -- site_settings
 CREATE POLICY "Anyone can read site_settings"

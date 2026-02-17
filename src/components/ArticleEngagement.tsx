@@ -14,15 +14,6 @@ interface ArticleEngagementProps {
   categories: string[];
 }
 
-function getVisitorId(): string {
-  let id = localStorage.getItem("inkwell_visitor_id");
-  if (!id) {
-    id = crypto.randomUUID();
-    localStorage.setItem("inkwell_visitor_id", id);
-  }
-  return id;
-}
-
 export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUrl, postExcerpt, categories }: ArticleEngagementProps) {
   const [liked, setLiked] = useState(false);
   const [disliked, setDisliked] = useState(false);
@@ -31,20 +22,12 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
   const [showSad, setShowSad] = useState(false);
   const { addBookmark, removeBookmark, isBookmarked } = useBookmarks();
   const saved = isBookmarked(postId);
-  const visitorId = getVisitorId();
 
   useEffect(() => {
-    // Check if already liked
-    supabase
-      .from("post_likes")
-      .select("id")
-      .eq("post_id", postId)
-      .eq("visitor_id", visitorId)
-      .then(({ data }) => {
-        if (data && data.length > 0) setLiked(true);
-      });
+    // Check localStorage for like
+    if (localStorage.getItem(`inkwell_like_${postId}`)) setLiked(true);
 
-    // Get likes count
+    // Get likes count from posts table
     supabase
       .from("posts")
       .select("likes_count")
@@ -55,20 +38,19 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
       });
 
     // Check dislike from localStorage
-    const disliked = localStorage.getItem(`inkwell_dislike_${postId}`);
-    if (disliked) setDisliked(true);
-  }, [postId, visitorId]);
+    if (localStorage.getItem(`inkwell_dislike_${postId}`)) setDisliked(true);
+  }, [postId]);
 
   const handleLike = async () => {
     if (liked) return; // permanent like
     setLiked(true);
     setDisliked(false);
     localStorage.removeItem(`inkwell_dislike_${postId}`);
+    localStorage.setItem(`inkwell_like_${postId}`, "1");
     setLikesCount((c) => c + 1);
     setShowCelebration(true);
     setTimeout(() => setShowCelebration(false), 1500);
 
-    await supabase.from("post_likes").insert({ post_id: postId, visitor_id: visitorId });
     await supabase.from("posts").update({ likes_count: likesCount + 1 }).eq("id", postId);
   };
 
@@ -212,7 +194,7 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
           <motion.div animate={saved ? { scale: [1, 1.3, 1] } : {}} transition={{ duration: 0.3 }}>
             {saved ? <BookmarkCheck className="h-4.5 w-4.5" /> : <Bookmark className="h-4.5 w-4.5 group-hover:scale-110 transition-transform" />}
           </motion.div>
-          <span className="hidden sm:inline">{saved ? "Saved" : "Save"}</span>
+          <span>{saved ? "Saved" : "Save"}</span>
         </button>
       </div>
     </div>

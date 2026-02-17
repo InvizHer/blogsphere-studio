@@ -7,8 +7,10 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 - 📝 Rich text post editor with image uploads
 - 🗂️ Category management and filtering
 - 💬 Nested comment system with likes
+- ❤️ Post likes & engagement system (like, unlike, celebrations)
+- 🔖 Bookmark / save posts locally (browser storage)
 - 🔗 Link shortener with password protection & click tracking
-- 📊 Admin dashboard with analytics
+- 📊 Admin dashboard with analytics & time filters
 - ⚙️ Dynamic site settings (title, favicon, SEO, social links)
 - 🔒 Role-based admin access with Row Level Security
 - 🌙 Dark/light mode support
@@ -117,8 +119,9 @@ inkwell/
 7. Verify by going to **Table Editor** — you should see these tables:
    - `user_roles`
    - `categories`
-   - `posts`
+   - `posts` (includes `likes_count` and `view_count`)
    - `post_categories`
+   - `post_likes`
    - `comments`
    - `comment_likes`
    - `site_settings`
