@@ -16,6 +16,7 @@ interface PostWithCategories {
   excerpt: string | null;
   thumbnail_url: string | null;
   published_at: string | null;
+  created_at: string;
   categories: string[];
 }
 
@@ -53,7 +54,7 @@ export default function Projects() {
     setLoading(true);
     let q = supabase
       .from("posts")
-      .select("id, title, slug, excerpt, thumbnail_url, published_at")
+      .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
       .eq("status", "published")
       .eq("is_project", true)
       .order("published_at", { ascending: false, nullsFirst: false })
@@ -212,7 +213,7 @@ export default function Projects() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {visiblePosts.map((post, i) => (
                 <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
-                  <ProjectCard {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
+                  <ProjectCard {...post} publishedAt={post.published_at || post.created_at} thumbnailUrl={post.thumbnail_url} />
                 </motion.div>
               ))}
             </div>

@@ -20,6 +20,7 @@ interface PostWithCategories {
   excerpt: string | null;
   thumbnail_url: string | null;
   published_at: string | null;
+  created_at: string;
   categories: string[];
 }
 
@@ -74,7 +75,7 @@ export default function Index() {
       setLoading(true);
       const { data: posts } = await supabase
         .from("posts")
-        .select("id, title, slug, excerpt, thumbnail_url, published_at")
+        .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
         .eq("status", "published")
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
@@ -98,7 +99,7 @@ export default function Index() {
 
       const { data: projects } = await supabase
         .from("posts")
-        .select("id, title, slug, excerpt, thumbnail_url, published_at")
+        .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
         .eq("status", "published")
         .eq("is_project", true)
         .order("published_at", { ascending: false, nullsFirst: false })
@@ -222,7 +223,7 @@ export default function Index() {
               ? Array.from({ length: 6 }).map((_, i) => <PostCardSkeleton key={i} />)
               : recentPosts.map((post, i) => (
                   <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06 }}>
-                    <PostCard id={post.id} {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
+                    <PostCard id={post.id} {...post} publishedAt={post.published_at || post.created_at} thumbnailUrl={post.thumbnail_url} />
                   </motion.div>
                 ))}
           </div>
@@ -259,7 +260,7 @@ export default function Index() {
                 ? Array.from({ length: 3 }).map((_, i) => <ProjectCardSkeleton key={i} />)
                 : recentProjects.map((post, i) => (
                     <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06 }}>
-                      <ProjectCard {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
+                      <ProjectCard {...post} publishedAt={post.published_at || post.created_at} thumbnailUrl={post.thumbnail_url} />
                     </motion.div>
                   ))}
             </div>
