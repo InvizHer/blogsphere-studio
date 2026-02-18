@@ -64,25 +64,26 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
   };
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-card">
-      <div className="flex flex-wrap items-center justify-center gap-2 p-4 sm:gap-3 sm:p-5">
-        {/* Like */}
+    <div className="flex items-center justify-between gap-3">
+      {/* Left: Like + Comment */}
+      <div className="flex items-center gap-2">
+        {/* Like button */}
         <div className="relative">
           <button
             onClick={handleLike}
             disabled={liked}
-            className={`group relative flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium transition-all duration-300 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
+            className={`group relative flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
               liked
                 ? "border-red-300 bg-red-50 text-red-500 dark:border-red-500/30 dark:bg-red-500/10"
                 : "border-border bg-background text-muted-foreground hover:border-red-300 hover:bg-red-50 hover:text-red-500 dark:hover:border-red-500/30 dark:hover:bg-red-500/10"
             }`}
           >
             <motion.div animate={liked ? { scale: [1, 1.5, 1] } : {}} transition={{ duration: 0.4 }}>
-              <Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 transition-all ${liked ? "fill-red-500 text-red-500" : "group-hover:scale-110"}`} />
+              <Heart className={`h-4 w-4 shrink-0 transition-all ${liked ? "fill-red-500 text-red-500" : "group-hover:scale-110"}`} />
             </motion.div>
-            <span>Likes</span>
+            <span className="whitespace-nowrap">Likes</span>
             {likesCount > 0 && (
-              <span className="flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-100 px-1 text-[10px] font-bold text-red-600 sm:h-5 sm:min-w-[20px] sm:px-1.5 sm:text-[11px] dark:bg-red-500/20 dark:text-red-400">
+              <span className="flex h-5 min-w-[20px] shrink-0 items-center justify-center rounded-full bg-red-100 px-1.5 text-[11px] font-bold text-red-600 dark:bg-red-500/20 dark:text-red-400">
                 {likesCount}
               </span>
             )}
@@ -115,30 +116,33 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
           </AnimatePresence>
         </div>
 
-        {/* Comment */}
+        {/* Comment button */}
         <button
           onClick={handleScrollToComments}
-          className="group flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-2 text-xs font-medium text-muted-foreground transition-all duration-300 hover:border-primary/30 hover:bg-primary/5 hover:text-primary sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm"
+          className="group flex shrink-0 items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-all duration-300 hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
         >
-          <MessageCircle className="h-3.5 w-3.5 sm:h-4 sm:w-4 transition-transform group-hover:scale-110" />
-          <span>Comment</span>
-        </button>
-
-        {/* Save */}
-        <button
-          onClick={handleBookmark}
-          className={`group flex items-center gap-1.5 rounded-full border px-3 py-2 text-xs font-medium transition-all duration-300 sm:gap-2 sm:px-4 sm:py-2.5 sm:text-sm ${
-            saved
-              ? "border-primary/30 bg-primary/5 text-primary"
-              : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-          }`}
-        >
-          <motion.div animate={saved ? { scale: [1, 1.3, 1] } : {}} transition={{ duration: 0.3 }}>
-            {saved ? <BookmarkCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Bookmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 group-hover:scale-110 transition-transform" />}
-          </motion.div>
-          <span>{saved ? "Saved" : "Save"}</span>
+          <MessageCircle className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
+          <span className="whitespace-nowrap">Comment</span>
         </button>
       </div>
+
+      {/* Right: Save button */}
+      <button
+        onClick={handleBookmark}
+        className={`group flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-300 ${
+          saved
+            ? "border-primary/30 bg-primary/5 text-primary"
+            : "border-border bg-background text-muted-foreground hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+        }`}
+      >
+        <motion.div animate={saved ? { scale: [1, 1.3, 1] } : {}} transition={{ duration: 0.3 }}>
+          {saved
+            ? <BookmarkCheck className="h-4 w-4 shrink-0" />
+            : <Bookmark className="h-4 w-4 shrink-0 transition-transform group-hover:scale-110" />
+          }
+        </motion.div>
+        <span className="whitespace-nowrap">{saved ? "Saved" : "Save"}</span>
+      </button>
     </div>
   );
 }
