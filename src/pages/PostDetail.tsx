@@ -162,9 +162,9 @@ export default function PostDetail() {
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
-            {/* Categories — always below article content */}
+            {/* Categories — below article content on desktop only */}
             {post.categories.length > 0 && (
-              <div className="mt-10 border-t border-border pt-6">
+              <div className="mt-10 hidden border-t border-border pt-6 lg:block">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Topics</p>
                 <div className="flex flex-wrap gap-2">
                   {post.categories.map((cat) => (
@@ -181,8 +181,29 @@ export default function PostDetail() {
               </div>
             )}
 
-            {/* Engagement (like, comment, save) */}
-            <div className="mt-8 border-t border-border pt-8">
+            {/* Mobile only: engagement, share, comments, related all stacked */}
+            <div className="mt-8 space-y-6 lg:hidden">
+              <div className="border-t border-border pt-6">
+                <ArticleEngagement
+                  postId={post.id}
+                  postTitle={post.title}
+                  postSlug={post.slug}
+                  postThumbnailUrl={post.thumbnail_url}
+                  postExcerpt={post.excerpt}
+                  categories={post.categories}
+                />
+              </div>
+              <SharePost title={post.title} slug={post.slug} />
+              <div data-comment-section>
+                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              </div>
+              <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
+            </div>
+          </article>
+
+          {/* Sidebar — desktop only: engagement, share, comments, related */}
+          <aside className="hidden lg:block lg:w-80 xl:w-96">
+            <div className="sticky top-24 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
               <ArticleEngagement
                 postId={post.id}
                 postTitle={post.title}
@@ -191,29 +212,10 @@ export default function PostDetail() {
                 postExcerpt={post.excerpt}
                 categories={post.categories}
               />
-            </div>
-
-            {/* Mobile: share, comments, related */}
-            <div className="mt-8 space-y-6 lg:hidden">
               <SharePost title={post.title} slug={post.slug} />
               <div data-comment-section>
                 <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
               </div>
-              <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
-            </div>
-
-            {/* Desktop: comments below content */}
-            <div className="mt-8 space-y-6 hidden lg:block">
-              <div data-comment-section>
-                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
-              </div>
-            </div>
-          </article>
-
-          {/* Sidebar — desktop only, sticky share/related */}
-          <aside className="hidden lg:block lg:w-80 xl:w-96">
-            <div className="sticky top-24 space-y-6">
-              <SharePost title={post.title} slug={post.slug} />
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
             </div>
           </aside>
