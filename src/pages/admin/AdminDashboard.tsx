@@ -83,16 +83,16 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Stats */}
-          <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="mb-8 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             {statCards.map((s) => (
-              <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+              <div key={s.label} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)]">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-xs font-medium text-muted-foreground">{s.label}</span>
-                  <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
-                    <s.icon className="h-3.5 w-3.5 text-primary-foreground" />
+                  <span className="text-[11px] sm:text-xs font-medium text-muted-foreground">{s.label}</span>
+                  <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
+                    <s.icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary-foreground" />
                   </div>
                 </div>
-                <p className="font-display text-2xl font-bold text-card-foreground">{s.value.toLocaleString()}</p>
+                <p className="font-display text-xl sm:text-2xl font-bold text-card-foreground">{s.value.toLocaleString()}</p>
               </div>
             ))}
           </div>
@@ -100,27 +100,36 @@ export default function AdminDashboard() {
           <div className="grid gap-6 lg:grid-cols-2">
             {/* Recent Posts */}
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-                <h2 className="font-display text-base font-semibold text-card-foreground">Recent Posts</h2>
-                <Link to="/admin/posts" className="text-sm font-medium text-primary hover:underline">View all</Link>
+              <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
+                <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Posts</h2>
+                <Link to="/admin/posts" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-border">
                 {recentPosts.length === 0 ? (
-                  <p className="px-6 py-8 text-center text-muted-foreground">No posts yet.</p>
+                  <p className="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm">No posts yet.</p>
                 ) : (
                   recentPosts.map((post) => (
-                    <div key={post.id} className="flex items-center justify-between px-5 py-3 sm:px-6">
+                    <div key={post.id} className="flex items-start sm:items-center justify-between gap-3 px-4 py-3 sm:px-6">
                       <div className="min-w-0 flex-1">
-                        <Link to={`/admin/posts/${post.id}`} className="block truncate text-sm font-medium text-card-foreground hover:text-primary">
+                        <Link to={`/admin/posts/${post.id}`} className="block text-sm font-medium text-card-foreground hover:text-primary line-clamp-2 sm:line-clamp-1">
                           {post.title}
                         </Link>
-                        <p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</p>
+                        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                          <p className="text-[11px] text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</p>
+                          <span className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Eye className="h-3 w-3" /> {post.view_count}
+                          </span>
+                          <span className="hidden sm:flex items-center gap-1 text-[11px] text-red-400">
+                            <Heart className="h-3 w-3" /> {post.likes_count || 0}
+                          </span>
+                        </div>
                       </div>
-                      <div className="ml-3 flex items-center gap-3">
-                        <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
+                      {/* Mobile: views & likes in column */}
+                      <div className="flex flex-col items-end gap-1 sm:hidden">
+                        <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                           <Eye className="h-3 w-3" /> {post.view_count}
                         </span>
-                        <span className="hidden items-center gap-1 text-xs text-red-400 sm:flex">
+                        <span className="flex items-center gap-1 text-[11px] text-red-400">
                           <Heart className="h-3 w-3" /> {post.likes_count || 0}
                         </span>
                       </div>
@@ -132,26 +141,32 @@ export default function AdminDashboard() {
 
             {/* Recent Comments */}
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-                <h2 className="font-display text-base font-semibold text-card-foreground">Recent Comments</h2>
-                <Link to="/admin/comments" className="text-sm font-medium text-primary hover:underline">View all</Link>
+              <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
+                <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Comments</h2>
+                <Link to="/admin/comments" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-border">
                 {recentComments.length === 0 ? (
-                  <p className="px-6 py-8 text-center text-muted-foreground">No comments yet.</p>
+                  <p className="px-4 sm:px-6 py-8 text-center text-muted-foreground text-sm">No comments yet.</p>
                 ) : (
                   recentComments.map((comment) => (
-                    <div key={comment.id} className="px-5 py-3 sm:px-6">
-                      <div className="flex items-start justify-between gap-3">
+                    <div key={comment.id} className="px-4 py-3 sm:px-6">
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold text-primary-foreground"
+                          style={{ background: `hsl(${(comment.author_name.charCodeAt(0) * 47) % 360}, 50%, 50%)` }}
+                        >
+                          {comment.author_name.charAt(0).toUpperCase()}
+                        </div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                             <span className="text-sm font-semibold text-card-foreground">{comment.author_name}</span>
                             <span className="text-[11px] text-muted-foreground">
                               {new Date(comment.created_at).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{comment.content}</p>
-                          <p className="mt-1 text-[11px] text-primary">
+                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">{comment.content}</p>
+                          <p className="mt-1 text-[11px] text-primary line-clamp-1">
                             on: {comment.post_title}
                           </p>
                         </div>
