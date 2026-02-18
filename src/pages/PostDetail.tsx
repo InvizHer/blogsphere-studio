@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Eye, Calendar, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
@@ -35,6 +35,7 @@ export default function PostDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState<PostData | null>(null);
   const [loading, setLoading] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const cleanSlug = slug?.replace(/\.html$/, "") || "";
 
@@ -65,6 +66,53 @@ export default function PostDetail() {
     };
     if (cleanSlug) fetchPost();
   }, [cleanSlug]);
+
+  // Enhance code blocks with sticky header + copy button
+  useEffect(() => {
+    if (!contentRef.current || !post) return;
+
+    const preBlocks = contentRef.current.querySelectorAll("pre");
+    preBlocks.forEach((pre) => {
+      // Avoid double-processing
+      if (pre.querySelector(".code-header")) return;
+
+      const code = pre.querySelector("code");
+      if (!code) return;
+
+      // Create header
+      const header = document.createElement("div");
+      header.className = "code-header";
+
+      const label = document.createElement("span");
+      label.className = "code-header-label";
+      label.textContent = "CODE";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "code-copy-btn";
+      copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy`;
+
+      let copied = false;
+      copyBtn.addEventListener("click", async () => {
+        if (copied) return;
+        try {
+          await navigator.clipboard.writeText(code.textContent || "");
+          copied = true;
+          copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+          copyBtn.style.color = "hsl(142, 70%, 55%)";
+          setTimeout(() => {
+            copied = false;
+            copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy`;
+            copyBtn.style.color = "";
+          }, 2000);
+        } catch {}
+      });
+
+      header.appendChild(label);
+      header.appendChild(copyBtn);
+      pre.insertBefore(header, code);
+    });
+  }, [post, contentRef]);
+
 
   if (loading) return <PostDetailSkeleton />;
 
@@ -158,6 +206,7 @@ export default function PostDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
+              ref={contentRef}
               className="prose-content max-w-none text-foreground [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:max-w-full [&_table]:overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
@@ -203,7 +252,7 @@ export default function PostDetail() {
 
           {/* Sidebar — desktop only: engagement, share, comments, related */}
           <aside className="hidden lg:block lg:w-80 xl:w-96">
-            <div className="sticky top-24 space-y-6 max-h-[calc(100vh-8rem)] overflow-y-auto">
+            <div className="sticky top-24 space-y-6">
               <ArticleEngagement
                 postId={post.id}
                 postTitle={post.title}
