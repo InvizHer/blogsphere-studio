@@ -112,7 +112,7 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
             </div>
           )}
 
-          <h3 className="mb-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
+          <h3 className="mb-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg line-clamp-2">
             {title}
           </h3>
 

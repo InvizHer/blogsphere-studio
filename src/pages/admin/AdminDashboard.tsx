@@ -1,18 +1,30 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, FolderOpen, Eye, Heart, Plus, CheckCircle, Clock } from "lucide-react";
+import { FileText, FolderOpen, Eye, Heart, Plus, CheckCircle, Clock, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
+interface RecentComment {
+  id: string;
+  author_name: string;
+  content: string;
+  created_at: string;
+  post_id: string;
+  post_title?: string;
+}
+
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalLikes: 0 });
+  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalLikes: 0, totalComments: 0 });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
+  const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
 
   useEffect(() => {
-    const fetch = async () => {
-      const [postsRes, recentRes] = await Promise.all([
+    const fetchAll = async () => {
+      const [postsRes, recentRes, commentsCountRes, recentCommentsRes] = await Promise.all([
         supabase.from("posts").select("id, view_count, likes_count, status"),
         supabase.from("posts").select("id, title, slug, status, created_at, view_count, likes_count").order("created_at", { ascending: false }).limit(5),
+        supabase.from("comments").select("id", { count: "exact", head: true }),
+        supabase.from("comments").select("id, author_name, content, created_at, post_id").order("created_at", { ascending: false }).limit(5),
       ]);
 
       const posts = postsRes.data || [];
@@ -24,10 +36,20 @@ export default function AdminDashboard() {
         drafts: posts.filter((p) => p.status === "draft").length,
         totalViews,
         totalLikes,
+        totalComments: commentsCountRes.count || 0,
       });
       setRecentPosts(recentRes.data || []);
+
+      // Fetch post titles for recent comments
+      const comments = recentCommentsRes.data || [];
+      if (comments.length > 0) {
+        const postIds = [...new Set(comments.map((c) => c.post_id))];
+        const { data: postTitles } = await supabase.from("posts").select("id, title").in("id", postIds);
+        const titleMap = new Map(postTitles?.map((p) => [p.id, p.title]) || []);
+        setRecentComments(comments.map((c) => ({ ...c, post_title: titleMap.get(c.post_id) || "Unknown" })));
+      }
     };
-    fetch();
+    fetchAll();
   }, []);
 
   const statCards = [
@@ -36,6 +58,7 @@ export default function AdminDashboard() {
     { label: "Drafts", value: stats.drafts, icon: Clock, gradient: "from-accent to-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, gradient: "from-primary to-primary" },
     { label: "Total Likes", value: stats.totalLikes, icon: Heart, gradient: "from-accent to-primary" },
+    { label: "Comments", value: stats.totalComments, icon: MessageSquare, gradient: "from-primary to-accent" },
   ];
 
   return (
@@ -60,51 +83,83 @@ export default function AdminDashboard() {
           </Link>
 
           {/* Stats */}
-          <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+          <div className="mb-8 grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             {statCards.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-medium text-muted-foreground">{s.label}</span>
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
-                    <s.icon className="h-4 w-4 text-primary-foreground" />
+                  <span className="text-xs font-medium text-muted-foreground">{s.label}</span>
+                  <div className="flex h-8 w-8 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
+                    <s.icon className="h-3.5 w-3.5 text-primary-foreground" />
                   </div>
                 </div>
-                <p className="font-display text-3xl font-bold text-card-foreground">{s.value.toLocaleString()}</p>
+                <p className="font-display text-2xl font-bold text-card-foreground">{s.value.toLocaleString()}</p>
               </div>
             ))}
           </div>
 
-          {/* Recent Posts */}
-          <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
-            <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
-              <h2 className="font-display text-base font-semibold text-card-foreground sm:text-lg">Recent Posts</h2>
-              <Link to="/admin/posts" className="text-sm font-medium text-primary hover:underline">View all</Link>
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Recent Posts */}
+            <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+                <h2 className="font-display text-base font-semibold text-card-foreground">Recent Posts</h2>
+                <Link to="/admin/posts" className="text-sm font-medium text-primary hover:underline">View all</Link>
+              </div>
+              <div className="divide-y divide-border">
+                {recentPosts.length === 0 ? (
+                  <p className="px-6 py-8 text-center text-muted-foreground">No posts yet.</p>
+                ) : (
+                  recentPosts.map((post) => (
+                    <div key={post.id} className="flex items-center justify-between px-5 py-3 sm:px-6">
+                      <div className="min-w-0 flex-1">
+                        <Link to={`/admin/posts/${post.id}`} className="block truncate text-sm font-medium text-card-foreground hover:text-primary">
+                          {post.title}
+                        </Link>
+                        <p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</p>
+                      </div>
+                      <div className="ml-3 flex items-center gap-3">
+                        <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
+                          <Eye className="h-3 w-3" /> {post.view_count}
+                        </span>
+                        <span className="hidden items-center gap-1 text-xs text-red-400 sm:flex">
+                          <Heart className="h-3 w-3" /> {post.likes_count || 0}
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
-            <div className="divide-y divide-border">
-              {recentPosts.length === 0 ? (
-                <p className="px-6 py-8 text-center text-muted-foreground">No posts yet. Create your first post!</p>
-              ) : (
-                recentPosts.map((post) => (
-                  <div key={post.id} className="flex items-center justify-between px-5 py-3 sm:px-6">
-                    <div className="min-w-0 flex-1">
-                      <Link to={`/admin/posts/${post.id}`} className="block truncate text-sm font-medium text-card-foreground hover:text-primary">
-                        {post.title}
-                      </Link>
-                      <p className="text-xs text-muted-foreground">
-                        {new Date(post.created_at).toLocaleDateString()}
-                      </p>
+
+            {/* Recent Comments */}
+            <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+              <div className="flex items-center justify-between border-b border-border px-5 py-4 sm:px-6">
+                <h2 className="font-display text-base font-semibold text-card-foreground">Recent Comments</h2>
+                <Link to="/admin/comments" className="text-sm font-medium text-primary hover:underline">View all</Link>
+              </div>
+              <div className="divide-y divide-border">
+                {recentComments.length === 0 ? (
+                  <p className="px-6 py-8 text-center text-muted-foreground">No comments yet.</p>
+                ) : (
+                  recentComments.map((comment) => (
+                    <div key={comment.id} className="px-5 py-3 sm:px-6">
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-semibold text-card-foreground">{comment.author_name}</span>
+                            <span className="text-[11px] text-muted-foreground">
+                              {new Date(comment.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{comment.content}</p>
+                          <p className="mt-1 text-[11px] text-primary">
+                            on: {comment.post_title}
+                          </p>
+                        </div>
+                      </div>
                     </div>
-                    <div className="ml-3 flex items-center gap-3">
-                      <span className="hidden items-center gap-1 text-xs text-muted-foreground sm:flex">
-                        <Eye className="h-3 w-3" /> {post.view_count}
-                      </span>
-                      <span className="hidden items-center gap-1 text-xs text-red-400 sm:flex">
-                        <Heart className="h-3 w-3" /> {post.likes_count || 0}
-                      </span>
-                    </div>
-                  </div>
-                ))
-              )}
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
