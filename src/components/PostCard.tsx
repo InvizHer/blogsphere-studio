@@ -104,7 +104,7 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
         <div className="flex flex-1 flex-col p-5">
           {categories && categories.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
-              {categories.map((cat) => (
+              {categories.slice(0, 3).map((cat) => (
                 <span key={cat} className="rounded-full border border-primary/15 bg-primary/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
                   {cat}
                 </span>
