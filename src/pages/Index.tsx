@@ -344,48 +344,79 @@ export default function Index() {
 
         {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40">
-            <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-10 text-center">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
+          <section className="border-t border-border/40 relative overflow-hidden">
+            {/* Background accent */}
+            <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ background: "var(--gradient-hero)" }} />
+
+            <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+              {/* Header */}
+              <div className="mb-12 flex flex-col items-center text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
                   <Code2 className="h-3.5 w-3.5 text-accent" />
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
                   Explore <span className="gradient-text">Topics</span>
                 </h2>
-                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Dive into popular collections organized by technology.</p>
+                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+                  Dive into curated collections organized by technology and domain.
+                </p>
               </div>
 
-              <div className="flex flex-wrap justify-center gap-3">
-                {loading
-                  ? Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)
-                  : visibleTopics.map((cat, i) => {
-                      const color = topicColors[i % topicColors.length];
-                      return (
-                        <motion.div key={cat.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
-                          <Link
-                            to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                            className={`group inline-flex items-center gap-2.5 rounded-full border ${color.border} bg-card px-4 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md`}
-                          >
-                            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${color.bg} ${color.text} text-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
-                              <i className={getTopicIcon(cat.name)}></i>
-                            </div>
-                            <span className="font-display text-sm font-semibold text-foreground">{cat.name}</span>
-                            <span className={`flex h-5 min-w-[20px] items-center justify-center rounded-full ${color.bg} px-1.5 text-[11px] font-bold ${color.text}`}>
-                              {cat.postCount}
-                            </span>
-                          </Link>
-                        </motion.div>
-                      );
-                    })}
-              </div>
+              {/* Topic grid */}
+              {loading ? (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
+                    <TopicCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                  {visibleTopics.map((cat, i) => {
+                    const color = topicColors[i % topicColors.length];
+                    return (
+                      <motion.div
+                        key={cat.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.35, delay: i * 0.05 }}
+                      >
+                        <Link
+                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                          className={`group relative flex flex-col gap-3 overflow-hidden rounded-2xl border ${color.border} bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                        >
+                          {/* Subtle gradient bg on hover */}
+                          <div className={`pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${color.bg} rounded-2xl`} />
+
+                          {/* Icon */}
+                          <div className={`relative flex h-11 w-11 items-center justify-center rounded-xl ${color.bg} ${color.text} text-base transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                            <i className={getTopicIcon(cat.name)}></i>
+                          </div>
+
+                          {/* Info */}
+                          <div className="relative">
+                            <p className="font-display text-sm font-bold text-foreground leading-tight">{cat.name}</p>
+                            <p className={`mt-1 text-xs font-medium ${color.text}`}>
+                              {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
+                            </p>
+                          </div>
+
+                          {/* Arrow indicator */}
+                          <div className={`relative mt-auto flex h-6 w-6 items-center justify-center rounded-full ${color.bg} ${color.text} text-xs opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1`}>
+                            →
+                          </div>
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
 
               {categories.length > TOPICS_LIMIT && (
-                <div className="mt-8 flex justify-center">
+                <div className="mt-10 flex justify-center">
                   <Link
                     to="/posts"
-                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                    className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
                   >
                     View All Topics
                     <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
