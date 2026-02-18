@@ -346,56 +346,54 @@ export default function Index() {
         {visibleTopics.length > 0 && (
           <section className="border-t border-border/40">
             <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
-                    <Code2 className="h-3.5 w-3.5 text-accent" />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
-                  </div>
-                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                    Explore <span className="gradient-text">Topics</span>
-                  </h2>
-                  <p className="mt-2 max-w-md text-sm text-muted-foreground">Dive into popular collections organized by technology.</p>
+              <div className="mb-10 text-center">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
+                  <Code2 className="h-3.5 w-3.5 text-accent" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
                 </div>
-                {categories.length > TOPICS_LIMIT && (
-                  <Link
-                    to="/posts"
-                    className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5 shrink-0"
-                  >
-                    View All
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
-                      {categories.length}
-                    </span>
-                  </Link>
-                )}
+                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                  Explore <span className="gradient-text">Topics</span>
+                </h2>
+                <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">Dive into popular collections organized by technology.</p>
               </div>
 
-              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
+              <div className="flex flex-wrap justify-center gap-3">
                 {loading
                   ? Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)
                   : visibleTopics.map((cat, i) => {
                       const color = topicColors[i % topicColors.length];
                       return (
-                        <motion.div key={cat.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
+                        <motion.div key={cat.id} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
                           <Link
                             to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                            className={`group relative flex flex-col items-center gap-3 rounded-2xl border ${color.border} bg-card p-5 sm:p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]`}
+                            className={`group inline-flex items-center gap-2.5 rounded-full border ${color.border} bg-card px-4 py-2.5 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md`}
                           >
-                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color.bg} ${color.text} text-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                            <div className={`flex h-8 w-8 items-center justify-center rounded-full ${color.bg} ${color.text} text-sm transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6`}>
                               <i className={getTopicIcon(cat.name)}></i>
                             </div>
-                            <div>
-                              <h3 className="font-display text-sm font-bold text-foreground">{cat.name}</h3>
-                              <div className="mt-1 flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                                <TrendingUp className="h-3 w-3" />
-                                <span>{cat.postCount} {cat.postCount === 1 ? "post" : "posts"}</span>
-                              </div>
-                            </div>
+                            <span className="font-display text-sm font-semibold text-foreground">{cat.name}</span>
+                            <span className={`flex h-5 min-w-[20px] items-center justify-center rounded-full ${color.bg} px-1.5 text-[11px] font-bold ${color.text}`}>
+                              {cat.postCount}
+                            </span>
                           </Link>
                         </motion.div>
                       );
                     })}
               </div>
+
+              {categories.length > TOPICS_LIMIT && (
+                <div className="mt-8 flex justify-center">
+                  <Link
+                    to="/posts"
+                    className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                  >
+                    View All Topics
+                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                      {categories.length}
+                    </span>
+                  </Link>
+                </div>
+              )}
             </div>
           </section>
         )}
