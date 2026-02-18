@@ -104,6 +104,7 @@ CREATE TABLE IF NOT EXISTS public.post_likes (
   UNIQUE (post_id, visitor_id)
 );
 
+CREATE TABLE IF NOT EXISTS public.site_settings (
   id                   UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   site_title           TEXT NOT NULL DEFAULT 'Inkwell',
   site_description     TEXT NOT NULL DEFAULT 'A modern blog platform',
