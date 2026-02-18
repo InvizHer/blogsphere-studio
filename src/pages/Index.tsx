@@ -31,7 +31,7 @@ interface CategoryWithCount {
   postCount: number;
 }
 
-const TOPICS_LIMIT = 8;
+const TOPICS_LIMIT = 4;
 
 const topicIcons: Record<string, string> = {
   javascript: "fa-brands fa-js",
@@ -345,84 +345,99 @@ export default function Index() {
         {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
           <section className="border-t border-border/40 relative overflow-hidden">
-            {/* Background accent */}
-            <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ background: "var(--gradient-hero)" }} />
+            <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
 
             <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              {/* Header */}
-              <div className="mb-12 flex flex-col items-center text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
-                  <Code2 className="h-3.5 w-3.5 text-accent" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
+              {/* Header — split layout */}
+              <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
+                    <Code2 className="h-3.5 w-3.5 text-accent" />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
+                  </div>
+                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                    Explore <span className="gradient-text">Topics</span>
+                  </h2>
+                  <p className="mt-2 max-w-sm text-sm text-muted-foreground">
+                    Curated collections organized by technology.
+                  </p>
                 </div>
-                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                  Explore <span className="gradient-text">Topics</span>
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-                  Dive into curated collections organized by technology and domain.
-                </p>
+                {categories.filter(c => c.postCount > 0).length > TOPICS_LIMIT && (
+                  <Link
+                    to="/posts"
+                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                  >
+                    View All
+                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                      {categories.filter(c => c.postCount > 0).length}
+                    </span>
+                  </Link>
+                )}
               </div>
 
-              {/* Topic grid */}
+              {/* Topic grid — conceptual "spotlight" layout */}
               {loading ? (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-                  {Array.from({ length: 8 }).map((_, i) => (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {Array.from({ length: 4 }).map((_, i) => (
                     <TopicCardSkeleton key={i} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {visibleTopics.map((cat, i) => {
                     const color = topicColors[i % topicColors.length];
+                    const rank = i + 1;
                     return (
                       <motion.div
                         key={cat.id}
-                        initial={{ opacity: 0, y: 16 }}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.35, delay: i * 0.05 }}
+                        transition={{ duration: 0.4, delay: i * 0.08 }}
                       >
                         <Link
                           to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                          className={`group relative flex flex-col gap-3 overflow-hidden rounded-2xl border ${color.border} bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg`}
+                          className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/20 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.2)]"
                         >
-                          {/* Subtle gradient bg on hover */}
-                          <div className={`pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100 ${color.bg} rounded-2xl`} />
+                          {/* Top accent band */}
+                          <div className={`h-1 w-full transition-all duration-300 group-hover:h-1.5 ${color.bg.replace('/10', '')}`}
+                            style={{ background: `linear-gradient(90deg, ${['hsl(217,91%,60%)','hsl(271,81%,56%)','hsl(142,70%,45%)','hsl(30,90%,55%)'][i % 4]}, transparent)` }}
+                          />
 
-                          {/* Icon */}
-                          <div className={`relative flex h-11 w-11 items-center justify-center rounded-xl ${color.bg} ${color.text} text-base transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-                            <i className={getTopicIcon(cat.name)}></i>
-                          </div>
+                          <div className="flex flex-col gap-4 p-5">
+                            {/* Rank + icon row */}
+                            <div className="flex items-start justify-between">
+                              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${color.border} ${color.bg} ${color.text} text-xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
+                                <i className={getTopicIcon(cat.name)}></i>
+                              </div>
+                              <span className="font-mono text-3xl font-black leading-none text-foreground/[0.06] select-none transition-colors duration-300 group-hover:text-foreground/[0.10]">
+                                {String(rank).padStart(2, '0')}
+                              </span>
+                            </div>
 
-                          {/* Info */}
-                          <div className="relative">
-                            <p className="font-display text-sm font-bold text-foreground leading-tight">{cat.name}</p>
-                            <p className={`mt-1 text-xs font-medium ${color.text}`}>
-                              {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
-                            </p>
-                          </div>
+                            {/* Name */}
+                            <div>
+                              <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors duration-200 group-hover:text-primary">
+                                {cat.name}
+                              </h3>
+                              <p className={`mt-1 text-xs font-medium ${color.text}`}>
+                                {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
+                              </p>
+                            </div>
 
-                          {/* Arrow indicator */}
-                          <div className={`relative mt-auto flex h-6 w-6 items-center justify-center rounded-full ${color.bg} ${color.text} text-xs opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:translate-x-1`}>
-                            →
+                            {/* CTA row */}
+                            <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                Explore
+                              </span>
+                              <div className={`flex h-7 w-7 items-center justify-center rounded-full border ${color.border} ${color.bg} ${color.text} text-sm transition-all duration-300 group-hover:translate-x-0.5`}>
+                                →
+                              </div>
+                            </div>
                           </div>
                         </Link>
                       </motion.div>
                     );
                   })}
-                </div>
-              )}
-
-              {categories.length > TOPICS_LIMIT && (
-                <div className="mt-10 flex justify-center">
-                  <Link
-                    to="/posts"
-                    className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-3 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
-                  >
-                    View All Topics
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
-                      {categories.length}
-                    </span>
-                  </Link>
                 </div>
               )}
             </div>
