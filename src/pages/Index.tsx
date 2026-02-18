@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Zap, Code2, Layers } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Code2, Layers, TrendingUp } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -24,7 +24,14 @@ interface PostWithCategories {
   categories: string[];
 }
 
-const TOPICS_INITIAL = 6;
+interface CategoryWithCount {
+  id: string;
+  name: string;
+  slug: string;
+  postCount: number;
+}
+
+const TOPICS_LIMIT = 8;
 
 const topicIcons: Record<string, string> = {
   javascript: "fa-brands fa-js",
@@ -52,6 +59,17 @@ function getTopicIcon(name: string) {
   return fallbacks[name.charCodeAt(0) % fallbacks.length];
 }
 
+const topicColors = [
+  { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/20" },
+  { bg: "bg-purple-500/10", text: "text-purple-500", border: "border-purple-500/20" },
+  { bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20" },
+  { bg: "bg-orange-500/10", text: "text-orange-500", border: "border-orange-500/20" },
+  { bg: "bg-pink-500/10", text: "text-pink-500", border: "border-pink-500/20" },
+  { bg: "bg-cyan-500/10", text: "text-cyan-500", border: "border-cyan-500/20" },
+  { bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/20" },
+  { bg: "bg-indigo-500/10", text: "text-indigo-500", border: "border-indigo-500/20" },
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
@@ -65,8 +83,7 @@ export default function Index() {
   const navigate = useNavigate();
   const [recentPosts, setRecentPosts] = useState<PostWithCategories[]>([]);
   const [recentProjects, setRecentProjects] = useState<PostWithCategories[]>([]);
-  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([]);
-  const [showAllTopics, setShowAllTopics] = useState(false);
+  const [categories, setCategories] = useState<CategoryWithCount[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -122,14 +139,27 @@ export default function Index() {
         setRecentProjects(projectsWithCats);
       }
 
-      const { data: cats } = await supabase.from("categories").select("id, name, slug").order("name");
-      if (cats) setCategories(cats);
+      // Fetch categories with post counts, sorted by most posts
+      const { data: cats } = await supabase.from("categories").select("id, name, slug");
+      if (cats) {
+        const { data: pcAll } = await supabase.from("post_categories").select("category_id");
+        const countMap = new Map<string, number>();
+        pcAll?.forEach((pc: any) => {
+          countMap.set(pc.category_id, (countMap.get(pc.category_id) || 0) + 1);
+        });
+        const catsWithCount: CategoryWithCount[] = cats.map((c) => ({
+          ...c,
+          postCount: countMap.get(c.id) || 0,
+        }));
+        catsWithCount.sort((a, b) => b.postCount - a.postCount);
+        setCategories(catsWithCount);
+      }
       setLoading(false);
     };
     fetchData();
   }, []);
 
-  const visibleTopics = showAllTopics ? categories : categories.slice(0, TOPICS_INITIAL);
+  const visibleTopics = categories.filter(c => c.postCount > 0).slice(0, TOPICS_LIMIT);
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
@@ -153,7 +183,47 @@ export default function Index() {
           <div className="pointer-events-none absolute -top-32 left-1/2 -translate-x-1/2 h-[500px] w-[700px] rounded-full opacity-[0.07]" style={{ background: "var(--gradient-primary)", filter: "blur(100px)" }} />
 
           <div className="relative mx-auto max-w-7xl px-5 pb-16 pt-14 sm:px-8 md:pb-24 md:pt-20 lg:pb-28">
-            <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-20">
+            {/* Mobile: centered layout */}
+            <div className="lg:hidden">
+              <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="flex flex-col items-center text-center">
+                <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
+                  <Sparkles className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium text-foreground">{greeting} 👋 Buddy!</span>
+                </motion.div>
+
+                <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-4xl font-extrabold leading-[1.08] text-foreground sm:text-5xl">
+                  Code. Create.<br />
+                  <span className="gradient-text">Innovate.</span>
+                </motion.h1>
+
+                <motion.p variants={fadeUp} custom={2} className="mb-8 max-w-md text-base leading-relaxed text-muted-foreground">
+                  Your gateway to programming tutorials, innovative projects, and cutting-edge development resources.
+                </motion.p>
+
+                <motion.div variants={fadeUp} custom={3} className="mb-8 w-full max-w-md">
+                  <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
+                </motion.div>
+
+                <motion.div variants={fadeUp} custom={4} className="flex gap-3">
+                  <Link
+                    to="/posts"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
+                    style={{ background: "var(--gradient-primary)" }}
+                  >
+                    Browse Posts <ArrowRight className="h-4 w-4" />
+                  </Link>
+                  <Link
+                    to="/projects"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
+                  >
+                    <Layers className="h-4 w-4" /> Projects
+                  </Link>
+                </motion.div>
+              </motion.div>
+            </div>
+
+            {/* Desktop: two-column layout */}
+            <div className="hidden lg:grid lg:grid-cols-2 lg:gap-20 lg:items-center">
               <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
                 <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
                   <Sparkles className="h-4 w-4 text-primary" />
@@ -161,8 +231,8 @@ export default function Index() {
                   <span className="text-sm">✨</span>
                 </motion.div>
 
-                <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-4xl font-extrabold leading-[1.08] text-foreground sm:text-5xl md:text-6xl lg:text-7xl">
-                  Code. Create.{" "}<br className="hidden sm:block" />
+                <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-5xl font-extrabold leading-[1.08] text-foreground md:text-6xl lg:text-7xl">
+                  Code. Create.<br />
                   <span className="gradient-text">Innovate.</span>
                 </motion.h1>
 
@@ -170,12 +240,7 @@ export default function Index() {
                   Your gateway to programming tutorials, innovative projects, and cutting-edge development resources.
                 </motion.p>
 
-                {/* Terminal card — visible on mobile */}
-                <motion.div variants={fadeUp} custom={3} className="mb-8 lg:hidden">
-                  <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
-                </motion.div>
-
-                <motion.div variants={fadeUp} custom={4} className="flex flex-col gap-3 sm:flex-row">
+                <motion.div variants={fadeUp} custom={4} className="flex flex-row gap-3">
                   <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
@@ -192,12 +257,10 @@ export default function Index() {
                 </motion.div>
               </motion.div>
 
-              {/* Terminal card — desktop only */}
               <motion.div
                 initial={{ opacity: 0, x: 40 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.7, delay: 0.3 }}
-                className="hidden lg:block"
               >
                 <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
               </motion.div>
@@ -280,8 +343,8 @@ export default function Index() {
         </section>
 
         {/* ───── Explore Topics ───── */}
-        {categories.length > 0 && (
-          <section className="border-t border-border/40 bg-muted/30">
+        {visibleTopics.length > 0 && (
+          <section className="border-t border-border/40">
             <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
               <div className="mb-12 flex flex-col items-start gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
@@ -292,40 +355,46 @@ export default function Index() {
                   <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
                     Explore <span className="gradient-text">Topics</span>
                   </h2>
-                  <p className="mt-2 max-w-md text-sm text-muted-foreground">Dive into curated collections organized by technology.</p>
+                  <p className="mt-2 max-w-md text-sm text-muted-foreground">Dive into popular collections organized by technology.</p>
                 </div>
-                {categories.length > TOPICS_INITIAL && (
-                  <button
-                    onClick={() => setShowAllTopics(!showAllTopics)}
+                {categories.length > TOPICS_LIMIT && (
+                  <Link
+                    to="/posts"
                     className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5 shrink-0"
                   >
-                    {showAllTopics ? "Show Less" : "Show All"}
+                    View All
                     <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
                       {categories.length}
                     </span>
-                  </button>
+                  </Link>
                 )}
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4">
                 {loading
-                  ? Array.from({ length: 6 }).map((_, i) => <TopicCardSkeleton key={i} />)
-                  : visibleTopics.map((cat, i) => (
-                      <motion.div key={cat.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
-                        <Link
-                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                          className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/20 hover:-translate-y-0.5"
-                        >
-                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-transform duration-300 group-hover:scale-110">
-                            <i className={getTopicIcon(cat.name)}></i>
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <h3 className="font-display text-sm font-bold text-foreground">{cat.name}</h3>
-                            <p className="text-xs text-muted-foreground">Explore articles →</p>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    ))}
+                  ? Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)
+                  : visibleTopics.map((cat, i) => {
+                      const color = topicColors[i % topicColors.length];
+                      return (
+                        <motion.div key={cat.id} initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.04 }}>
+                          <Link
+                            to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                            className={`group relative flex flex-col items-center gap-3 rounded-2xl border ${color.border} bg-card p-5 sm:p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]`}
+                          >
+                            <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${color.bg} ${color.text} text-lg transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+                              <i className={getTopicIcon(cat.name)}></i>
+                            </div>
+                            <div>
+                              <h3 className="font-display text-sm font-bold text-foreground">{cat.name}</h3>
+                              <div className="mt-1 flex items-center justify-center gap-1 text-xs text-muted-foreground">
+                                <TrendingUp className="h-3 w-3" />
+                                <span>{cat.postCount} {cat.postCount === 1 ? "post" : "posts"}</span>
+                              </div>
+                            </div>
+                          </Link>
+                        </motion.div>
+                      );
+                    })}
               </div>
             </div>
           </section>
