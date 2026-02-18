@@ -64,7 +64,7 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
   };
 
   return (
-    <div className="flex items-center justify-between gap-3">
+    <div className="flex items-center gap-3">
       {/* Left: Like + Comment */}
       <div className="flex items-center gap-2">
         {/* Like button */}
