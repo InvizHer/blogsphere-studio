@@ -162,26 +162,27 @@ export default function PostDetail() {
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
-            {/* Mobile: engagement, share, comments, related */}
-            <div className="mt-10 space-y-6 lg:hidden">
-              <div className="border-t border-border pt-8">
-                <ArticleEngagement
-                  postId={post.id}
-                  postTitle={post.title}
-                  postSlug={post.slug}
-                  postThumbnailUrl={post.thumbnail_url}
-                  postExcerpt={post.excerpt}
-                  categories={post.categories}
-                />
+            {/* Categories — always below article content */}
+            {post.categories.length > 0 && (
+              <div className="mt-10 border-t border-border pt-6">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Topics</p>
+                <div className="flex flex-wrap gap-2">
+                  {post.categories.map((cat) => (
+                    <Link
+                      key={cat}
+                      to={`/posts?category=${encodeURIComponent(cat.toLowerCase())}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-3.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
               </div>
-              <SharePost title={post.title} slug={post.slug} />
-              <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
-              <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
-            </div>
-          </article>
+            )}
 
-          <aside className="hidden lg:block lg:w-80 xl:w-96">
-            <div className="sticky top-24 space-y-6">
+            {/* Engagement (like, comment, save) */}
+            <div className="mt-8 border-t border-border pt-8">
               <ArticleEngagement
                 postId={post.id}
                 postTitle={post.title}
@@ -190,8 +191,29 @@ export default function PostDetail() {
                 postExcerpt={post.excerpt}
                 categories={post.categories}
               />
+            </div>
+
+            {/* Mobile: share, comments, related */}
+            <div className="mt-8 space-y-6 lg:hidden">
               <SharePost title={post.title} slug={post.slug} />
-              <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              <div data-comment-section>
+                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              </div>
+              <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
+            </div>
+
+            {/* Desktop: comments below content */}
+            <div className="mt-8 space-y-6 hidden lg:block">
+              <div data-comment-section>
+                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              </div>
+            </div>
+          </article>
+
+          {/* Sidebar — desktop only, sticky share/related */}
+          <aside className="hidden lg:block lg:w-80 xl:w-96">
+            <div className="sticky top-24 space-y-6">
+              <SharePost title={post.title} slug={post.slug} />
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
             </div>
           </aside>
