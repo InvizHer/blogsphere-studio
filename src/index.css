@@ -101,8 +101,12 @@
   .prose-content ol { @apply list-decimal pl-5 sm:pl-6 mb-4 text-sm sm:text-base; }
   .prose-content li { @apply mb-1; }
   .prose-content blockquote { @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground text-sm sm:text-base; }
-  .prose-content pre { @apply bg-secondary rounded-xl mb-4 overflow-hidden text-xs sm:text-sm max-w-full relative; font-family: 'Space Grotesk', monospace; }
-  .prose-content pre code { @apply block p-4 sm:p-5 overflow-x-auto max-h-[500px] overflow-y-auto bg-transparent px-0 py-0 break-normal; }
+  .prose-content pre { @apply rounded-xl mb-6 overflow-hidden text-xs sm:text-sm max-w-full relative; font-family: 'Space Grotesk', monospace; background: hsl(225, 35%, 8%); border: 1px solid hsl(225, 25%, 16%); }
+  .prose-content pre .code-header { @apply flex items-center justify-between px-4 py-2.5 border-b; font-family: 'DM Sans', sans-serif; border-color: hsl(225, 25%, 16%); }
+  .prose-content pre .code-header-label { @apply text-[11px] font-semibold uppercase tracking-widest; color: hsl(225, 20%, 55%); }
+  .prose-content pre .code-copy-btn { @apply flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200; background: hsl(225, 30%, 14%); color: hsl(225, 20%, 70%); border: 1px solid hsl(225, 25%, 20%); }
+  .prose-content pre .code-copy-btn:hover { background: hsl(225, 30%, 18%); color: hsl(0, 0%, 95%); }
+  .prose-content pre code { @apply block overflow-x-auto break-normal; padding: 1rem 1.25rem; color: hsl(220, 20%, 80%); white-space: pre; tab-size: 2; }
   .prose-content code { @apply bg-secondary px-1.5 py-0.5 rounded text-xs sm:text-sm break-all; font-family: 'Space Grotesk', monospace; }
   .prose-content a { @apply text-primary underline hover:no-underline break-all; }
   .prose-content img { @apply rounded-lg my-4 max-w-full h-auto; }
