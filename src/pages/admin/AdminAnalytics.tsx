@@ -1,9 +1,11 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
-import { Eye, FileText, FolderOpen, TrendingUp, BarChart3, Heart, Calendar } from "lucide-react";
+import { Eye, FileText, FolderOpen, TrendingUp, BarChart3 } from "lucide-react";
 import {
+  ChartContainer,
   ChartTooltip,
+  ChartTooltipContent,
 } from "@/components/ui/chart";
 import {
   BarChart,
@@ -11,6 +13,8 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
+  LineChart,
+  Line,
   PieChart,
   Pie,
   Cell,
@@ -24,7 +28,6 @@ interface PostStat {
   title: string;
   slug: string;
   view_count: number;
-  likes_count: number;
   status: string;
   created_at: string;
   published_at: string | null;
@@ -35,8 +38,6 @@ interface CategoryStat {
   count: number;
 }
 
-type TimeFilter = "today" | "7d" | "30d" | "1y" | "all";
-
 const CHART_COLORS = [
   "hsl(230, 75%, 58%)",
   "hsl(265, 70%, 62%)",
@@ -46,44 +47,25 @@ const CHART_COLORS = [
   "hsl(45, 80%, 55%)",
 ];
 
-const TIME_FILTERS: { label: string; value: TimeFilter }[] = [
-  { label: "Today", value: "today" },
-  { label: "7 Days", value: "7d" },
-  { label: "30 Days", value: "30d" },
-  { label: "1 Year", value: "1y" },
-  { label: "All Time", value: "all" },
-];
-
-function getFilterDate(filter: TimeFilter): Date | null {
-  const now = new Date();
-  switch (filter) {
-    case "today": return new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    case "7d": { const d = new Date(); d.setDate(d.getDate() - 7); return d; }
-    case "30d": { const d = new Date(); d.setDate(d.getDate() - 30); return d; }
-    case "1y": { const d = new Date(); d.setFullYear(d.getFullYear() - 1); return d; }
-    case "all": return null;
-  }
-}
-
 export default function AdminAnalytics() {
-  const [allPosts, setAllPosts] = useState<PostStat[]>([]);
+  const [posts, setPosts] = useState<PostStat[]>([]);
   const [categoryStats, setCategoryStats] = useState<CategoryStat[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeFilter, setTimeFilter] = useState<TimeFilter>("all");
 
   useEffect(() => {
     const fetchAll = async () => {
       setLoading(true);
 
       const [postsRes, catsRes, pcRes] = await Promise.all([
-        supabase.from("posts").select("id, title, slug, view_count, likes_count, status, created_at, published_at").order("created_at", { ascending: true }),
+        supabase.from("posts").select("id, title, slug, view_count, status, created_at, published_at").order("created_at", { ascending: true }),
         supabase.from("categories").select("id, name"),
         supabase.from("post_categories").select("category_id, post_id"),
       ]);
 
-      const postsData = (postsRes.data || []) as PostStat[];
-      setAllPosts(postsData);
+      const postsData = postsRes.data || [];
+      setPosts(postsData);
 
+      // Category stats
       const catMap = new Map<string, string>();
       (catsRes.data || []).forEach((c: any) => catMap.set(c.id, c.name));
 
@@ -104,39 +86,32 @@ export default function AdminAnalytics() {
     fetchAll();
   }, []);
 
-  // Filter posts by time
-  const posts = useMemo(() => {
-    const filterDate = getFilterDate(timeFilter);
-    if (!filterDate) return allPosts;
-    return allPosts.filter((p) => new Date(p.created_at) >= filterDate);
-  }, [allPosts, timeFilter]);
-
   // Derived stats
   const totalViews = posts.reduce((sum, p) => sum + (p.view_count || 0), 0);
-  const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
   const publishedPosts = posts.filter((p) => p.status === "published");
   const draftPosts = posts.filter((p) => p.status === "draft");
   const avgViews = publishedPosts.length > 0 ? Math.round(totalViews / publishedPosts.length) : 0;
 
+  // Top posts by views
   const topPosts = [...posts].sort((a, b) => b.view_count - a.view_count).slice(0, 10);
 
+  // Views bar chart data
   const viewsBarData = topPosts.map((p) => ({
     name: p.title.length > 20 ? p.title.substring(0, 20) + "…" : p.title,
     views: p.view_count,
-    likes: p.likes_count || 0,
     fullTitle: p.title,
   }));
 
+  // Posts over time (monthly)
   const monthlyData = (() => {
-    const months: Record<string, { published: number; draft: number; views: number; likes: number }> = {};
+    const months: Record<string, { published: number; draft: number; views: number }> = {};
     posts.forEach((p) => {
       const date = new Date(p.created_at);
       const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-      if (!months[key]) months[key] = { published: 0, draft: 0, views: 0, likes: 0 };
+      if (!months[key]) months[key] = { published: 0, draft: 0, views: 0 };
       if (p.status === "published") months[key].published++;
       else months[key].draft++;
       months[key].views += p.view_count || 0;
-      months[key].likes += p.likes_count || 0;
     });
     return Object.entries(months)
       .sort(([a], [b]) => a.localeCompare(b))
@@ -146,6 +121,7 @@ export default function AdminAnalytics() {
       }));
   })();
 
+  // Status breakdown for pie chart
   const statusData = [
     { name: "Published", value: publishedPosts.length },
     { name: "Draft", value: draftPosts.length },
@@ -155,7 +131,6 @@ export default function AdminAnalytics() {
     { label: "Total Posts", value: posts.length, icon: FileText, color: "hsl(230, 75%, 58%)" },
     { label: "Published", value: publishedPosts.length, icon: TrendingUp, color: "hsl(160, 60%, 48%)" },
     { label: "Total Views", value: totalViews, icon: Eye, color: "hsl(265, 70%, 62%)" },
-    { label: "Total Likes", value: totalLikes, icon: Heart, color: "hsl(0, 72%, 51%)" },
     { label: "Avg Views/Post", value: avgViews, icon: BarChart3, color: "hsl(200, 70%, 55%)" },
     { label: "Categories", value: categoryStats.length, icon: FolderOpen, color: "hsl(330, 60%, 55%)" },
     { label: "Drafts", value: draftPosts.length, icon: FileText, color: "hsl(45, 80%, 55%)" },
@@ -165,29 +140,9 @@ export default function AdminAnalytics() {
     <div className="flex min-h-screen">
       <AdminSidebar />
       <div className="flex-1 overflow-auto bg-background">
-        <div className="flex flex-col gap-3 border-b border-border bg-card px-4 py-5 sm:flex-row sm:items-center sm:justify-between sm:px-8 sm:py-6 lg:pl-8 pl-16">
-          <div>
-            <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">Analytics</h1>
-            <p className="text-sm text-muted-foreground">Track your blog performance with real-time data</p>
-          </div>
-          {/* Time Filter */}
-          <div className="flex items-center gap-1 rounded-xl border border-border bg-muted/30 p-1">
-            {TIME_FILTERS.map((f) => (
-              <button
-                key={f.value}
-                onClick={() => setTimeFilter(f.value)}
-                className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                  timeFilter === f.value
-                    ? "text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-background"
-                }`}
-                style={timeFilter === f.value ? { background: "var(--gradient-primary)" } : undefined}
-              >
-                {f.value === timeFilter && <Calendar className="h-3 w-3" />}
-                {f.label}
-              </button>
-            ))}
-          </div>
+        <div className="border-b border-border bg-card px-4 py-5 sm:px-8 sm:py-6 lg:pl-8 pl-16">
+          <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">Analytics</h1>
+          <p className="text-sm text-muted-foreground">Track your blog performance with real-time data</p>
         </div>
 
         {loading ? (
@@ -197,7 +152,7 @@ export default function AdminAnalytics() {
         ) : (
           <div className="p-4 sm:p-8 space-y-6">
             {/* Stat Cards */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {statCards.map((s) => (
                 <div key={s.label} className="rounded-2xl border border-border bg-card p-4 shadow-[var(--shadow-card)]">
                   <div className="mb-2 flex items-center justify-between">
@@ -216,9 +171,9 @@ export default function AdminAnalytics() {
 
             {/* Charts Row 1 */}
             <div className="grid gap-6 lg:grid-cols-2">
-              {/* Top Posts by Views & Likes */}
+              {/* Top Posts by Views */}
               <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                <h3 className="mb-4 font-display text-base font-semibold text-card-foreground">Top Posts by Views & Likes</h3>
+                <h3 className="mb-4 font-display text-base font-semibold text-card-foreground">Top Posts by Views</h3>
                 {viewsBarData.length > 0 ? (
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
@@ -238,13 +193,12 @@ export default function AdminAnalytics() {
                             return (
                               <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-lg">
                                 <p className="font-medium text-card-foreground">{d.fullTitle}</p>
-                                <p className="text-muted-foreground">{d.views} views · {d.likes} likes</p>
+                                <p className="text-muted-foreground">{d.views} views</p>
                               </div>
                             );
                           }}
                         />
                         <Bar dataKey="views" radius={[0, 6, 6, 0]} fill="url(#barGradient)" />
-                        <Bar dataKey="likes" radius={[0, 4, 4, 0]} fill="hsl(0, 72%, 51%)" opacity={0.7} />
                         <defs>
                           <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
                             <stop offset="0%" stopColor="hsl(230, 75%, 58%)" />
@@ -255,23 +209,13 @@ export default function AdminAnalytics() {
                     </ResponsiveContainer>
                   </div>
                 ) : (
-                  <p className="py-10 text-center text-sm text-muted-foreground">No data yet</p>
+                  <p className="py-10 text-center text-sm text-muted-foreground">No view data yet</p>
                 )}
-                <div className="mt-3 flex items-center justify-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(230, 75%, 58%)" }} />
-                    <span className="text-xs text-muted-foreground">Views</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0, 72%, 51%)" }} />
-                    <span className="text-xs text-muted-foreground">Likes</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Views & Likes Over Time */}
+              {/* Views Over Time */}
               <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                <h3 className="mb-4 font-display text-base font-semibold text-card-foreground">Views & Likes Over Time</h3>
+                <h3 className="mb-4 font-display text-base font-semibold text-card-foreground">Views Over Time</h3>
                 {monthlyData.length > 0 ? (
                   <div className="h-72">
                     <ResponsiveContainer width="100%" height="100%">
@@ -285,9 +229,7 @@ export default function AdminAnalytics() {
                             return (
                               <div className="rounded-lg border border-border bg-card px-3 py-2 text-xs shadow-lg">
                                 <p className="font-medium text-card-foreground">{label}</p>
-                                {payload.map((p: any) => (
-                                  <p key={p.dataKey} style={{ color: p.color }}>{p.dataKey}: {p.value}</p>
-                                ))}
+                                <p className="text-muted-foreground">{payload[0].value} views</p>
                               </div>
                             );
                           }}
@@ -297,29 +239,14 @@ export default function AdminAnalytics() {
                             <stop offset="0%" stopColor="hsl(230, 75%, 58%)" stopOpacity={0.3} />
                             <stop offset="100%" stopColor="hsl(265, 70%, 62%)" stopOpacity={0} />
                           </linearGradient>
-                          <linearGradient id="likesGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0.2} />
-                            <stop offset="100%" stopColor="hsl(0, 72%, 51%)" stopOpacity={0} />
-                          </linearGradient>
                         </defs>
                         <Area type="monotone" dataKey="views" stroke="hsl(230, 75%, 58%)" fill="url(#areaGradient)" strokeWidth={2} />
-                        <Area type="monotone" dataKey="likes" stroke="hsl(0, 72%, 51%)" fill="url(#likesGradient)" strokeWidth={2} />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
                 ) : (
                   <p className="py-10 text-center text-sm text-muted-foreground">No data yet</p>
                 )}
-                <div className="mt-3 flex items-center justify-center gap-4">
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(230, 75%, 58%)" }} />
-                    <span className="text-xs text-muted-foreground">Views</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-2.5 w-2.5 rounded-sm" style={{ background: "hsl(0, 72%, 51%)" }} />
-                    <span className="text-xs text-muted-foreground">Likes</span>
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -474,8 +401,8 @@ export default function AdminAnalytics() {
                     <tr className="border-b border-border bg-muted/50">
                       <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground sm:px-5">#</th>
                       <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground sm:px-5">Title</th>
+                      <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground sm:px-5">Status</th>
                       <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-medium text-muted-foreground sm:px-5">Views</th>
-                      <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-medium text-muted-foreground sm:px-5">Likes</th>
                       <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-medium text-muted-foreground sm:px-5">Created</th>
                     </tr>
                   </thead>
@@ -487,13 +414,15 @@ export default function AdminAnalytics() {
                           <p className="text-sm font-medium text-card-foreground">{post.title}</p>
                           <p className="text-xs text-muted-foreground">/{post.slug}</p>
                         </td>
+                        <td className="whitespace-nowrap px-4 py-3 sm:px-5">
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            post.status === "published" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+                          }`}>
+                            {post.status}
+                          </span>
+                        </td>
                         <td className="whitespace-nowrap px-4 py-3 text-right text-sm font-medium text-card-foreground sm:px-5">
                           {post.view_count.toLocaleString()}
-                        </td>
-                        <td className="whitespace-nowrap px-4 py-3 text-right sm:px-5">
-                          <span className="flex items-center justify-end gap-1 text-sm font-medium text-red-400">
-                            <Heart className="h-3 w-3" /> {(post.likes_count || 0).toLocaleString()}
-                          </span>
                         </td>
                         <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground sm:px-5">
                           {new Date(post.created_at).toLocaleDateString()}

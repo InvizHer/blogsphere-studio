@@ -59,14 +59,18 @@ export function ProjectCard({ title, slug, excerpt, thumbnailUrl, publishedAt, c
         )}
 
         {/* Date */}
-        <div className="mt-auto flex items-center gap-1.5 pt-3 border-t border-border/50 text-xs text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          <span>
-            {publishedAt
-              ? new Date(publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-              : "Recently"}
-          </span>
-        </div>
+        {publishedAt && (
+          <div className="mt-auto flex items-center gap-1.5 pt-3 border-t border-border/50 text-xs text-muted-foreground">
+            <Calendar className="h-3 w-3" />
+            <time dateTime={publishedAt}>
+              {new Date(publishedAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </time>
+          </div>
+        )}
       </Link>
     </article>
   );

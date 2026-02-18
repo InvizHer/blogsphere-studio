@@ -16,7 +16,6 @@ interface PostWithCategories {
   excerpt: string | null;
   thumbnail_url: string | null;
   published_at: string | null;
-  created_at: string;
   categories: string[];
 }
 
@@ -54,7 +53,7 @@ export default function Posts() {
     setLoading(true);
     let q = supabase
       .from("posts")
-      .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
+      .select("id, title, slug, excerpt, thumbnail_url, published_at")
       .eq("status", "published")
       .order("published_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
@@ -238,7 +237,7 @@ export default function Posts() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3, delay: i * 0.04 }}
                 >
-                  <PostCard {...post} publishedAt={post.published_at || post.created_at} thumbnailUrl={post.thumbnail_url} />
+                  <PostCard {...post} publishedAt={post.published_at} thumbnailUrl={post.thumbnail_url} />
                 </motion.div>
               ))}
             </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Plus, Pencil, Trash2, Eye, ExternalLink, Heart } from "lucide-react";
+import { Plus, Pencil, Trash2, Eye, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { toast } from "sonner";
@@ -68,8 +68,8 @@ export default function AdminPosts() {
                   <thead>
                     <tr className="border-b border-border bg-muted/50">
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground">Title</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground">Status</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground">Views</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground">Likes</th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-muted-foreground">Date</th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-muted-foreground">Actions</th>
                     </tr>
@@ -82,15 +82,13 @@ export default function AdminPosts() {
                           <p className="text-xs text-muted-foreground">/{post.slug}</p>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="flex items-center gap-1 text-sm text-muted-foreground">
-                            <Eye className="h-3.5 w-3.5" /> {post.view_count}
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                            post.status === "published" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+                          }`}>
+                            {post.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4">
-                          <span className="flex items-center gap-1 text-sm text-red-400">
-                            <Heart className="h-3.5 w-3.5" /> {post.likes_count || 0}
-                          </span>
-                        </td>
+                        <td className="px-6 py-4 text-sm text-muted-foreground">{post.view_count}</td>
                         <td className="px-6 py-4 text-sm text-muted-foreground">
                           {new Date(post.created_at).toLocaleDateString()}
                         </td>
@@ -125,12 +123,14 @@ export default function AdminPosts() {
                         <p className="truncate text-sm font-medium text-card-foreground">{post.title}</p>
                         <p className="text-xs text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</p>
                       </div>
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        post.status === "published" ? "bg-primary/10 text-primary" : "bg-accent/10 text-accent"
+                      }`}>
+                        {post.status}
+                      </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground"><Eye className="h-3 w-3" /> {post.view_count}</span>
-                        <span className="flex items-center gap-1 text-xs text-red-400"><Heart className="h-3 w-3" /> {post.likes_count || 0}</span>
-                      </div>
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground"><Eye className="h-3 w-3" /> {post.view_count} views</span>
                       <div className="flex gap-1">
                         <Link to={`/admin/posts/${post.id}/detail`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><Eye className="h-4 w-4" /></Link>
                         <Link to={`/posts/${post.slug}.html`} target="_blank" className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><ExternalLink className="h-4 w-4" /></Link>

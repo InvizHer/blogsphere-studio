@@ -7,10 +7,8 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 - 📝 Rich text post editor with image uploads
 - 🗂️ Category management and filtering
 - 💬 Nested comment system with likes
-- ❤️ Post likes & engagement system (like, unlike, celebrations)
-- 🔖 Bookmark / save posts locally (browser storage)
 - 🔗 Link shortener with password protection & click tracking
-- 📊 Admin dashboard with analytics & time filters
+- 📊 Admin dashboard with analytics
 - ⚙️ Dynamic site settings (title, favicon, SEO, social links)
 - 🔒 Role-based admin access with Row Level Security
 - 🌙 Dark/light mode support
@@ -119,9 +117,8 @@ inkwell/
 7. Verify by going to **Table Editor** — you should see these tables:
    - `user_roles`
    - `categories`
-   - `posts` (includes `likes_count` and `view_count`)
+   - `posts`
    - `post_categories`
-   - `post_likes`
    - `comments`
    - `comment_likes`
    - `site_settings`
@@ -603,27 +600,9 @@ No additional configuration needed.
 
 ### Deploy to Cloudflare Pages
 
-> **⚠️ CRITICAL PRE-STEP — Remove `bun.lockb` before deploying to Cloudflare!**
-> Cloudflare detects `bun.lockb` and tries `bun install --frozen-lockfile`, which fails. You MUST switch to npm first:
-> ```bash
-> # Remove bun lockfile from repo
-> git rm --cached bun.lockb 2>/dev/null; rm -f bun.lockb
->
-> # Add bun.lockb to .gitignore
-> echo "bun.lockb" >> .gitignore
->
-> # Generate npm lockfile
-> npm install
->
-> # Commit
-> git add package-lock.json .gitignore
-> git commit -m "Switch to npm for Cloudflare compatibility"
-> git push
-> ```
-
 #### Option A: Via Cloudflare Dashboard (Recommended)
 
-1. **Push your code to GitHub/GitLab** (make sure `bun.lockb` is removed per above)
+1. **Push your code to GitHub/GitLab**
 
 2. **Go to [dash.cloudflare.com](https://dash.cloudflare.com)**
 
@@ -632,34 +611,64 @@ No additional configuration needed.
 4. **Click "Create a project" → "Connect to Git"**
 
 5. **Select your repository**
+   - Authorize Cloudflare to access your GitHub/GitLab
+   - Select the `inkwell` repository
 
 6. **Configure build settings**
-   - **Project name:** `inkwell`
+   - **Project name:** `inkwell` (this becomes `inkwell.pages.dev`)
    - **Production branch:** `main`
    - **Framework preset:** None
    - **Build command:** `npm run build`
    - **Build output directory:** `dist`
    - **Root directory:** `/` (leave empty)
 
-7. **Add Environment Variables**
-   - Click "Add variable" for each:
+7. **⚠️ IMPORTANT: Set the install command**
+   - Expand **"Environment variables (advanced)"**
+   - Click **"Add variable"**
+   - Add this special variable to force npm:
+     ```
+     Variable name: NPM_FLAGS
+     Value: --prefer-offline
+     ```
+   - **Also add this variable:**
      ```
      Variable name: NODE_VERSION
      Value: 18
+     ```
 
+8. **Add Environment Variables**
+   - Click "Add variable" for each:
+     ```
      Variable name: VITE_SUPABASE_URL
      Value: https://YOUR_PROJECT_REF.supabase.co
-
+     
      Variable name: VITE_SUPABASE_PUBLISHABLE_KEY
      Value: eyJhbGciOiJIUzI1NiIsIn...
-
+     
      Variable name: VITE_SUPABASE_PROJECT_ID
      Value: YOUR_PROJECT_REF
      ```
 
-8. **Click "Save and Deploy"**
+9. **Click "Save and Deploy"**
 
-9. **Your site is live** at `https://inkwell.pages.dev`
+10. **Wait for the build** (2-5 minutes)
+
+11. **Your site is live** at `https://inkwell.pages.dev`
+
+> **⚠️ Fix for "lockfile" errors on Cloudflare:** If you see errors about `bun.lockb` or frozen lockfile, delete the `bun.lockb` file from your repository and generate a `package-lock.json` instead:
+> ```bash
+> # Remove bun lockfile
+> rm bun.lockb
+> 
+> # Generate npm lockfile
+> npm install
+> 
+> # Commit the change
+> git add package-lock.json .gitignore
+> git rm bun.lockb
+> git commit -m "Switch to npm lockfile for Cloudflare compatibility"
+> git push
+> ```
 
 #### Option B: Via Wrangler CLI
 

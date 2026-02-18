@@ -151,35 +151,6 @@ export type Database = {
           },
         ]
       }
-      post_likes: {
-        Row: {
-          created_at: string
-          id: string
-          post_id: string
-          visitor_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          post_id: string
-          visitor_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          post_id?: string
-          visitor_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "post_likes_post_id_fkey"
-            columns: ["post_id"]
-            isOneToOne: false
-            referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       posts: {
         Row: {
           author_id: string | null
@@ -189,7 +160,6 @@ export type Database = {
           excerpt: string | null
           id: string
           is_project: boolean
-          likes_count: number
           published_at: string | null
           slug: string
           status: string
@@ -206,7 +176,6 @@ export type Database = {
           excerpt?: string | null
           id?: string
           is_project?: boolean
-          likes_count?: number
           published_at?: string | null
           slug: string
           status?: string
@@ -223,7 +192,6 @@ export type Database = {
           excerpt?: string | null
           id?: string
           is_project?: boolean
-          likes_count?: number
           published_at?: string | null
           slug?: string
           status?: string
@@ -373,8 +341,6 @@ export type Database = {
         Returns: boolean
       }
       increment_link_clicks: { Args: { p_link_id: string }; Returns: undefined }
-      increment_post_likes: { Args: { p_post_id: string }; Returns: undefined }
-      increment_post_views: { Args: { p_post_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"

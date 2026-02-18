@@ -6,7 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { AuthProvider } from "@/lib/auth-context";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
-import { ScrollToTop } from "@/components/ScrollToTop";
 
 import Index from "./pages/Index";
 import Posts from "./pages/Posts";
@@ -39,7 +38,6 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <ScrollToTop />
             <Routes>
               {/* Public */}
               <Route path="/" element={<Index />} />

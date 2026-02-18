@@ -101,12 +101,7 @@
   .prose-content ol { @apply list-decimal pl-5 sm:pl-6 mb-4 text-sm sm:text-base; }
   .prose-content li { @apply mb-1; }
   .prose-content blockquote { @apply border-l-4 border-primary pl-4 italic my-4 text-muted-foreground text-sm sm:text-base; }
-  .prose-content pre { @apply rounded-xl mb-6 overflow-hidden text-xs sm:text-sm max-w-full relative; font-family: 'Space Grotesk', monospace; background: hsl(222, 47%, 8%); border: 1px solid hsl(222, 30%, 16%); }
-  .prose-content pre .code-header { @apply flex items-center justify-between px-4 py-2.5 border-b sticky top-0; font-family: 'DM Sans', sans-serif; background: hsl(222, 47%, 8%); border-color: hsl(222, 30%, 16%); z-index: 1; }
-  .prose-content pre .code-header-label { @apply text-[11px] font-semibold uppercase tracking-widest; color: hsl(220, 20%, 50%); }
-  .prose-content pre .code-copy-btn { @apply flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200; background: hsl(222, 40%, 13%); color: hsl(220, 20%, 65%); border: 1px solid hsl(222, 30%, 20%); }
-  .prose-content pre .code-copy-btn:hover { background: hsl(222, 40%, 18%); color: hsl(0, 0%, 95%); border-color: hsl(222, 30%, 28%); }
-  .prose-content pre code { @apply block overflow-x-auto break-normal; padding: 1.25rem 1.25rem; color: hsl(210, 30%, 82%); white-space: pre; tab-size: 2; line-height: 1.7; }
+  .prose-content pre { @apply bg-secondary rounded-lg p-3 sm:p-4 mb-4 overflow-x-auto text-xs sm:text-sm max-w-full; font-family: 'Space Grotesk', monospace; }
   .prose-content code { @apply bg-secondary px-1.5 py-0.5 rounded text-xs sm:text-sm break-all; font-family: 'Space Grotesk', monospace; }
   .prose-content a { @apply text-primary underline hover:no-underline break-all; }
   .prose-content img { @apply rounded-lg my-4 max-w-full h-auto; }

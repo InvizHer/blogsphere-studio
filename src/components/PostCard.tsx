@@ -1,10 +1,7 @@
 import { Link } from "react-router-dom";
-import { Calendar, Bookmark, BookmarkCheck } from "lucide-react";
-import { useBookmarks } from "@/hooks/use-bookmarks";
-import { toast } from "sonner";
+import { Calendar, ArrowUpRight } from "lucide-react";
 
 interface PostCardProps {
-  id?: string;
   title: string;
   slug: string;
   excerpt?: string | null;
@@ -14,34 +11,7 @@ interface PostCardProps {
   compact?: boolean;
 }
 
-export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, categories, compact }: PostCardProps) {
-  const { addBookmark, removeBookmark, isBookmarked } = useBookmarks();
-  const postId = id || slug;
-  const saved = isBookmarked(postId);
-
-  const handleBookmark = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (saved) {
-      removeBookmark(postId);
-      toast.info("Removed from bookmarks");
-    } else {
-      addBookmark({ id: postId, title, slug, thumbnailUrl, excerpt });
-      toast.success("Added successfully to bookmarks", {
-        action: {
-          label: "View Bookmarks",
-          onClick: () => {
-            window.dispatchEvent(new CustomEvent("open-bookmarks"));
-          },
-        },
-      });
-    }
-  };
-
-  const formattedDate = publishedAt
-    ? new Date(publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-    : null;
-
+export function PostCard({ title, slug, excerpt, thumbnailUrl, publishedAt, categories, compact }: PostCardProps) {
   if (compact) {
     return (
       <Link
@@ -59,10 +29,12 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
           <h4 className="mb-1 line-clamp-2 text-sm font-semibold leading-tight text-foreground transition-colors group-hover:text-primary">
             {title}
           </h4>
-          {formattedDate && (
+          {publishedAt && (
             <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
               <Calendar className="h-3 w-3" />
-              <span>{formattedDate}</span>
+              <time dateTime={publishedAt}>
+                {new Date(publishedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </time>
             </div>
           )}
         </div>
@@ -87,24 +59,18 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
               <i className="fa-solid fa-image text-3xl text-muted-foreground/15"></i>
             </div>
           )}
-          {/* Bookmark button */}
-          <button
-            onClick={handleBookmark}
-            className={`absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm transition-all duration-200 ${
-              saved
-                ? "bg-primary text-primary-foreground"
-                : "bg-background/80 text-foreground hover:bg-primary hover:text-primary-foreground"
-            }`}
-          >
-            {saved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}
-          </button>
+          {/* Hover arrow */}
+          <div className="absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full bg-background/80 backdrop-blur-sm opacity-0 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-0.5">
+            <ArrowUpRight className="h-4 w-4 text-foreground" />
+          </div>
         </div>
 
         {/* Content */}
         <div className="flex flex-1 flex-col p-5">
+          {/* Categories */}
           {categories && categories.length > 0 && (
             <div className="mb-3 flex flex-wrap gap-1.5">
-              {categories.slice(0, 3).map((cat) => (
+              {categories.map((cat) => (
                 <span key={cat} className="rounded-full border border-primary/15 bg-primary/5 px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-primary">
                   {cat}
                 </span>
@@ -112,7 +78,7 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
             </div>
           )}
 
-          <h3 className="mb-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg line-clamp-2">
+          <h3 className="mb-2 font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-primary sm:text-lg">
             {title}
           </h3>
 
@@ -122,15 +88,16 @@ export function PostCard({ id, title, slug, excerpt, thumbnailUrl, publishedAt, 
 
           {/* Footer */}
           <div className="mt-auto flex items-center justify-between pt-3 border-t border-border/50">
-            {formattedDate ? (
+            {publishedAt && (
               <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Calendar className="h-3 w-3" />
-                <span>{formattedDate}</span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Calendar className="h-3 w-3" />
-                <span>Recently</span>
+                <time dateTime={publishedAt}>
+                  {new Date(publishedAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </time>
               </div>
             )}
             <span className="text-xs font-medium text-primary opacity-0 transition-opacity group-hover:opacity-100">
