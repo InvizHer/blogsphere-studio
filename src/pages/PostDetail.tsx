@@ -49,7 +49,7 @@ export default function PostDetail() {
         .single();
 
       if (data) {
-        supabase.from("posts").update({ view_count: data.view_count + 1 }).eq("id", data.id).then();
+        supabase.rpc("increment_post_views", { p_post_id: data.id }).then();
 
         const { data: pc } = await supabase
           .from("post_categories")

@@ -373,6 +373,8 @@ export type Database = {
         Returns: boolean
       }
       increment_link_clicks: { Args: { p_link_id: string }; Returns: undefined }
+      increment_post_likes: { Args: { p_post_id: string }; Returns: undefined }
+      increment_post_views: { Args: { p_post_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "admin" | "user"
