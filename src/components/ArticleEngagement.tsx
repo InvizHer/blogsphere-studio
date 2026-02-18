@@ -51,7 +51,7 @@ export function ArticleEngagement({ postId, postTitle, postSlug, postThumbnailUr
     setShowCelebration(true);
     setTimeout(() => setShowCelebration(false), 1500);
 
-    await supabase.from("posts").update({ likes_count: likesCount + 1 }).eq("id", postId);
+    await supabase.rpc("increment_post_likes", { p_post_id: postId });
   };
 
   const handleDislike = () => {
