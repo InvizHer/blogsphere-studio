@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
 import { Eye, Calendar, BookOpen } from "lucide-react";
 import { motion } from "framer-motion";
@@ -9,6 +9,7 @@ import { SEOHead } from "@/components/SEOHead";
 import { CommentSection } from "@/components/CommentSection";
 import { SharePost } from "@/components/SharePost";
 import { RelatedPosts } from "@/components/RelatedPosts";
+import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { PostDetailSkeleton } from "@/components/skeletons/PostDetailSkeleton";
 import {
   LinkShortenerProvider,
@@ -30,16 +31,11 @@ interface PostData {
   comments_enabled: boolean;
 }
 
-function estimateReadTime(html: string | null): number {
-  if (!html) return 1;
-  const text = html.replace(/<[^>]*>/g, "");
-  return Math.max(1, Math.ceil(text.split(/\s+/).length / 200));
-}
-
 export default function PostDetail() {
   const { slug } = useParams();
   const [post, setPost] = useState<PostData | null>(null);
   const [loading, setLoading] = useState(true);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   const cleanSlug = slug?.replace(/\.html$/, "") || "";
 
@@ -54,7 +50,7 @@ export default function PostDetail() {
         .single();
 
       if (data) {
-        supabase.from("posts").update({ view_count: data.view_count + 1 }).eq("id", data.id).then();
+        supabase.rpc("increment_post_views", { p_post_id: data.id }).then();
 
         const { data: pc } = await supabase
           .from("post_categories")
@@ -71,9 +67,54 @@ export default function PostDetail() {
     if (cleanSlug) fetchPost();
   }, [cleanSlug]);
 
-  if (loading) {
-    return <PostDetailSkeleton />;
-  }
+  // Enhance code blocks with sticky header + copy button
+  useEffect(() => {
+    if (!contentRef.current || !post) return;
+
+    const preBlocks = contentRef.current.querySelectorAll("pre");
+    preBlocks.forEach((pre) => {
+      // Avoid double-processing
+      if (pre.querySelector(".code-header")) return;
+
+      const code = pre.querySelector("code");
+      if (!code) return;
+
+      // Create header
+      const header = document.createElement("div");
+      header.className = "code-header";
+
+      const label = document.createElement("span");
+      label.className = "code-header-label";
+      label.textContent = "CODE";
+
+      const copyBtn = document.createElement("button");
+      copyBtn.className = "code-copy-btn";
+      copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy`;
+
+      let copied = false;
+      copyBtn.addEventListener("click", async () => {
+        if (copied) return;
+        try {
+          await navigator.clipboard.writeText(code.textContent || "");
+          copied = true;
+          copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
+          copyBtn.style.color = "hsl(142, 70%, 55%)";
+          setTimeout(() => {
+            copied = false;
+            copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy`;
+            copyBtn.style.color = "";
+          }, 2000);
+        } catch {}
+      });
+
+      header.appendChild(label);
+      header.appendChild(copyBtn);
+      pre.insertBefore(header, code);
+    });
+  }, [post, contentRef]);
+
+
+  if (loading) return <PostDetailSkeleton />;
 
   if (!post) {
     return (
@@ -113,20 +154,6 @@ export default function PostDetail() {
             transition={{ duration: 0.4 }}
             className="py-10 md:py-14"
           >
-            {post.categories.length > 0 && (
-              <div className="mb-5 flex flex-wrap gap-2">
-                {post.categories.map((cat) => (
-                  <span
-                    key={cat}
-                    className="inline-block rounded-md px-3 py-1 text-xs font-semibold uppercase tracking-wider text-primary-foreground"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    {cat}
-                  </span>
-                ))}
-              </div>
-            )}
-
             <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl">
               {post.title}
             </h1>
@@ -159,7 +186,7 @@ export default function PostDetail() {
           </motion.div>
         </div>
 
-        {/* Divider between header and content */}
+        {/* Divider */}
         <div className="relative">
           <div className="mx-auto max-w-7xl px-5 sm:px-8">
             <div className="h-px w-full bg-border/60" />
@@ -179,19 +206,65 @@ export default function PostDetail() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.15 }}
+              ref={contentRef}
               className="prose-content max-w-none text-foreground [&_img]:max-w-full [&_pre]:max-w-full [&_pre]:overflow-x-auto [&_table]:max-w-full [&_table]:overflow-x-auto"
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
-            <div className="mt-10 space-y-6 lg:hidden">
+
+            {/* Categories — below article content on desktop only */}
+            {post.categories.length > 0 && (
+              <div className="mt-10 hidden border-t border-border pt-6 lg:block">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Topics</p>
+                <div className="flex flex-wrap gap-2">
+                  {post.categories.map((cat) => (
+                    <Link
+                      key={cat}
+                      to={`/posts?category=${encodeURIComponent(cat.toLowerCase())}`}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-primary/15 bg-primary/5 px-3.5 py-1.5 text-xs font-semibold text-primary transition-colors hover:bg-primary/10"
+                    >
+                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                      {cat}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Mobile only: engagement, share, comments, related all stacked */}
+            <div className="mt-8 space-y-6 lg:hidden">
+              <div className="border-t border-border pt-6">
+                <ArticleEngagement
+                  postId={post.id}
+                  postTitle={post.title}
+                  postSlug={post.slug}
+                  postThumbnailUrl={post.thumbnail_url}
+                  postExcerpt={post.excerpt}
+                  categories={post.categories}
+                />
+              </div>
               <SharePost title={post.title} slug={post.slug} />
-              <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              <div data-comment-section>
+                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              </div>
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
             </div>
           </article>
+
+          {/* Sidebar — desktop only: engagement, share, comments, related */}
           <aside className="hidden lg:block lg:w-80 xl:w-96">
             <div className="sticky top-24 space-y-6">
+              <ArticleEngagement
+                postId={post.id}
+                postTitle={post.title}
+                postSlug={post.slug}
+                postThumbnailUrl={post.thumbnail_url}
+                postExcerpt={post.excerpt}
+                categories={post.categories}
+              />
               <SharePost title={post.title} slug={post.slug} />
-              <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              <div data-comment-section>
+                <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
+              </div>
               <RelatedPosts currentPostId={post.id} categoryNames={post.categories} />
             </div>
           </aside>
