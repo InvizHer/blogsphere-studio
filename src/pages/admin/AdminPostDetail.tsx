@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Eye, Calendar, MessageCircle, Heart, Pencil, Trash2, ExternalLink, Clock, FileText } from "lucide-react";
+import { ArrowLeft, Eye, Calendar, MessageCircle, Pencil, Trash2, ExternalLink, Clock, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ interface PostData {
   thumbnail_url: string | null;
   status: string;
   view_count: number;
-  likes_count: number;
   created_at: string;
   updated_at: string;
   published_at: string | null;
@@ -141,13 +140,12 @@ export default function AdminPostDetail() {
             </motion.div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
               {[
                 { label: "Views", value: post.view_count, icon: Eye, color: "hsl(217, 91%, 60%)" },
-                { label: "Post Likes", value: post.likes_count || 0, icon: Heart, color: "hsl(0, 72%, 51%)" },
                 { label: "Comments", value: totalComments, icon: MessageCircle, color: "hsl(271, 81%, 56%)" },
                 { label: "Replies", value: totalReplies, icon: MessageCircle, color: "hsl(200, 70%, 50%)" },
-                { label: "Comment Likes", value: commentLikes, icon: Heart, color: "hsl(330, 60%, 55%)" },
+                { label: "Comment Likes", value: commentLikes, icon: MessageCircle, color: "hsl(330, 60%, 55%)" },
                 { label: "Words", value: wordCount, icon: FileText, color: "hsl(160, 60%, 48%)" },
                 { label: "Read Time", value: `${readTime}m`, icon: Clock, color: "hsl(40, 80%, 55%)" },
               ].map((s) => (

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Eye, Calendar, BookOpen } from "lucide-react";
+import { Eye, Calendar, BookOpen, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -9,8 +9,9 @@ import { SEOHead } from "@/components/SEOHead";
 import { CommentSection } from "@/components/CommentSection";
 import { SharePost } from "@/components/SharePost";
 import { RelatedPosts } from "@/components/RelatedPosts";
-import { ArticleEngagement } from "@/components/ArticleEngagement";
 import { PostDetailSkeleton } from "@/components/skeletons/PostDetailSkeleton";
+import { useBookmarks } from "@/hooks/use-bookmarks";
+import { toast } from "sonner";
 import {
   LinkShortenerProvider,
   LinkShortenerTop,
@@ -36,6 +37,7 @@ export default function PostDetail() {
   const [post, setPost] = useState<PostData | null>(null);
   const [loading, setLoading] = useState(true);
   const contentRef = useRef<HTMLDivElement>(null);
+  const { addBookmark, removeBookmark, isBookmarked } = useBookmarks();
 
   const cleanSlug = slug?.replace(/\.html$/, "") || "";
 
@@ -73,13 +75,11 @@ export default function PostDetail() {
 
     const preBlocks = contentRef.current.querySelectorAll("pre");
     preBlocks.forEach((pre) => {
-      // Avoid double-processing
       if (pre.querySelector(".code-header")) return;
 
       const code = pre.querySelector("code");
       if (!code) return;
 
-      // Create header
       const header = document.createElement("div");
       header.className = "code-header";
 
@@ -132,6 +132,19 @@ export default function PostDetail() {
   }
 
   const postDate = post.published_at || post.created_at;
+  const saved = isBookmarked(post.id);
+
+  const handleBookmark = () => {
+    if (saved) {
+      removeBookmark(post.id);
+      toast.info("Removed from bookmarks");
+    } else {
+      addBookmark({ id: post.id, title: post.title, slug: post.slug, thumbnailUrl: post.thumbnail_url, excerpt: post.excerpt });
+      toast.success("Added to bookmarks", {
+        action: { label: "View", onClick: () => window.dispatchEvent(new CustomEvent("open-bookmarks")) },
+      });
+    }
+  };
 
   return (
     <LinkShortenerProvider>
@@ -182,6 +195,29 @@ export default function PostDetail() {
                   <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
                 </div>
               </div>
+
+              <div className="h-8 w-px bg-border" />
+
+              {/* Save / Bookmark button */}
+              <button
+                onClick={handleBookmark}
+                className="flex items-center gap-2.5 text-sm text-muted-foreground group"
+              >
+                <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                  saved ? "bg-primary/15" : "bg-muted hover:bg-primary/10"
+                }`}>
+                  {saved
+                    ? <BookmarkCheck className="h-4 w-4 text-primary" />
+                    : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                  }
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
+                  <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
+                    {saved ? "Saved" : "Save"}
+                  </span>
+                </div>
+              </button>
             </div>
           </motion.div>
         </div>
@@ -211,9 +247,9 @@ export default function PostDetail() {
               dangerouslySetInnerHTML={{ __html: post.content || "" }}
             />
 
-            {/* Categories — below article content on desktop only */}
+            {/* Categories — below article content, visible on ALL screen sizes */}
             {post.categories.length > 0 && (
-              <div className="mt-10 hidden border-t border-border pt-6 lg:block">
+              <div className="mt-10 border-t border-border pt-6">
                 <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Topics</p>
                 <div className="flex flex-wrap gap-2">
                   {post.categories.map((cat) => (
@@ -230,18 +266,8 @@ export default function PostDetail() {
               </div>
             )}
 
-            {/* Mobile only: engagement, share, comments, related all stacked */}
+            {/* Mobile only: share, comments, related stacked */}
             <div className="mt-8 space-y-6 lg:hidden">
-              <div className="border-t border-border pt-6">
-                <ArticleEngagement
-                  postId={post.id}
-                  postTitle={post.title}
-                  postSlug={post.slug}
-                  postThumbnailUrl={post.thumbnail_url}
-                  postExcerpt={post.excerpt}
-                  categories={post.categories}
-                />
-              </div>
               <SharePost title={post.title} slug={post.slug} />
               <div data-comment-section>
                 <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
@@ -250,17 +276,9 @@ export default function PostDetail() {
             </div>
           </article>
 
-          {/* Sidebar — desktop only: engagement, share, comments, related */}
+          {/* Sidebar — desktop only: share, comments, related */}
           <aside className="hidden lg:block lg:w-80 xl:w-96">
             <div className="sticky top-24 space-y-6">
-              <ArticleEngagement
-                postId={post.id}
-                postTitle={post.title}
-                postSlug={post.slug}
-                postThumbnailUrl={post.thumbnail_url}
-                postExcerpt={post.excerpt}
-                categories={post.categories}
-              />
               <SharePost title={post.title} slug={post.slug} />
               <div data-comment-section>
                 <CommentSection postId={post.id} commentsEnabled={post.comments_enabled} />
