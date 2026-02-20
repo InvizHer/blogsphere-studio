@@ -14,6 +14,7 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 - 🔒 Role-based admin access with Row Level Security
 - 🌙 Dark/light mode support
 - 📱 Fully responsive design
+- 💻 Online Compiler — write, compile & run code in 8 languages (Python, JavaScript, C, C++, Java, HTML, CSS, SQL) with Monaco Editor, multi-file support, and live preview
 
 ---
 

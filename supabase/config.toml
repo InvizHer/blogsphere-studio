@@ -2,3 +2,6 @@ project_id = "lsvxpjhlscmlaejqnmhz"
 
 [functions.increment-link-click]
 verify_jwt = false
+
+[functions.execute-code]
+verify_jwt = false
