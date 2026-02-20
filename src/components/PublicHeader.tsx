@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail, Bookmark } from "lucide-react";
+import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail, Bookmark, Terminal } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/use-site-settings";
@@ -56,6 +56,7 @@ export function PublicHeader() {
     { to: "/", icon: FileText, label: "Home", desc: "Back to homepage" },
     { to: "/posts", icon: Code2, label: "Articles", desc: "Read all posts" },
     { to: "/projects", icon: LayoutGrid, label: "Projects", desc: "View projects" },
+    { to: "/online-compiler", icon: Terminal, label: "Compiler", desc: "Code playground" },
   ];
 
   return (
@@ -84,6 +85,7 @@ export function PublicHeader() {
                 { to: "/", label: "Home" },
                 { to: "/posts", label: "Articles" },
                 { to: "/projects", label: "Projects" },
+                { to: "/online-compiler", label: "Compiler" },
               ].map((link) => (
                 <Link
                   key={link.label}
