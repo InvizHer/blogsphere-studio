@@ -51,8 +51,7 @@ export function PublicFooter() {
             <nav className="flex flex-col gap-2.5">
               <Link to="/" className="text-sm transition-colors hover:text-white">Home</Link>
               <Link to="/posts" className="text-sm transition-colors hover:text-white">Posts</Link>
-              <Link to="/projects" className="text-sm transition-colors hover:text-white">Projects</Link>
-              <Link to="/online-compiler" className="text-sm transition-colors hover:text-white">Online Compiler</Link>
+              <Link to="/posts" className="text-sm transition-colors hover:text-white">Categories</Link>
             </nav>
           </div>
 

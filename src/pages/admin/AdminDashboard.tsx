@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, FolderOpen, Eye, Plus, CheckCircle, Clock, MessageSquare } from "lucide-react";
+import { FileText, FolderOpen, Eye, Heart, Plus, CheckCircle, Clock, MessageSquare } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
@@ -14,30 +14,33 @@ interface RecentComment {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalComments: 0 });
+  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalLikes: 0, totalComments: 0 });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
 
   useEffect(() => {
     const fetchAll = async () => {
       const [postsRes, recentRes, commentsCountRes, recentCommentsRes] = await Promise.all([
-        supabase.from("posts").select("id, view_count, status"),
-        supabase.from("posts").select("id, title, slug, status, created_at, view_count").order("created_at", { ascending: false }).limit(5),
+        supabase.from("posts").select("id, view_count, likes_count, status"),
+        supabase.from("posts").select("id, title, slug, status, created_at, view_count, likes_count").order("created_at", { ascending: false }).limit(5),
         supabase.from("comments").select("id", { count: "exact", head: true }),
         supabase.from("comments").select("id, author_name, content, created_at, post_id").order("created_at", { ascending: false }).limit(5),
       ]);
 
       const posts = postsRes.data || [];
       const totalViews = posts.reduce((sum, p) => sum + (p.view_count || 0), 0);
+      const totalLikes = posts.reduce((sum, p) => sum + (p.likes_count || 0), 0);
       setStats({
         totalPosts: posts.length,
         published: posts.filter((p) => p.status === "published").length,
         drafts: posts.filter((p) => p.status === "draft").length,
         totalViews,
+        totalLikes,
         totalComments: commentsCountRes.count || 0,
       });
       setRecentPosts(recentRes.data || []);
 
+      // Fetch post titles for recent comments
       const comments = recentCommentsRes.data || [];
       if (comments.length > 0) {
         const postIds = [...new Set(comments.map((c) => c.post_id))];
@@ -54,6 +57,7 @@ export default function AdminDashboard() {
     { label: "Published", value: stats.published, icon: CheckCircle, gradient: "from-primary to-accent" },
     { label: "Drafts", value: stats.drafts, icon: Clock, gradient: "from-accent to-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, gradient: "from-primary to-primary" },
+    { label: "Total Likes", value: stats.totalLikes, icon: Heart, gradient: "from-accent to-primary" },
     { label: "Comments", value: stats.totalComments, icon: MessageSquare, gradient: "from-primary to-accent" },
   ];
 
@@ -67,6 +71,7 @@ export default function AdminDashboard() {
         </div>
 
         <div className="p-4 sm:p-8">
+          {/* Quick action */}
           <Link
             to="/admin/posts/new"
             className="mb-6 flex items-center gap-3 rounded-2xl border border-dashed border-primary/30 p-4 text-sm font-medium text-primary transition-all hover:bg-primary/5"
@@ -77,7 +82,8 @@ export default function AdminDashboard() {
             <span>Create a new post</span>
           </Link>
 
-          <div className="mb-8 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+          {/* Stats */}
+          <div className="mb-8 grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-6">
             {statCards.map((s) => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-[var(--shadow-card)]">
                 <div className="mb-3 flex items-center justify-between">
@@ -92,6 +98,7 @@ export default function AdminDashboard() {
           </div>
 
           <div className="grid gap-6 lg:grid-cols-2">
+            {/* Recent Posts */}
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
                 <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Posts</h2>
@@ -109,10 +116,22 @@ export default function AdminDashboard() {
                         </Link>
                         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
                           <p className="text-[11px] text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</p>
-                          <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <span className="hidden sm:flex items-center gap-1 text-[11px] text-muted-foreground">
                             <Eye className="h-3 w-3" /> {post.view_count}
                           </span>
+                          <span className="hidden sm:flex items-center gap-1 text-[11px] text-red-400">
+                            <Heart className="h-3 w-3" /> {post.likes_count || 0}
+                          </span>
                         </div>
+                      </div>
+                      {/* Mobile: views & likes in column */}
+                      <div className="flex flex-col items-end gap-1 sm:hidden">
+                        <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                          <Eye className="h-3 w-3" /> {post.view_count}
+                        </span>
+                        <span className="flex items-center gap-1 text-[11px] text-red-400">
+                          <Heart className="h-3 w-3" /> {post.likes_count || 0}
+                        </span>
                       </div>
                     </div>
                   ))
@@ -120,6 +139,7 @@ export default function AdminDashboard() {
               </div>
             </div>
 
+            {/* Recent Comments */}
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
                 <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Comments</h2>

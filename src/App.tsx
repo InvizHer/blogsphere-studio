@@ -27,8 +27,6 @@ import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminComments from "./pages/admin/AdminComments";
 import AdminPostDetail from "./pages/admin/AdminPostDetail";
 import AdminLinkShortener from "./pages/admin/AdminLinkShortener";
-import OnlineCompiler from "./pages/OnlineCompiler";
-import CompilerIDE from "./pages/compiler/CompilerIDE";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,8 +51,6 @@ const App = () => (
               <Route path="/disclaimer" element={<Disclaimer />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
-              <Route path="/online-compiler" element={<OnlineCompiler />} />
-              <Route path="/online-compiler/:language" element={<CompilerIDE />} />
 
               {/* Admin */}
               <Route path="/admin/login" element={<AdminLogin />} />

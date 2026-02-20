@@ -59,6 +59,17 @@ function getTopicIcon(name: string) {
   return fallbacks[name.charCodeAt(0) % fallbacks.length];
 }
 
+const topicColors = [
+  { bg: "bg-blue-500/10", text: "text-blue-500", border: "border-blue-500/20" },
+  { bg: "bg-purple-500/10", text: "text-purple-500", border: "border-purple-500/20" },
+  { bg: "bg-emerald-500/10", text: "text-emerald-500", border: "border-emerald-500/20" },
+  { bg: "bg-orange-500/10", text: "text-orange-500", border: "border-orange-500/20" },
+  { bg: "bg-pink-500/10", text: "text-pink-500", border: "border-pink-500/20" },
+  { bg: "bg-cyan-500/10", text: "text-cyan-500", border: "border-cyan-500/20" },
+  { bg: "bg-amber-500/10", text: "text-amber-500", border: "border-amber-500/20" },
+  { bg: "bg-indigo-500/10", text: "text-indigo-500", border: "border-indigo-500/20" },
+];
+
 const fadeUp = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
@@ -128,6 +139,7 @@ export default function Index() {
         setRecentProjects(projectsWithCats);
       }
 
+      // Fetch categories with post counts, sorted by most posts
       const { data: cats } = await supabase.from("categories").select("id, name, slug");
       if (cats) {
         const { data: pcAll } = await supabase.from("post_categories").select("category_id");
@@ -330,13 +342,13 @@ export default function Index() {
           </div>
         </section>
 
-        {/* ───── Explore Topics — New Modern Design ───── */}
+        {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
           <section className="border-t border-border/40 relative overflow-hidden">
             <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
-            <div className="pointer-events-none absolute -bottom-32 left-0 h-[300px] w-[400px] rounded-full opacity-[0.03]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
 
             <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+              {/* Header — split layout */}
               <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                   <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
@@ -363,55 +375,69 @@ export default function Index() {
                 )}
               </div>
 
+              {/* Topic grid — conceptual "spotlight" layout */}
               {loading ? (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   {Array.from({ length: 4 }).map((_, i) => (
                     <TopicCardSkeleton key={i} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                  {visibleTopics.map((cat, i) => (
-                    <motion.div
-                      key={cat.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: i * 0.08 }}
-                    >
-                      <Link
-                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-[var(--shadow-elevated)]"
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                  {visibleTopics.map((cat, i) => {
+                    const color = topicColors[i % topicColors.length];
+                    const rank = i + 1;
+                    return (
+                      <motion.div
+                        key={cat.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: i * 0.08 }}
                       >
-                        {/* Gradient glow on hover */}
-                        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "var(--gradient-subtle)" }} />
+                        <Link
+                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                          className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/20 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.2)]"
+                        >
+                          {/* Top accent band */}
+                          <div className={`h-1 w-full transition-all duration-300 group-hover:h-1.5 ${color.bg.replace('/10', '')}`}
+                            style={{ background: `linear-gradient(90deg, ${['hsl(217,91%,60%)','hsl(271,81%,56%)','hsl(142,70%,45%)','hsl(30,90%,55%)'][i % 4]}, transparent)` }}
+                          />
 
-                        <div className="relative">
-                          {/* Icon */}
-                          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[var(--shadow-glow)]">
-                            <i className={getTopicIcon(cat.name)}></i>
+                          <div className="flex flex-col gap-4 p-5">
+                            {/* Rank + icon row */}
+                            <div className="flex items-start justify-between">
+                              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl border ${color.border} ${color.bg} ${color.text} text-xl transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-3`}>
+                                <i className={getTopicIcon(cat.name)}></i>
+                              </div>
+                              <span className="font-mono text-3xl font-black leading-none text-foreground/[0.06] select-none transition-colors duration-300 group-hover:text-foreground/[0.10]">
+                                {String(rank).padStart(2, '0')}
+                              </span>
+                            </div>
+
+                            {/* Name */}
+                            <div>
+                              <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors duration-200 group-hover:text-primary">
+                                {cat.name}
+                              </h3>
+                              <p className={`mt-1 text-xs font-medium ${color.text}`}>
+                                {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
+                              </p>
+                            </div>
+
+                            {/* CTA row */}
+                            <div className="flex items-center justify-between border-t border-border/50 pt-3">
+                              <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                                Explore
+                              </span>
+                              <div className={`flex h-7 w-7 items-center justify-center rounded-full border ${color.border} ${color.bg} ${color.text} text-sm transition-all duration-300 group-hover:translate-x-0.5`}>
+                                →
+                              </div>
+                            </div>
                           </div>
-
-                          {/* Name + count */}
-                          <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors duration-200 group-hover:text-primary sm:text-lg">
-                            {cat.name}
-                          </h3>
-                          <p className="mt-1 text-xs font-medium text-muted-foreground">
-                            {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
-                          </p>
-                        </div>
-
-                        {/* CTA */}
-                        <div className="relative mt-5 flex items-center justify-between border-t border-border/50 pt-4">
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors group-hover:text-primary">
-                            Explore
-                          </span>
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-primary/5 text-sm text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-primary/10">
-                            →
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </div>
