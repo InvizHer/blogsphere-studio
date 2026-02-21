@@ -61,9 +61,32 @@ const fadeUp = {
 };
 
 export default function FAQ() {
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
+
+  // FAQ JSON-LD structured data
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqSections.flatMap((section) =>
+      section.items.map((item) => ({
+        "@type": "Question",
+        name: item.q,
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: item.a,
+        },
+      }))
+    ),
+  };
+
   return (
     <>
-      <SEOHead title="FAQ" description="Find answers to common questions about Inkwell — programming resources, tutorials, and content sharing platform." />
+      <SEOHead
+        title="FAQ"
+        description="Find answers to common questions about Inkwell — programming resources, tutorials, content sharing, and developer community."
+        canonicalUrl={`${siteUrl}/faq`}
+        jsonLd={faqJsonLd}
+      />
       <PublicHeader />
 
       <main className="pt-16">
@@ -92,7 +115,6 @@ export default function FAQ() {
           </div>
         </section>
 
-        {/* FAQ Sections */}
         <section className="mx-auto max-w-4xl px-5 py-16 sm:px-8 md:py-24">
           <div className="space-y-12">
             {faqSections.map((section, si) => (
@@ -128,7 +150,6 @@ export default function FAQ() {
           </div>
         </section>
 
-        {/* CTA */}
         <section className="border-t border-border/40 bg-muted/30">
           <div className="mx-auto max-w-7xl px-5 py-16 text-center sm:px-8 md:py-20">
             <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">

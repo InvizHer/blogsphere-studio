@@ -103,10 +103,15 @@ export default function Projects() {
   const visiblePosts = allPosts.slice(0, visibleCount);
   const hasMore = visibleCount < allPosts.length;
   const activeCategory = categories.find((c) => c.slug === categorySlug);
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <>
-      <SEOHead title="Projects" description="Explore our featured projects, demos, and case studies." />
+      <SEOHead
+        title="Projects & Showcase"
+        description="Explore featured projects, demos, and real-world implementations. Open source code, case studies, and developer showcases."
+        canonicalUrl={`${siteUrl}/projects`}
+      />
       <PublicHeader />
 
       <main className="container px-4 py-8 pt-24 sm:px-6 md:py-12 md:pt-28">

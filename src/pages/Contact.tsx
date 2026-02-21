@@ -16,6 +16,7 @@ export default function Contact() {
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -26,7 +27,11 @@ export default function Contact() {
 
   return (
     <>
-      <SEOHead title="Contact Us" description="Get in touch with the Inkwell team — we'd love to hear from you." />
+      <SEOHead
+        title="Contact Us"
+        description="Get in touch with the Inkwell team. Have a question, suggestion, or collaboration request? We'd love to hear from you."
+        canonicalUrl={`${siteUrl}/contact`}
+      />
       <PublicHeader />
 
       <main className="pt-16">

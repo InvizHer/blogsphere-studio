@@ -81,9 +81,10 @@ const fadeUp = {
 };
 
 export default function PrivacyPolicy() {
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
   return (
     <>
-      <SEOHead title="Privacy Policy" description="Learn how Inkwell collects, uses, and protects your personal information." />
+      <SEOHead title="Privacy Policy" description="Learn how Inkwell collects, uses, and protects your personal information. Read our data collection, cookies, and security practices." canonicalUrl={`${siteUrl}/privacy-policy`} />
       <PublicHeader />
 
       <main className="pt-16">

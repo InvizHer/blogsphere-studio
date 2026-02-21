@@ -28,9 +28,15 @@ const values = [
 ];
 
 export default function About() {
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
+
   return (
     <>
-      <SEOHead title="About Us" description="Learn about Inkwell — a modern platform dedicated to programming tutorials, tech articles, and developer resources." />
+      <SEOHead
+        title="About Us"
+        description="Learn about Inkwell — a modern platform dedicated to programming tutorials, tech articles, and developer resources. Free content for developers worldwide."
+        canonicalUrl={`${siteUrl}/about`}
+      />
       <PublicHeader />
 
       <main className="pt-16">

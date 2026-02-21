@@ -63,9 +63,10 @@ const sections = [
 ];
 
 export default function Disclaimer() {
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
   return (
     <>
-      <SEOHead title="Disclaimer" description="Read the disclaimer for Inkwell — limitations, liability, and usage terms for our content." />
+      <SEOHead title="Disclaimer" description="Read the disclaimer for Inkwell — limitations of liability, intellectual property, and usage terms for programming content." canonicalUrl={`${siteUrl}/disclaimer`} />
       <PublicHeader />
 
       <main className="pt-16">
