@@ -56,6 +56,7 @@ export default function Posts() {
       .from("posts")
       .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
       .eq("status", "published")
+      .eq("is_project", false)
       .order("published_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: false });
 
@@ -102,10 +103,15 @@ export default function Posts() {
   const visiblePosts = allPosts.slice(0, visibleCount);
   const hasMore = visibleCount < allPosts.length;
   const activeCategory = categories.find((c) => c.slug === categorySlug);
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
     <>
-      <SEOHead title="Articles" description="Browse coding tutorials, programming guides, and tech articles." />
+      <SEOHead
+        title="Articles & Tutorials"
+        description="Browse coding tutorials, programming guides, and tech articles. Learn web development, Python, JavaScript, React and more."
+        canonicalUrl={`${siteUrl}/posts`}
+      />
       <PublicHeader />
 
       <main className="container px-4 py-8 pt-24 sm:px-6 md:py-12 md:pt-28">

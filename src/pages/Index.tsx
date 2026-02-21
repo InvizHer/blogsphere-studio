@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, Sparkles, Zap, Code2, Layers, TrendingUp } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Code2, Layers, TrendingUp, Hash } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -30,8 +30,6 @@ interface CategoryWithCount {
   slug: string;
   postCount: number;
 }
-
-const TOPICS_LIMIT = 4;
 
 const topicIcons: Record<string, string> = {
   javascript: "fa-brands fa-js",
@@ -83,9 +81,10 @@ export default function Index() {
         .from("posts")
         .select("id, title, slug, excerpt, thumbnail_url, published_at, created_at")
         .eq("status", "published")
+        .eq("is_project", false)
         .order("published_at", { ascending: false, nullsFirst: false })
         .order("created_at", { ascending: false })
-        .limit(6);
+        .limit(3);
 
       if (posts) {
         const postsWithCats = await Promise.all(
@@ -147,10 +146,7 @@ export default function Index() {
     fetchData();
   }, []);
 
-  const visibleTopics = categories.filter(c => c.postCount > 0).slice(0, TOPICS_LIMIT);
-
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+  const visibleTopics = categories.filter(c => c.postCount > 0);
 
   const handleTerminalSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,7 +158,11 @@ export default function Index() {
 
   return (
     <>
-      <SEOHead title="Home" description={site.site_description || "Inkwell — A modern platform for coding tutorials, programming resources, tech articles and developer knowledge."} />
+      <SEOHead
+        title="Home"
+        description={site.site_description || "Inkwell — A modern platform for coding tutorials, programming resources, tech articles and developer knowledge."}
+        canonicalUrl={typeof window !== "undefined" ? window.location.origin : undefined}
+      />
       <PublicHeader />
 
       <main className="pt-16">
@@ -174,25 +174,20 @@ export default function Index() {
             {/* Mobile: centered layout */}
             <div className="lg:hidden">
               <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }} className="flex flex-col items-center text-center">
-                <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">{greeting} 👋 Buddy!</span>
-                </motion.div>
-
-                <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-4xl font-extrabold leading-[1.08] text-foreground sm:text-5xl">
+                <motion.h1 variants={fadeUp} custom={0} className="mb-6 font-display text-4xl font-extrabold leading-[1.08] text-foreground sm:text-5xl">
                   Code. Create.<br />
                   <span className="gradient-text">Innovate.</span>
                 </motion.h1>
 
-                <motion.p variants={fadeUp} custom={2} className="mb-8 max-w-md text-base leading-relaxed text-muted-foreground">
+                <motion.p variants={fadeUp} custom={1} className="mb-8 max-w-md text-base leading-relaxed text-muted-foreground">
                   Your gateway to programming tutorials, innovative projects, and cutting-edge development resources.
                 </motion.p>
 
-                <motion.div variants={fadeUp} custom={3} className="mb-8 w-full max-w-md">
+                <motion.div variants={fadeUp} custom={2} className="mb-8 w-full max-w-md">
                   <TerminalSearch query={searchQuery} setQuery={setSearchQuery} onSubmit={handleTerminalSearch} />
                 </motion.div>
 
-                <motion.div variants={fadeUp} custom={4} className="flex gap-3">
+                <motion.div variants={fadeUp} custom={3} className="flex gap-3">
                   <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
@@ -213,22 +208,16 @@ export default function Index() {
             {/* Desktop: two-column layout */}
             <div className="hidden lg:grid lg:grid-cols-2 lg:gap-20 lg:items-center">
               <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.1 } } }}>
-                <motion.div variants={fadeUp} custom={0} className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium text-foreground">{greeting} Buddy!</span>
-                  <span className="text-sm">✨</span>
-                </motion.div>
-
-                <motion.h1 variants={fadeUp} custom={1} className="mb-6 font-display text-5xl font-extrabold leading-[1.08] text-foreground md:text-6xl lg:text-7xl">
+                <motion.h1 variants={fadeUp} custom={0} className="mb-6 font-display text-5xl font-extrabold leading-[1.08] text-foreground md:text-6xl lg:text-7xl">
                   Code. Create.<br />
                   <span className="gradient-text">Innovate.</span>
                 </motion.h1>
 
-                <motion.p variants={fadeUp} custom={2} className="mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
+                <motion.p variants={fadeUp} custom={1} className="mb-8 max-w-lg text-base leading-relaxed text-muted-foreground sm:text-lg">
                   Your gateway to programming tutorials, innovative projects, and cutting-edge development resources.
                 </motion.p>
 
-                <motion.div variants={fadeUp} custom={4} className="flex flex-row gap-3">
+                <motion.div variants={fadeUp} custom={2} className="flex flex-row gap-3">
                   <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
@@ -256,7 +245,7 @@ export default function Index() {
           </div>
         </section>
 
-        {/* ───── Latest Articles ───── */}
+        {/* ───── Latest Articles (3 posts) ───── */}
         <section className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
           <div className="mb-10">
             <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5">
@@ -271,7 +260,7 @@ export default function Index() {
 
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {loading
-              ? Array.from({ length: 6 }).map((_, i) => <PostCardSkeleton key={i} />)
+              ? Array.from({ length: 3 }).map((_, i) => <PostCardSkeleton key={i} />)
               : recentPosts.map((post, i) => (
                   <motion.div key={post.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: i * 0.06 }}>
                     <PostCard id={post.id} {...post} publishedAt={post.published_at || post.created_at} thumbnailUrl={post.thumbnail_url} />
@@ -292,8 +281,82 @@ export default function Index() {
           )}
         </section>
 
+        {/* ───── Explore Topics — Sleek Horizontal Cards ───── */}
+        {visibleTopics.length > 0 && (
+          <section className="border-t border-border/40 relative overflow-hidden bg-muted/20">
+            <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
+
+            <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+              <div className="mb-10 text-center">
+                <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
+                  <Code2 className="h-3.5 w-3.5 text-accent" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
+                </div>
+                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                  Explore <span className="gradient-text">Topics</span>
+                </h2>
+                <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+                  Curated collections organized by technology and subject.
+                </p>
+              </div>
+
+              {loading ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <TopicCardSkeleton key={i} />
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {visibleTopics.slice(0, 6).map((cat, i) => (
+                    <motion.div
+                      key={cat.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: i * 0.05 }}
+                    >
+                      <Link
+                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                        className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/25 hover:bg-primary/[0.02] hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                      >
+                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                          <i className={getTopicIcon(cat.name)}></i>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base truncate">
+                            {cat.name}
+                          </h3>
+                          <p className="text-xs text-muted-foreground">
+                            {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
+                          </p>
+                        </div>
+                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/15 bg-primary/5 text-xs text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-primary/10">
+                          →
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+
+              <div className="mt-8 flex justify-center">
+                <Link
+                  to="/posts"
+                  className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                >
+                  <Hash className="h-3.5 w-3.5 text-primary" />
+                  View All Categories
+                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                    {categories.filter(c => c.postCount > 0).length}
+                  </span>
+                </Link>
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* ───── Recent Projects ───── */}
-        <section className="border-t border-border/40 bg-muted/20">
+        <section className="border-t border-border/40">
           <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
             <div className="mb-10">
               <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
@@ -329,94 +392,6 @@ export default function Index() {
             )}
           </div>
         </section>
-
-        {/* ───── Explore Topics — New Modern Design ───── */}
-        {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40 relative overflow-hidden">
-            <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
-            <div className="pointer-events-none absolute -bottom-32 left-0 h-[300px] w-[400px] rounded-full opacity-[0.03]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
-
-            <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-12 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
-                    <Code2 className="h-3.5 w-3.5 text-accent" />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
-                  </div>
-                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                    Explore <span className="gradient-text">Topics</span>
-                  </h2>
-                  <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                    Curated collections organized by technology.
-                  </p>
-                </div>
-                {categories.filter(c => c.postCount > 0).length > TOPICS_LIMIT && (
-                  <Link
-                    to="/posts"
-                    className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
-                  >
-                    View All
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
-                      {categories.filter(c => c.postCount > 0).length}
-                    </span>
-                  </Link>
-                )}
-              </div>
-
-              {loading ? (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                  {Array.from({ length: 4 }).map((_, i) => (
-                    <TopicCardSkeleton key={i} />
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-                  {visibleTopics.map((cat, i) => (
-                    <motion.div
-                      key={cat.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: i * 0.08 }}
-                    >
-                      <Link
-                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/25 hover:shadow-[var(--shadow-elevated)]"
-                      >
-                        {/* Gradient glow on hover */}
-                        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "var(--gradient-subtle)" }} />
-
-                        <div className="relative">
-                          {/* Icon */}
-                          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[var(--shadow-glow)]">
-                            <i className={getTopicIcon(cat.name)}></i>
-                          </div>
-
-                          {/* Name + count */}
-                          <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors duration-200 group-hover:text-primary sm:text-lg">
-                            {cat.name}
-                          </h3>
-                          <p className="mt-1 text-xs font-medium text-muted-foreground">
-                            {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
-                          </p>
-                        </div>
-
-                        {/* CTA */}
-                        <div className="relative mt-5 flex items-center justify-between border-t border-border/50 pt-4">
-                          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground transition-colors group-hover:text-primary">
-                            Explore
-                          </span>
-                          <div className="flex h-7 w-7 items-center justify-center rounded-full border border-primary/20 bg-primary/5 text-sm text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-primary/10">
-                            →
-                          </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </section>
-        )}
 
         {/* ───── Let's Connect ───── */}
         <section className="border-t border-border/40">

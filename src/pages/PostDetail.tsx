@@ -27,6 +27,7 @@ interface PostData {
   thumbnail_url: string | null;
   published_at: string | null;
   created_at: string;
+  updated_at: string;
   view_count: number;
   categories: string[];
   comments_enabled: boolean;
@@ -133,6 +134,8 @@ export default function PostDetail() {
 
   const postDate = post.published_at || post.created_at;
   const saved = isBookmarked(post.id);
+  const siteUrl = typeof window !== "undefined" ? window.location.origin : "";
+  const articleUrl = `${siteUrl}/posts/${post.slug}.html`;
 
   const handleBookmark = () => {
     if (saved) {
@@ -146,15 +149,31 @@ export default function PostDetail() {
     }
   };
 
+  // Breadcrumb JSON-LD
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Articles", item: `${siteUrl}/posts` },
+      { "@type": "ListItem", position: 3, name: post.title, item: articleUrl },
+    ],
+  };
+
   return (
     <LinkShortenerProvider>
       <SEOHead
         title={post.title}
         description={post.excerpt || undefined}
         ogImage={post.thumbnail_url || undefined}
+        canonicalUrl={articleUrl}
         type="article"
         publishedAt={post.published_at || undefined}
+        modifiedAt={post.updated_at || undefined}
+        articleTags={post.categories}
       />
+      {/* Extra breadcrumb structured data */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <PublicHeader />
 
       <div className="pt-20 md:pt-28">

@@ -22,7 +22,7 @@ const NotFound = () => {
 
   return (
     <>
-      <SEOHead title="Page Not Found" description="The page you're looking for doesn't exist." />
+      <SEOHead title="Page Not Found" description="The page you're looking for doesn't exist." noindex />
       <PublicHeader />
 
       <main className="pt-16">
