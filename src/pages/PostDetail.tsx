@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Eye, Calendar, BookOpen, Bookmark, BookmarkCheck } from "lucide-react";
+import { Eye, Calendar, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -190,47 +190,48 @@ export default function PostDetail() {
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-6">
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Calendar className="h-4 w-4 text-primary" />
+            <div className="flex flex-wrap items-center gap-3 sm:gap-5">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/10 sm:h-8 sm:w-8">
+                  <Calendar className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
-                  <time dateTime={postDate} className="font-medium text-foreground">
+                  <p className="hidden sm:block text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
+                  <time dateTime={postDate} className="text-xs font-medium text-foreground sm:text-sm">
                     {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </time>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-6 w-px bg-border sm:h-8" />
 
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-                  <Eye className="h-4 w-4 text-accent" />
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent/10 sm:h-8 sm:w-8">
+                  <Eye className="h-3.5 w-3.5 text-accent sm:h-4 sm:w-4" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
-                  <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
+                  <p className="hidden sm:block text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
+                  <span className="text-xs font-medium text-foreground sm:text-sm">{post.view_count.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-6 w-px bg-border sm:h-8" />
 
-              {/* Save / Bookmark button */}
+              {/* Bookmark — icon-only on mobile, full on desktop */}
               <button
                 onClick={handleBookmark}
-                className="flex items-center gap-2.5 text-sm text-muted-foreground group"
+                className="flex items-center gap-2 text-sm text-muted-foreground group"
+                title={saved ? "Remove bookmark" : "Save article"}
               >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                <div className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors sm:h-8 sm:w-8 ${
                   saved ? "bg-primary/15" : "bg-muted hover:bg-primary/10"
                 }`}>
                   {saved
-                    ? <BookmarkCheck className="h-4 w-4 text-primary" />
-                    : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    ? <BookmarkCheck className="h-3.5 w-3.5 text-primary sm:h-4 sm:w-4" />
+                    : <Bookmark className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary transition-colors sm:h-4 sm:w-4" />
                   }
                 </div>
-                <div>
+                <div className="hidden sm:block">
                   <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
                   <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                     {saved ? "Saved" : "Save"}
@@ -242,20 +243,13 @@ export default function PostDetail() {
         </div>
 
         {/* Divider */}
-        <div className="relative">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
-            <div className="h-px w-full bg-border/60" />
-          </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background">
-              <BookOpen className="h-4 w-4 text-primary" />
-            </div>
-          </div>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="h-px w-full bg-border/60" />
         </div>
       </div>
 
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 md:py-14">
-        <div className="lg:flex lg:gap-10 xl:gap-14">
+        <div className="lg:flex lg:flex-row-reverse lg:gap-10 xl:gap-14">
           <article className="min-w-0 flex-1 overflow-hidden lg:max-w-3xl">
             <motion.div
               initial={{ opacity: 0 }}
