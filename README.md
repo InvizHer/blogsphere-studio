@@ -6,8 +6,10 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 
 - 📝 Rich text post editor with image uploads
 - 🗂️ Category management and filtering
-- 💬 Nested comment system with likes
+- 💬 Nested comment system
 - 🔖 Bookmark / save posts locally (browser storage)
+- 🔍 SEO-optimized with JSON-LD, Open Graph, Twitter Cards & XML sitemap
+- 📈 Google AdSense & Search Console ready
 - 🔗 Link shortener with password protection & click tracking
 - 📊 Admin dashboard with analytics & time filters
 - ⚙️ Dynamic site settings (title, favicon, SEO, social links)
@@ -28,6 +30,7 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 7. [Local Development](#local-development)
 8. [Building for Production](#building-for-production)
 9. [Deployment](#deployment)
+10. [SEO, Google AdSense & Search Console Setup](#seo-google-adsense--search-console-setup)
    - [Vercel](#deploy-to-vercel)
    - [Cloudflare Pages](#deploy-to-cloudflare-pages)
    - [Render](#deploy-to-render)
@@ -76,7 +79,8 @@ inkwell/
 ├── supabase/
 │   └── functions/             # Supabase Edge Functions (reference code)
 │       ├── increment-link-click/
-│       └── setup-admin/
+│       ├── setup-admin/
+│       └── sitemap/
 ├── database.sql               # Complete database setup script
 ├── .env.example               # Environment variable template
 ├── tailwind.config.ts         # Tailwind CSS configuration
@@ -390,6 +394,27 @@ https://YOUR_PROJECT_REF.supabase.co/functions/v1/setup-admin
 ```
 
 This will automatically create the admin user and assign the admin role.
+
+### Function 3: `sitemap`
+
+This function dynamically generates an XML sitemap from all published posts and categories for SEO.
+
+**Steps to create:**
+
+1. Go to your Supabase dashboard → **Edge Functions**
+2. Click **"Create a new function"**
+3. Name it: `sitemap`
+4. Replace the default code with the contents of `supabase/functions/sitemap/index.ts` from this repository
+5. Click **"Deploy"**
+6. After deployment, go to the function's **Settings** tab
+7. **Disable JWT verification** — toggle off "Verify JWT" (this function is called by search engine crawlers)
+
+**Usage:**
+```
+https://YOUR_PROJECT_REF.supabase.co/functions/v1/sitemap?site_url=https://yourdomain.com
+```
+
+Submit this URL as your sitemap in Google Search Console.
 
 ---
 
@@ -991,6 +1016,81 @@ Run whenever you push new code:
 | Categories | `/admin/categories` | Manage post categories |
 | Link Shortener | `/admin/link-shortener` | Create and manage shortened links |
 | Settings | `/admin/settings` | Site branding, SEO, social, account |
+
+---
+
+## SEO, Google AdSense & Search Console Setup
+
+### Google Search Console
+
+1. **Go to** [Google Search Console](https://search.google.com/search-console)
+2. **Add your property** — choose "URL prefix" and enter your site URL (e.g., `https://yourdomain.com`)
+3. **Verify ownership** — recommended methods:
+   - **HTML tag:** Go to Admin → Settings → SEO, paste the verification meta tag in the **Custom Head Scripts** field
+   - **DNS TXT record:** Add the TXT record at your domain registrar
+4. **Submit your sitemap:**
+   - Go to **Sitemaps** in Search Console
+   - Enter: `https://YOUR_SUPABASE_PROJECT_REF.supabase.co/functions/v1/sitemap?site_url=https://yourdomain.com`
+   - Or if you set up a proxy/redirect, enter: `/sitemap.xml`
+5. **Request indexing** for your homepage and key articles via the **URL Inspection** tool
+
+> **Tip:** The sitemap is auto-generated from your published posts and categories via the `sitemap` edge function. Every new published article is automatically included.
+
+### Google AdSense
+
+1. **Sign up** at [Google AdSense](https://www.google.com/adsense/)
+2. **Get your AdSense code** — it looks like:
+   ```html
+   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXXXXXXXXXX" crossorigin="anonymous"></script>
+   ```
+3. **Add it to your site:**
+   - Go to **Admin → Settings → SEO**
+   - Paste the AdSense script into the **Custom Head Scripts** field
+   - Click **Save**
+4. **Verify in AdSense dashboard** — your site should appear as connected
+5. **Create ad units** in AdSense and place them via Custom Head Scripts or by editing components
+
+### Google Analytics
+
+1. **Create a property** at [Google Analytics](https://analytics.google.com/)
+2. **Get your Measurement ID** (format: `G-XXXXXXXXXX`)
+3. **Add it to your site:**
+   - Go to **Admin → Settings → SEO**
+   - Enter the Measurement ID in the **Google Analytics ID** field
+   - Click **Save**
+4. Analytics tracking is automatically injected on every page via the SEOHead component
+
+### SEO Best Practices (Already Built-In)
+
+The platform includes these SEO features out of the box:
+
+| Feature | Implementation |
+|---------|---------------|
+| **Dynamic meta tags** | SEOHead component on every page |
+| **JSON-LD structured data** | Article, WebSite, BreadcrumbList schemas |
+| **Open Graph tags** | Title, description, image, type for social sharing |
+| **Twitter Cards** | Summary large image cards |
+| **Canonical URLs** | Automatic canonical tags on articles |
+| **XML Sitemap** | Auto-generated via edge function |
+| **robots.txt** | Configured for all major crawlers |
+| **Semantic HTML** | Proper heading hierarchy, `<article>`, `<nav>`, `<main>` |
+| **Image alt attributes** | Supported via rich text editor |
+| **Responsive design** | Mobile-first, passes Core Web Vitals |
+
+### SEO Checklist for Site Owners
+
+- [ ] Set **Site Title**, **Description**, and **Meta Author** in Admin → Settings
+- [ ] Upload an **OG Image** (1200×630px recommended) in Admin → Settings → Branding
+- [ ] Upload a **Favicon** in Admin → Settings → Branding
+- [ ] Add **Meta Keywords** relevant to your niche in Admin → Settings → SEO
+- [ ] Connect **Google Analytics** (see above)
+- [ ] Submit **sitemap** to Google Search Console (see above)
+- [ ] Add **Google AdSense** script (see above)
+- [ ] Set social media links in Admin → Settings → Social
+- [ ] Write descriptive **excerpts** for every post (used as meta descriptions)
+- [ ] Use proper **heading structure** (H2, H3) in article content
+- [ ] Add **alt text** to images in articles
+- [ ] Keep slugs **short and descriptive** (e.g., `getting-started-with-react`)
 
 ---
 
