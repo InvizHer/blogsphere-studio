@@ -189,17 +189,17 @@ export default function Index() {
 
                 <motion.div variants={fadeUp} custom={3} className="flex gap-3">
                   <Link
+                    to="/projects"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
+                  >
+                    <Layers className="h-4 w-4" /> Projects
+                  </Link>
+                  <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
                     style={{ background: "var(--gradient-primary)" }}
                   >
                     Browse Posts <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/projects"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
-                  >
-                    <Layers className="h-4 w-4" /> Projects
                   </Link>
                 </motion.div>
               </motion.div>
@@ -219,17 +219,17 @@ export default function Index() {
 
                 <motion.div variants={fadeUp} custom={2} className="flex flex-row gap-3">
                   <Link
+                    to="/projects"
+                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
+                  >
+                    <Layers className="h-4 w-4" /> Projects
+                  </Link>
+                  <Link
                     to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
                     style={{ background: "var(--gradient-primary)" }}
                   >
                     Browse Posts <ArrowRight className="h-4 w-4" />
-                  </Link>
-                  <Link
-                    to="/projects"
-                    className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
-                  >
-                    <Layers className="h-4 w-4" /> Projects
                   </Link>
                 </motion.div>
               </motion.div>
@@ -281,74 +281,83 @@ export default function Index() {
           )}
         </section>
 
-        {/* ───── Explore Topics — Sleek Horizontal Cards ───── */}
+        {/* ───── Explore Topics — Glass Mosaic ───── */}
         {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40 relative overflow-hidden bg-muted/20">
-            <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
+          <section className="relative overflow-hidden border-t border-border/40">
+            {/* Ambient glow */}
+            <div className="pointer-events-none absolute -top-32 left-1/4 h-[400px] w-[600px] rounded-full opacity-[0.05]" style={{ background: "var(--gradient-primary)", filter: "blur(120px)" }} />
+            <div className="pointer-events-none absolute -bottom-20 right-1/4 h-[300px] w-[400px] rounded-full opacity-[0.04]" style={{ background: "hsl(var(--accent))", filter: "blur(100px)" }} />
 
             <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-10 text-center">
-                <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
-                  <Code2 className="h-3.5 w-3.5 text-accent" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
-                </div>
-                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                  Explore <span className="gradient-text">Topics</span>
-                </h2>
-                <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
-                  Curated collections organized by technology and subject.
-                </p>
+              <div className="mb-12 text-center">
+                <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
+                  <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
+                    <Code2 className="h-3.5 w-3.5 text-accent" />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
+                  </div>
+                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                    Explore <span className="gradient-text">Topics</span>
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+                    Curated collections organized by technology and subject.
+                  </p>
+                </motion.div>
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <TopicCardSkeleton key={i} />
-                  ))}
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {visibleTopics.slice(0, 6).map((cat, i) => (
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+                  {visibleTopics.slice(0, 8).map((cat, i) => (
                     <motion.div
                       key={cat.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.35, delay: i * 0.05 }}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ duration: 0.35, delay: i * 0.04 }}
                     >
                       <Link
                         to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/25 hover:bg-primary/[0.02] hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                        className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card p-5 sm:p-6 text-center transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                        {/* Hover gradient overlay */}
+                        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100" style={{ background: "linear-gradient(180deg, hsl(var(--primary) / 0.06) 0%, transparent 60%)" }} />
+
+                        {/* Icon */}
+                        <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl text-xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]" style={{ background: "var(--gradient-subtle)" }}>
                           <i className={getTopicIcon(cat.name)}></i>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base truncate">
+
+                        {/* Name + count */}
+                        <div className="relative">
+                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base">
                             {cat.name}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="mt-0.5 text-[11px] font-medium text-muted-foreground">
                             {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
                           </p>
                         </div>
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/15 bg-primary/5 text-xs text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-primary/10">
-                          →
-                        </div>
+
+                        {/* Bottom accent line */}
+                        <div className="absolute bottom-0 left-1/2 h-[2px] w-0 -translate-x-1/2 transition-all duration-300 group-hover:w-2/3" style={{ background: "var(--gradient-primary)" }} />
                       </Link>
                     </motion.div>
                   ))}
                 </div>
               )}
 
-              <div className="mt-8 flex justify-center">
+              <div className="mt-10 flex justify-center">
                 <Link
                   to="/posts"
-                  className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-0.5"
                 >
                   <Hash className="h-3.5 w-3.5 text-primary" />
                   View All Categories
                   <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
                     {categories.filter(c => c.postCount > 0).length}
                   </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                 </Link>
               </div>
             </div>
