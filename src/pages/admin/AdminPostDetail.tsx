@@ -64,7 +64,7 @@ export default function AdminPostDetail() {
     if (error) toast.error("Failed to delete");
     else {
       toast.success("Post deleted");
-      navigate("/admin/posts");
+      navigate("/inz/posts");
     }
   };
 
@@ -79,7 +79,7 @@ export default function AdminPostDetail() {
       <AdminSidebar />
       <div className="flex-1 overflow-auto bg-background">
         <div className="border-b border-border bg-card px-4 py-5 sm:px-8 sm:py-6 lg:pl-8 pl-16">
-          <Link to="/admin/posts" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link to="/inz/posts" className="mb-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to posts
           </Link>
           <h1 className="font-display text-xl font-bold text-foreground sm:text-2xl">Post Detail</h1>
@@ -122,7 +122,7 @@ export default function AdminPostDetail() {
                   <p className="mb-4 text-sm text-muted-foreground">{post.excerpt}</p>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  <Link to={`/admin/posts/${post.id}/edit`}>
+                  <Link to={`/inz/posts/${post.id}/edit`}>
                     <Button size="sm" variant="outline" className="gap-1.5">
                       <Pencil className="h-3.5 w-3.5" /> Edit
                     </Button>
@@ -189,7 +189,7 @@ export default function AdminPostDetail() {
                   <MessageCircle className="h-4 w-4 text-primary" />
                   Recent Comments ({comments.length})
                 </h3>
-                <Link to={`/admin/comments`} className="text-xs text-primary hover:underline">View all →</Link>
+                <Link to={`/inz/comments`} className="text-xs text-primary hover:underline">View all →</Link>
               </div>
               {comments.length === 0 ? (
                 <p className="py-6 text-center text-sm text-muted-foreground">No comments yet</p>

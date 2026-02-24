@@ -41,7 +41,7 @@ export default function AdminPosts() {
             <p className="text-sm text-muted-foreground">Manage your blog posts</p>
           </div>
           <Link
-            to="/admin/posts/new"
+            to="/inz/posts/new"
             className="inline-flex items-center justify-center gap-2 self-start rounded-xl px-4 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90"
             style={{ background: "var(--gradient-primary)" }}
           >
@@ -58,7 +58,7 @@ export default function AdminPosts() {
             <div className="py-20 text-center">
               <i className="fa-solid fa-file-lines mb-4 text-4xl text-muted-foreground/30"></i>
               <p className="mb-4 text-muted-foreground">No posts yet.</p>
-              <Link to="/admin/posts/new" className="text-primary hover:underline">Create your first post →</Link>
+              <Link to="/inz/posts/new" className="text-primary hover:underline">Create your first post →</Link>
             </div>
           ) : (
             <>
@@ -90,13 +90,13 @@ export default function AdminPosts() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-1">
-                            <Link to={`/admin/posts/${post.id}/detail`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="View Detail">
+                            <Link to={`/inz/posts/${post.id}/detail`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="View Detail">
                               <Eye className="h-4 w-4" />
                             </Link>
                             <Link to={`/posts/${post.slug}.html`} target="_blank" className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="View Live">
                               <ExternalLink className="h-4 w-4" />
                             </Link>
-                            <Link to={`/admin/posts/${post.id}/edit`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="Edit">
+                            <Link to={`/inz/posts/${post.id}/edit`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-foreground" title="Edit">
                               <Pencil className="h-4 w-4" />
                             </Link>
                             <button onClick={() => deletePost(post.id, post.title)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive" title="Delete">
@@ -125,9 +125,9 @@ export default function AdminPosts() {
                         <span className="flex items-center gap-1 text-xs text-muted-foreground"><Eye className="h-3 w-3" /> {post.view_count}</span>
                       </div>
                       <div className="flex gap-1">
-                        <Link to={`/admin/posts/${post.id}/detail`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><Eye className="h-4 w-4" /></Link>
+                        <Link to={`/inz/posts/${post.id}/detail`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><Eye className="h-4 w-4" /></Link>
                         <Link to={`/posts/${post.slug}.html`} target="_blank" className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><ExternalLink className="h-4 w-4" /></Link>
-                        <Link to={`/admin/posts/${post.id}/edit`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></Link>
+                        <Link to={`/inz/posts/${post.id}/edit`} className="rounded-lg p-2 text-muted-foreground hover:bg-muted"><Pencil className="h-4 w-4" /></Link>
                         <button onClick={() => deletePost(post.id, post.title)} className="rounded-lg p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></button>
                       </div>
                     </div>

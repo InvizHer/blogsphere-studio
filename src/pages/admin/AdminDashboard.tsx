@@ -68,7 +68,7 @@ export default function AdminDashboard() {
 
         <div className="p-4 sm:p-8">
           <Link
-            to="/admin/posts/new"
+            to="/inz/posts/new"
             className="mb-6 flex items-center gap-3 rounded-2xl border border-dashed border-primary/30 p-4 text-sm font-medium text-primary transition-all hover:bg-primary/5"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-xl" style={{ background: "var(--gradient-primary)" }}>
@@ -95,7 +95,7 @@ export default function AdminDashboard() {
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
                 <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Posts</h2>
-                <Link to="/admin/posts" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
+                <Link to="/inz/posts" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-border">
                 {recentPosts.length === 0 ? (
@@ -104,7 +104,7 @@ export default function AdminDashboard() {
                   recentPosts.map((post) => (
                     <div key={post.id} className="flex items-start sm:items-center justify-between gap-3 px-4 py-3 sm:px-6">
                       <div className="min-w-0 flex-1">
-                        <Link to={`/admin/posts/${post.id}`} className="block text-sm font-medium text-card-foreground hover:text-primary line-clamp-2 sm:line-clamp-1">
+                        <Link to={`/inz/posts/${post.id}`} className="block text-sm font-medium text-card-foreground hover:text-primary line-clamp-2 sm:line-clamp-1">
                           {post.title}
                         </Link>
                         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -123,7 +123,7 @@ export default function AdminDashboard() {
             <div className="rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
               <div className="flex items-center justify-between border-b border-border px-4 py-3 sm:px-6 sm:py-4">
                 <h2 className="font-display text-sm sm:text-base font-semibold text-card-foreground">Recent Comments</h2>
-                <Link to="/admin/comments" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
+                <Link to="/inz/comments" className="text-xs sm:text-sm font-medium text-primary hover:underline">View all</Link>
               </div>
               <div className="divide-y divide-border">
                 {recentComments.length === 0 ? (

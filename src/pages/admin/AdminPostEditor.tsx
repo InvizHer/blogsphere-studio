@@ -166,7 +166,7 @@ export default function AdminPostEditor() {
     }
 
     toast.success(isEditing ? "Post updated!" : "Post created!");
-    navigate("/admin/posts");
+    navigate("/inz/posts");
     setSaving(false);
   };
 

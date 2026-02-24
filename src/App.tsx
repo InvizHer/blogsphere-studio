@@ -53,17 +53,17 @@ const App = () => (
               <Route path="/contact" element={<Contact />} />
 
               {/* Admin */}
-              <Route path="/admin/login" element={<AdminLogin />} />
-              <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-              <Route path="/admin/analytics" element={<ProtectedRoute><AdminAnalytics /></ProtectedRoute>} />
-              <Route path="/admin/posts" element={<ProtectedRoute><AdminPosts /></ProtectedRoute>} />
-              <Route path="/admin/posts/new" element={<ProtectedRoute><AdminPostEditor /></ProtectedRoute>} />
-              <Route path="/admin/posts/:id/edit" element={<ProtectedRoute><AdminPostEditor /></ProtectedRoute>} />
-              <Route path="/admin/posts/:id/detail" element={<ProtectedRoute><AdminPostDetail /></ProtectedRoute>} />
-              <Route path="/admin/comments" element={<ProtectedRoute><AdminComments /></ProtectedRoute>} />
-              <Route path="/admin/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
-              <Route path="/admin/link-shortener" element={<ProtectedRoute><AdminLinkShortener /></ProtectedRoute>} />
-              <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+              <Route path="/inz/login" element={<AdminLogin />} />
+              <Route path="/inz" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="/inz/analytics" element={<ProtectedRoute><AdminAnalytics /></ProtectedRoute>} />
+              <Route path="/inz/posts" element={<ProtectedRoute><AdminPosts /></ProtectedRoute>} />
+              <Route path="/inz/posts/new" element={<ProtectedRoute><AdminPostEditor /></ProtectedRoute>} />
+              <Route path="/inz/posts/:id/edit" element={<ProtectedRoute><AdminPostEditor /></ProtectedRoute>} />
+              <Route path="/inz/posts/:id/detail" element={<ProtectedRoute><AdminPostDetail /></ProtectedRoute>} />
+              <Route path="/inz/comments" element={<ProtectedRoute><AdminComments /></ProtectedRoute>} />
+              <Route path="/inz/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
+              <Route path="/inz/link-shortener" element={<ProtectedRoute><AdminLinkShortener /></ProtectedRoute>} />
+              <Route path="/inz/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />
             </Routes>
