@@ -189,17 +189,17 @@ export default function Index() {
 
                 <motion.div variants={fadeUp} custom={3} className="flex gap-3">
                   <Link
-                    to="/posts"
+                    to="/projects"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
                     style={{ background: "var(--gradient-primary)" }}
                   >
-                    Browse Posts <ArrowRight className="h-4 w-4" />
+                    <Layers className="h-4 w-4" /> Projects
                   </Link>
                   <Link
-                    to="/projects"
+                    to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
                   >
-                    <Layers className="h-4 w-4" /> Projects
+                    Browse Posts <ArrowRight className="h-4 w-4" />
                   </Link>
                 </motion.div>
               </motion.div>
@@ -219,17 +219,17 @@ export default function Index() {
 
                 <motion.div variants={fadeUp} custom={2} className="flex flex-row gap-3">
                   <Link
-                    to="/posts"
+                    to="/projects"
                     className="inline-flex items-center justify-center gap-2 rounded-xl px-7 py-3.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90"
                     style={{ background: "var(--gradient-primary)" }}
                   >
-                    Browse Posts <ArrowRight className="h-4 w-4" />
+                    <Layers className="h-4 w-4" /> Projects
                   </Link>
                   <Link
-                    to="/projects"
+                    to="/posts"
                     className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-7 py-3.5 text-sm font-semibold text-foreground transition-all hover:bg-muted"
                   >
-                    <Layers className="h-4 w-4" /> Projects
+                    Browse Posts <ArrowRight className="h-4 w-4" />
                   </Link>
                 </motion.div>
               </motion.div>
@@ -281,57 +281,60 @@ export default function Index() {
           )}
         </section>
 
-        {/* ───── Explore Topics — Sleek Horizontal Cards ───── */}
+        {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40 relative overflow-hidden bg-muted/20">
-            <div className="pointer-events-none absolute -top-40 right-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "var(--gradient-primary)", filter: "blur(80px)" }} />
+          <section className="border-t border-border/40 relative overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ background: "radial-gradient(ellipse at 30% 20%, hsl(var(--primary)), transparent 70%), radial-gradient(ellipse at 70% 80%, hsl(var(--accent)), transparent 70%)" }} />
 
             <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-10 text-center">
-                <div className="mx-auto mb-3 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/5 px-3.5 py-1.5">
-                  <Code2 className="h-3.5 w-3.5 text-accent" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Browse by Topic</span>
+              <div className="mb-12 flex flex-col items-center text-center">
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
+                  <Code2 className="h-4 w-4 text-primary" />
+                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
                 </div>
                 <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
                   Explore <span className="gradient-text">Topics</span>
                 </h2>
-                <p className="mx-auto mt-2 max-w-sm text-sm text-muted-foreground">
+                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
                   Curated collections organized by technology and subject.
                 </p>
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {Array.from({ length: 8 }).map((_, i) => (
                     <TopicCardSkeleton key={i} />
                   ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {visibleTopics.slice(0, 6).map((cat, i) => (
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+                  {visibleTopics.slice(0, 8).map((cat, i) => (
                     <motion.div
                       key={cat.id}
-                      initial={{ opacity: 0, y: 16 }}
+                      initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.35, delay: i * 0.05 }}
+                      transition={{ duration: 0.4, delay: i * 0.05 }}
                     >
                       <Link
                         to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group flex items-center gap-4 rounded-xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/25 hover:bg-primary/[0.02] hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                        className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 text-center transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.2)]"
                       >
-                        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-primary/15 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.15)]">
+                        {/* Hover glow */}
+                        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                          style={{ background: "radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.08), transparent 70%)" }}
+                        />
+                        {/* Icon */}
+                        <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/10 bg-primary/5 text-xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]">
                           <i className={getTopicIcon(cat.name)}></i>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base truncate">
+                        {/* Label */}
+                        <div className="relative">
+                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base">
                             {cat.name}
                           </h3>
-                          <p className="text-xs text-muted-foreground">
+                          <p className="mt-1 text-xs text-muted-foreground">
                             {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
                           </p>
-                        </div>
-                        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-primary/15 bg-primary/5 text-xs text-primary transition-all duration-300 group-hover:translate-x-0.5 group-hover:bg-primary/10">
-                          →
                         </div>
                       </Link>
                     </motion.div>
@@ -339,16 +342,17 @@ export default function Index() {
                 </div>
               )}
 
-              <div className="mt-8 flex justify-center">
+              <div className="mt-10 flex justify-center">
                 <Link
                   to="/posts"
-                  className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-6 py-2.5 text-sm font-medium text-foreground transition-all hover:bg-muted hover:-translate-y-0.5"
+                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground transition-all hover:bg-muted hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
                 >
-                  <Hash className="h-3.5 w-3.5 text-primary" />
+                  <Hash className="h-4 w-4 text-primary" />
                   View All Categories
                   <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
                     {categories.filter(c => c.postCount > 0).length}
                   </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
             </div>

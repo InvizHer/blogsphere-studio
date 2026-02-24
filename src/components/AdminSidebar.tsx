@@ -4,13 +4,13 @@ import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
 const navItems = [
-  { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
-  { title: "Posts", url: "/admin/posts", icon: FileText },
-  { title: "Categories", url: "/admin/categories", icon: FolderOpen },
-  { title: "Comments", url: "/admin/comments", icon: MessageCircle },
-  { title: "Analytics", url: "/admin/analytics", icon: BarChart3 },
-  { title: "Link Shortener", url: "/admin/link-shortener", icon: Link2 },
-  { title: "Settings", url: "/admin/settings", icon: Settings },
+  { title: "Dashboard", url: "/inz", icon: LayoutDashboard },
+  { title: "Posts", url: "/inz/posts", icon: FileText },
+  { title: "Categories", url: "/inz/categories", icon: FolderOpen },
+  { title: "Comments", url: "/inz/comments", icon: MessageCircle },
+  { title: "Analytics", url: "/inz/analytics", icon: BarChart3 },
+  { title: "Link Shortener", url: "/inz/link-shortener", icon: Link2 },
+  { title: "Settings", url: "/inz/settings", icon: Settings },
 ];
 
 export function AdminSidebar() {
@@ -21,7 +21,7 @@ export function AdminSidebar() {
   const sidebar = (
     <>
       <div className="flex h-16 items-center justify-between border-b border-sidebar-border px-5">
-        <Link to="/admin" className="flex items-center gap-2.5">
+        <Link to="/inz" className="flex items-center gap-2.5">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
             <i className="fa-solid fa-feather-pointed text-xs text-white"></i>
           </div>
