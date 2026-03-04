@@ -281,58 +281,60 @@ export default function Index() {
           )}
         </section>
 
-        {/* ───── Explore Topics ───── */}
+        {/* ───── Explore Topics — Marquee ───── */}
         {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40">
-            <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+          <section className="border-t border-border/40 overflow-hidden py-16 md:py-24">
+            <div className="mx-auto max-w-7xl px-5 sm:px-8">
               <div className="mb-10 text-center">
                 <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
                   Explore <span className="gradient-text">Topics</span>
                 </h2>
-                <p className="mt-2 text-sm text-muted-foreground">Pick a topic that interests you</p>
+                <p className="mt-2 text-sm text-muted-foreground">Browse our content by category</p>
               </div>
+            </div>
 
-              {loading ? (
-                <div className="flex flex-wrap justify-center gap-3">
-                  {Array.from({ length: 6 }).map((_, i) => (
-                    <div key={i} className="h-12 w-32 animate-pulse rounded-full bg-muted" />
-                  ))}
-                </div>
-              ) : (
-                <div className="flex flex-wrap justify-center gap-3">
-                  {visibleTopics.map((cat, i) => (
-                    <motion.div
-                      key={cat.id}
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      whileInView={{ opacity: 1, scale: 1 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.3, delay: i * 0.04 }}
+            {loading ? (
+              <div className="flex justify-center gap-4 px-5">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-16 w-44 animate-pulse rounded-2xl bg-muted" />
+                ))}
+              </div>
+            ) : (
+              <div className="relative group/marquee">
+                {/* Fade edges */}
+                <div className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20 bg-gradient-to-r from-background to-transparent" />
+                <div className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20 bg-gradient-to-l from-background to-transparent" />
+
+                {/* Scrolling row */}
+                <div className="flex gap-4 animate-[marquee_30s_linear_infinite] group-hover/marquee:[animation-play-state:paused] w-max">
+                  {[...visibleTopics, ...visibleTopics, ...visibleTopics].map((cat, i) => (
+                    <Link
+                      key={`${cat.id}-${i}`}
+                      to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                      className="group/item flex items-center gap-3 rounded-2xl border border-border bg-card px-6 py-4 transition-all duration-300 hover:border-primary/30 hover:shadow-[var(--shadow-elevated)] hover:-translate-y-1 shrink-0"
                     >
-                      <Link
-                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:text-primary hover:shadow-[var(--shadow-card)] hover:-translate-y-0.5"
-                      >
-                        <i className={`${getTopicIcon(cat.name)} text-primary/70 group-hover:text-primary transition-colors`}></i>
-                        <span>{cat.name}</span>
-                        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-secondary px-1.5 text-[11px] font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                          {cat.postCount}
-                        </span>
-                      </Link>
-                    </motion.div>
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-lg text-primary transition-transform group-hover/item:scale-110">
+                        <i className={getTopicIcon(cat.name)}></i>
+                      </div>
+                      <div>
+                        <h3 className="font-display text-sm font-bold text-foreground group-hover/item:text-primary transition-colors whitespace-nowrap">{cat.name}</h3>
+                        <p className="text-[11px] text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</p>
+                      </div>
+                    </Link>
                   ))}
                 </div>
-              )}
-
-              <div className="mt-10 flex justify-center">
-                <Link
-                  to="/posts"
-                  className="group inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ background: "var(--gradient-primary)" }}
-                >
-                  View All Categories
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </Link>
               </div>
+            )}
+
+            <div className="mt-10 flex justify-center">
+              <Link
+                to="/posts"
+                className="group inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "var(--gradient-primary)" }}
+              >
+                View All Categories
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
             </div>
           </section>
         )}
