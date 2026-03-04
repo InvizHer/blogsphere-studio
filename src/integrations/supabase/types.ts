@@ -263,6 +263,7 @@ export type Database = {
           social_instagram: string | null
           social_linkedin: string | null
           social_twitter: string | null
+          theme_color: string
           updated_at: string
         }
         Insert: {
@@ -283,6 +284,7 @@ export type Database = {
           social_instagram?: string | null
           social_linkedin?: string | null
           social_twitter?: string | null
+          theme_color?: string
           updated_at?: string
         }
         Update: {
@@ -303,6 +305,7 @@ export type Database = {
           social_instagram?: string | null
           social_linkedin?: string | null
           social_twitter?: string | null
+          theme_color?: string
           updated_at?: string
         }
         Relationships: []
