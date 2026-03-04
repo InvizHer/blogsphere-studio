@@ -230,7 +230,7 @@ export default function PostDetail() {
                     : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   }
                 </div>
-                <div>
+                <div className="hidden md:block">
                   <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
                   <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                     {saved ? "Saved" : "Save"}
