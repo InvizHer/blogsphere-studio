@@ -286,26 +286,15 @@ export default function Index() {
           <section className="border-t border-border/40">
             <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
               {/* Header */}
-              <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5">
-                    <Code2 className="h-3.5 w-3.5 text-primary" />
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
-                  </div>
-                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
-                    Explore <span className="gradient-text">Topics</span>
-                  </h2>
+              <div className="mb-10">
+                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5">
+                  <Code2 className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
                 </div>
-                <Link
-                  to="/posts"
-                  className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:bg-muted"
-                >
-                  View All
-                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
-                    {categories.filter(c => c.postCount > 0).length}
-                  </span>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
+                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                  Explore <span className="gradient-text">Topics</span>
+                </h2>
+                <p className="mt-2 max-w-md text-sm text-muted-foreground">Curated collections organized by technology and subject.</p>
               </div>
 
               {loading ? (
@@ -324,25 +313,44 @@ export default function Index() {
                     >
                       <Link
                         to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/25 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] sm:p-5"
+                        className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/25 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-lg text-primary transition-transform duration-300 group-hover:scale-110">
-                            <i className={getTopicIcon(cat.name)}></i>
-                          </div>
-                          <span className="rounded-md bg-secondary px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
-                            {cat.postCount}
-                          </span>
+                        {/* Subtle gradient on hover */}
+                        <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "var(--gradient-subtle)" }} />
+
+                        {/* Top row: icon */}
+                        <div className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10">
+                          <i className={getTopicIcon(cat.name)}></i>
                         </div>
-                        <div>
-                          <h3 className="font-display text-sm font-bold text-foreground group-hover:text-primary transition-colors sm:text-base">{cat.name}</h3>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</p>
+
+                        {/* Bottom: name + meta */}
+                        <div className="relative">
+                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base line-clamp-1">{cat.name}</h3>
+                          <div className="mt-1.5 flex items-center justify-between">
+                            <span className="text-xs text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</span>
+                            <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
+                          </div>
                         </div>
                       </Link>
                     </motion.div>
                   ))}
                 </div>
               )}
+
+              {/* View All Categories */}
+              <div className="mt-10 flex justify-center">
+                <Link
+                  to="/posts"
+                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:bg-muted hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                >
+                  <Hash className="h-4 w-4 text-primary" />
+                  View All Categories
+                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                    {categories.filter(c => c.postCount > 0).length}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </div>
             </div>
           </section>
         )}
