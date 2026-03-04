@@ -1,10 +1,9 @@
 import { useState, useEffect, useRef, createContext, useContext } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Lock, ArrowDown, ExternalLink, Timer, CheckCircle2, Sparkles } from "lucide-react";
+import { Lock, ArrowDown, ExternalLink, Timer, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LinkData {
@@ -17,7 +16,6 @@ interface LinkData {
 /** Top section: timer + "scroll down" button */
 export function LinkShortenerTop() {
   const ctx = useLinkShortenerContext();
-
   if (!ctx) return null;
   const { link, phase, timeLeft, handleContinue } = ctx;
   if (!link || (phase !== "timer" && phase !== "ready")) return null;
@@ -30,113 +28,74 @@ export function LinkShortenerTop() {
         {phase === "timer" ? (
           <motion.div
             key="timer"
-            initial={{ opacity: 0, y: -20 }}
+            initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.4, ease: "easeOut" }}
+            exit={{ opacity: 0 }}
+            className="rounded-xl border border-border bg-card p-4 sm:p-5"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl shadow-[var(--shadow-elevated)]">
-              {/* Gradient top accent */}
-              <div className="h-1" style={{ background: "var(--gradient-primary)" }} />
-
-              <div className="p-5 sm:p-6 space-y-5">
-                <div className="flex items-center gap-3">
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                    className="flex h-10 w-10 items-center justify-center rounded-xl"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    <Timer className="h-5 w-5 text-primary-foreground" />
-                  </motion.div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-foreground">
-                      Preparing {link.link_name} Link
-                    </h3>
-                    <p className="text-sm text-muted-foreground">
-                      Please wait {timeLeft} seconds...
-                    </p>
-                  </div>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Timer className="h-4 w-4 text-primary" />
                 </div>
-
-                {/* Custom gradient progress bar */}
-                <div className="relative h-3 w-full overflow-hidden rounded-full bg-secondary">
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{ background: "var(--gradient-primary)" }}
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
-                  <motion.div
-                    className="absolute inset-y-0 left-0 rounded-full opacity-40"
-                    style={{ background: "var(--gradient-primary)", filter: "blur(4px)" }}
-                    initial={{ width: "0%" }}
-                    animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-medium">{Math.round(progress)}% complete</span>
-                  <motion.span
-                    key={timeLeft}
-                    initial={{ opacity: 0, scale: 0.8 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="font-mono font-bold text-primary"
-                  >
-                    {timeLeft}s remaining
-                  </motion.span>
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Preparing your link
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Please wait while we get things ready
+                  </p>
                 </div>
               </div>
+              <motion.span
+                key={timeLeft}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-lg font-bold tabular-nums text-primary"
+              >
+                {timeLeft}s
+              </motion.span>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-1.5 w-full overflow-hidden rounded-full bg-secondary">
+              <motion.div
+                className="h-full rounded-full bg-primary"
+                initial={{ width: "0%" }}
+                animate={{ width: `${progress}%` }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+              />
             </div>
           </motion.div>
         ) : (
           <motion.div
             key="ready"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl border border-primary/20 bg-card p-4 sm:p-5"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl shadow-[var(--shadow-elevated)]">
-              {/* Gradient top accent */}
-              <div className="h-1" style={{ background: "var(--gradient-primary)" }} />
-
-              <div className="p-5 sm:p-7 space-y-5 text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
-                  style={{ background: "var(--gradient-subtle)" }}
-                >
-                  <CheckCircle2 className="h-7 w-7 text-primary" />
-                </motion.div>
-
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Check className="h-4 w-4 text-primary" />
+                </div>
                 <div>
-                  <h3 className="font-display text-xl font-bold text-foreground">Link is Ready!</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Click below to scroll down and access your <span className="font-semibold text-foreground">{link.link_name}</span> link.
+                  <p className="text-sm font-semibold text-foreground">
+                    {link.link_name} link is ready
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Scroll down to access your link
                   </p>
                 </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.4 }}
-                >
-                  <Button
-                    onClick={handleContinue}
-                    size="lg"
-                    className="gap-2 text-primary-foreground text-base shadow-[var(--shadow-glow)] transition-shadow hover:shadow-[var(--shadow-elevated)]"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    Click to Continue
-                    <ArrowDown className="h-4 w-4 animate-bounce" />
-                  </Button>
-                </motion.div>
               </div>
+              <Button
+                onClick={handleContinue}
+                size="sm"
+                className="gap-1.5"
+              >
+                Continue
+                <ArrowDown className="h-3.5 w-3.5" />
+              </Button>
             </div>
           </motion.div>
         )}
@@ -145,7 +104,7 @@ export function LinkShortenerTop() {
   );
 }
 
-/** Bottom section: password prompt + access button (placed above footer) */
+/** Bottom section: password prompt + access button */
 export function LinkShortenerBottom() {
   const ctx = useLinkShortenerContext();
   const { link, phase, passwordInput, setPasswordInput, passwordError, handlePassword } =
@@ -168,107 +127,68 @@ export function LinkShortenerBottom() {
         {phase === "password" && (
           <motion.div
             key="password"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            exit={{ opacity: 0 }}
+            className="rounded-xl border border-border bg-card p-5 sm:p-6"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl shadow-[var(--shadow-elevated)]">
-              <div className="h-1" style={{ background: "var(--gradient-primary)" }} />
-
-              <div className="space-y-5 p-5 sm:p-7">
-                <div className="flex items-center gap-3">
-                  <div
-                    className="flex h-10 w-10 items-center justify-center rounded-xl"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    <Lock className="h-5 w-5 text-primary-foreground" />
-                  </div>
-                  <div>
-                    <h3 className="font-display text-lg font-bold text-foreground">Link is Protected</h3>
-                    <p className="text-sm text-muted-foreground">Enter the password to access this link.</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-2">
-                  <Input
-                    type="password"
-                    value={passwordInput}
-                    onChange={(e) => setPasswordInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && handlePassword()}
-                    placeholder="Enter password"
-                    className="max-w-xs"
-                  />
-                  <Button
-                    onClick={handlePassword}
-                    className="text-primary-foreground"
-                    style={{ background: "var(--gradient-primary)" }}
-                  >
-                    Submit
-                  </Button>
-                </div>
-
-                <AnimatePresence>
-                  {passwordError && (
-                    <motion.p
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      className="text-sm text-destructive"
-                    >
-                      Incorrect password. Please try again.
-                    </motion.p>
-                  )}
-                </AnimatePresence>
+            <div className="flex items-center gap-2.5 mb-4">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <Lock className="h-4 w-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Password required</p>
+                <p className="text-xs text-muted-foreground">Enter the password to access this link</p>
               </div>
             </div>
+
+            <div className="flex gap-2 max-w-sm">
+              <Input
+                type="password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handlePassword()}
+                placeholder="Enter password"
+              />
+              <Button onClick={handlePassword}>
+                Submit
+              </Button>
+            </div>
+
+            {passwordError && (
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-2 text-sm text-destructive"
+              >
+                Incorrect password. Please try again.
+              </motion.p>
+            )}
           </motion.div>
         )}
 
         {phase === "access" && (
           <motion.div
             key="access"
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.6, ease: "easeOut" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl border border-primary/20 bg-card p-5 sm:p-6 text-center"
           >
-            <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-card/80 backdrop-blur-xl shadow-[var(--shadow-elevated)]">
-              <div className="h-1" style={{ background: "var(--gradient-primary)" }} />
-
-              <div className="space-y-5 p-5 sm:p-7 text-center">
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-                  className="mx-auto flex h-14 w-14 items-center justify-center rounded-full"
-                  style={{ background: "var(--gradient-subtle)" }}
-                >
-                  <ExternalLink className="h-7 w-7 text-primary" />
-                </motion.div>
-
-                <h3 className="font-display text-xl font-bold text-foreground">Your link is ready!</h3>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <Button
-                    size="lg"
-                    className="gap-2 text-primary-foreground text-base shadow-[var(--shadow-glow)] transition-all hover:shadow-[var(--shadow-elevated)] hover:scale-105"
-                    style={{ background: "var(--gradient-primary)" }}
-                    onClick={() => window.open(link.original_url, "_blank")}
-                  >
-                    <ExternalLink className="h-5 w-5" />
-                    Access {link.link_name} Link
-                  </Button>
-                </motion.div>
-
-                <p className="text-sm text-muted-foreground">
-                  Click the button above to visit your <span className="font-semibold text-foreground">{link.link_name}</span> link.
-                </p>
-              </div>
+            <div className="mx-auto mb-4 flex h-10 w-10 items-center justify-center rounded-full bg-primary/10">
+              <ExternalLink className="h-5 w-5 text-primary" />
             </div>
+            <p className="mb-1 text-sm font-semibold text-foreground">Your link is ready</p>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Click below to open <span className="font-medium text-foreground">{link.link_name}</span>
+            </p>
+            <Button
+              size="lg"
+              className="gap-2"
+              onClick={() => window.open(link.original_url, "_blank")}
+            >
+              <ExternalLink className="h-4 w-4" />
+              Open Link
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>
