@@ -285,94 +285,52 @@ export default function Index() {
         {visibleTopics.length > 0 && (
           <section className="border-t border-border/40">
             <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              {/* Header */}
-              <div className="mb-10">
-                <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5">
-                  <Code2 className="h-3.5 w-3.5 text-primary" />
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
-                </div>
+              <div className="mb-10 text-center">
                 <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
                   Explore <span className="gradient-text">Topics</span>
                 </h2>
-                <p className="mt-2 max-w-md text-sm text-muted-foreground">Curated collections organized by technology and subject.</p>
+                <p className="mt-2 text-sm text-muted-foreground">Pick a topic that interests you</p>
               </div>
 
               {loading ? (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)}
+                <div className="flex flex-wrap justify-center gap-3">
+                  {Array.from({ length: 6 }).map((_, i) => (
+                    <div key={i} className="h-12 w-32 animate-pulse rounded-full bg-muted" />
+                  ))}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-                  {visibleTopics.slice(0, 8).map((cat, i) => {
-                    // Soft gradient tints per card for visual variety
-                    const tints = [
-                      "from-primary/8 to-accent/5",
-                      "from-accent/8 to-primary/5",
-                      "from-primary/6 to-transparent",
-                      "from-accent/6 to-transparent",
-                      "from-primary/8 to-accent/5",
-                      "from-accent/8 to-primary/5",
-                      "from-primary/6 to-transparent",
-                      "from-accent/6 to-transparent",
-                    ];
-                    return (
-                      <motion.div
-                        key={cat.id}
-                        initial={{ opacity: 0, y: 16 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.35, delay: i * 0.05 }}
+                <div className="flex flex-wrap justify-center gap-3">
+                  {visibleTopics.map((cat, i) => (
+                    <motion.div
+                      key={cat.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      whileInView={{ opacity: 1, scale: 1 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.3, delay: i * 0.04 }}
+                    >
+                      <Link
+                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                        className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:border-primary/40 hover:bg-primary/5 hover:text-primary hover:shadow-[var(--shadow-card)] hover:-translate-y-0.5"
                       >
-                        <Link
-                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                          className="group relative flex aspect-square flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
-                        >
-                          {/* Top gradient band */}
-                          <div className={`h-1.5 w-full bg-gradient-to-r ${tints[i % tints.length]}`} />
-
-                          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
-                            {/* Icon + count row */}
-                            <div className="flex items-start justify-between">
-                              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-accent/5 text-xl text-primary ring-1 ring-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:ring-primary/25 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.12)]">
-                                <i className={getTopicIcon(cat.name)}></i>
-                              </div>
-                              <span className="rounded-lg bg-secondary px-2.5 py-1 font-mono text-xs font-bold text-foreground/60">
-                                {cat.postCount}
-                              </span>
-                            </div>
-
-                            {/* Name + article count + arrow */}
-                            <div>
-                              <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base line-clamp-1">{cat.name}</h3>
-                              <p className="mt-1 text-[11px] text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</p>
-
-                              <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
-                                <span className="text-[11px] font-medium text-primary/70">Explore</span>
-                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/5 transition-all duration-300 group-hover:bg-primary/10 group-hover:scale-110">
-                                  <ArrowRight className="h-3.5 w-3.5 text-primary/50 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
+                        <i className={`${getTopicIcon(cat.name)} text-primary/70 group-hover:text-primary transition-colors`}></i>
+                        <span>{cat.name}</span>
+                        <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-secondary px-1.5 text-[11px] font-bold text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
+                          {cat.postCount}
+                        </span>
+                      </Link>
+                    </motion.div>
+                  ))}
                 </div>
               )}
 
-              {/* View All Categories */}
               <div className="mt-10 flex justify-center">
                 <Link
                   to="/posts"
-                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:bg-muted hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                  className="group inline-flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "var(--gradient-primary)" }}
                 >
-                  <Hash className="h-4 w-4 text-primary" />
                   View All Categories
-                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
-                    {categories.filter(c => c.postCount > 0).length}
-                  </span>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
               </div>
             </div>
