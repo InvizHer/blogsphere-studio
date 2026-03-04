@@ -283,78 +283,119 @@ export default function Index() {
 
         {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
-          <section className="border-t border-border/40 relative overflow-hidden">
-            <div className="pointer-events-none absolute inset-0 opacity-[0.03]" style={{ background: "radial-gradient(ellipse at 30% 20%, hsl(var(--primary)), transparent 70%), radial-gradient(ellipse at 70% 80%, hsl(var(--accent)), transparent 70%)" }} />
+          <section className="relative overflow-hidden py-20 md:py-28">
+            {/* Ambient blobs */}
+            <div className="pointer-events-none absolute -left-40 top-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "hsl(var(--primary))", filter: "blur(120px)" }} />
+            <div className="pointer-events-none absolute -right-40 bottom-0 h-[400px] w-[400px] rounded-full opacity-[0.04]" style={{ background: "hsl(var(--accent))", filter: "blur(120px)" }} />
 
-            <div className="relative mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
-              <div className="mb-12 flex flex-col items-center text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2">
-                  <Code2 className="h-4 w-4 text-primary" />
-                  <span className="text-xs font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
-                </div>
-                <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+            <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+              {/* Header */}
+              <div className="mb-14 flex flex-col items-center text-center">
+                <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                </motion.div>
+                <motion.h2 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl">
                   Explore <span className="gradient-text">Topics</span>
-                </h2>
-                <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
-                  Curated collections organized by technology and subject.
-                </p>
+                </motion.h2>
+                <motion.p initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
+                  Dive into curated collections across technologies, frameworks, and concepts.
+                </motion.p>
               </div>
 
               {loading ? (
                 <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <TopicCardSkeleton key={i} />
-                  ))}
+                  {Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)}
                 </div>
               ) : (
-                <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-                  {visibleTopics.slice(0, 8).map((cat, i) => (
-                    <motion.div
-                      key={cat.id}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: i * 0.05 }}
-                    >
+                <>
+                  {/* Featured topic (first one) */}
+                  {visibleTopics.length > 0 && (
+                    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-5">
                       <Link
-                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group relative flex flex-col items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-5 sm:p-6 text-center transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[0_8px_30px_-12px_hsl(var(--primary)/0.2)]"
+                        to={`/posts?category=${encodeURIComponent(visibleTopics[0].slug)}`}
+                        className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/60 p-6 sm:p-8 md:flex-row md:items-center md:p-10 transition-all duration-500 hover:border-primary/30 hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.15)]"
+                        style={{ background: "var(--gradient-card)" }}
                       >
-                        {/* Hover glow */}
-                        <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                          style={{ background: "radial-gradient(circle at 50% 0%, hsl(var(--primary) / 0.08), transparent 70%)" }}
-                        />
-                        {/* Icon */}
-                        <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-primary/10 bg-primary/5 text-xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_24px_hsl(var(--primary)/0.2)]">
-                          <i className={getTopicIcon(cat.name)}></i>
+                        {/* Decorative gradient orb */}
+                        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full opacity-[0.08] transition-opacity duration-500 group-hover:opacity-[0.15]" style={{ background: "var(--gradient-primary)", filter: "blur(60px)" }} />
+                        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full opacity-[0.05]" style={{ background: "hsl(var(--accent))", filter: "blur(50px)" }} />
+
+                        <div className="relative flex items-center gap-5 sm:gap-6">
+                          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/8 text-2xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/15 group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.25)] sm:h-20 sm:w-20 sm:text-3xl">
+                            <i className={getTopicIcon(visibleTopics[0].name)}></i>
+                          </div>
+                          <div>
+                            <span className="mb-1 inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">Featured Topic</span>
+                            <h3 className="font-display text-xl font-extrabold text-foreground transition-colors group-hover:text-primary sm:text-2xl md:text-3xl">{visibleTopics[0].name}</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">{visibleTopics[0].postCount} {visibleTopics[0].postCount === 1 ? "article" : "articles"} available</p>
+                          </div>
                         </div>
-                        {/* Label */}
-                        <div className="relative">
-                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base">
-                            {cat.name}
-                          </h3>
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
-                          </p>
+
+                        <div className="relative mt-5 flex items-center gap-2 md:mt-0">
+                          <span className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all group-hover:scale-105" style={{ background: "var(--gradient-primary)" }}>
+                            Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                          </span>
                         </div>
                       </Link>
                     </motion.div>
-                  ))}
-                </div>
+                  )}
+
+                  {/* Remaining topics — magazine-style numbered cards */}
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {visibleTopics.slice(1, 7).map((cat, i) => (
+                      <motion.div
+                        key={cat.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.4, delay: i * 0.06 }}
+                      >
+                        <Link
+                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                          className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:border-primary/25 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.12)]"
+                        >
+                          {/* Number watermark */}
+                          <span className="pointer-events-none absolute -bottom-3 -right-1 font-display text-[4.5rem] font-black leading-none text-foreground/[0.03] transition-all group-hover:text-primary/[0.06]">
+                            {String(i + 2).padStart(2, "0")}
+                          </span>
+
+                          {/* Icon */}
+                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.18)]">
+                            <i className={getTopicIcon(cat.name)}></i>
+                          </div>
+
+                          {/* Content */}
+                          <div className="relative min-w-0 flex-1">
+                            <h3 className="truncate font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base">{cat.name}</h3>
+                            <div className="mt-1 flex items-center gap-2">
+                              <span className="rounded-md bg-primary/8 px-2 py-0.5 text-[11px] font-semibold text-primary">{cat.postCount} {cat.postCount === 1 ? "post" : "posts"}</span>
+                            </div>
+                          </div>
+
+                          {/* Arrow */}
+                          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
+                        </Link>
+                      </motion.div>
+                    ))}
+                  </div>
+                </>
               )}
 
-              <div className="mt-10 flex justify-center">
+              {/* View All button */}
+              <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-12 flex justify-center">
                 <Link
                   to="/posts"
-                  className="group inline-flex items-center gap-2.5 rounded-full border border-border bg-card px-7 py-3 text-sm font-semibold text-foreground transition-all hover:bg-muted hover:-translate-y-0.5 hover:shadow-[var(--shadow-card)]"
+                  className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-border bg-card px-8 py-3.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-elevated)]"
                 >
-                  <Hash className="h-4 w-4 text-primary" />
-                  View All Categories
-                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--accent) / 0.05))" }} />
+                  <Hash className="relative h-4 w-4 text-primary" />
+                  <span className="relative">View All Categories</span>
+                  <span className="relative flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary/10 px-2 text-[11px] font-bold text-primary">
                     {categories.filter(c => c.postCount > 0).length}
                   </span>
-                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                  <ArrowRight className="relative h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                 </Link>
-              </div>
+              </motion.div>
             </div>
           </section>
         )}
