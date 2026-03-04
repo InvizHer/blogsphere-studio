@@ -3,11 +3,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
-import { Eye, EyeOff, Globe, Image as ImageIcon, Search, Share2, Code, Upload, X, Trash2, User } from "lucide-react";
+import { Eye, EyeOff, Globe, Image as ImageIcon, Search, Share2, Code, Upload, X, Trash2, User, Palette, Check } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { themePresets, applyTheme } from "@/lib/theme-presets";
+import { invalidateSiteSettings } from "@/hooks/use-site-settings";
 
 interface SiteSettings {
   id: string;
@@ -26,6 +28,7 @@ interface SiteSettings {
   social_facebook: string;
   social_instagram: string;
   social_linkedin: string;
+  theme_color: string;
 }
 
 const defaultSettings: Omit<SiteSettings, "id"> = {
@@ -44,6 +47,7 @@ const defaultSettings: Omit<SiteSettings, "id"> = {
   social_facebook: "",
   social_instagram: "",
   social_linkedin: "",
+  theme_color: "blue-purple",
 };
 
 export default function AdminSettings() {
@@ -113,6 +117,9 @@ export default function AdminSettings() {
     if (error) {
       toast.error("Failed to save settings: " + error.message);
     } else {
+      // Apply theme immediately & invalidate cache
+      applyTheme(settings.theme_color || "blue-purple");
+      invalidateSiteSettings();
       toast.success("Settings saved successfully");
     }
     setSavingSettings(false);
@@ -137,6 +144,12 @@ export default function AdminSettings() {
     if (error) toast.error(error.message);
     else { toast.success("Password updated"); setNewPassword(""); setConfirmPassword(""); }
     setSavingPassword(false);
+  };
+
+  const handleThemeSelect = (themeId: string) => {
+    updateField("theme_color", themeId);
+    // Live preview
+    applyTheme(themeId);
   };
 
   const ImageUploadField = ({
@@ -204,6 +217,9 @@ export default function AdminSettings() {
     </div>
   );
 
+  const gradientPresets = themePresets.filter((p) => p.type === "gradient");
+  const solidPresets = themePresets.filter((p) => p.type === "solid");
+
   return (
     <div className="flex min-h-screen">
       <AdminSidebar />
@@ -217,6 +233,7 @@ export default function AdminSettings() {
           <Tabs defaultValue="site" className="space-y-6">
             <TabsList className="w-full justify-start rounded-xl bg-muted/50 p-1">
               <TabsTrigger value="site" className="gap-2 rounded-lg" title="Site"><Globe className="h-4 w-4" />{!isMobile && " Site"}</TabsTrigger>
+              <TabsTrigger value="theme" className="gap-2 rounded-lg" title="Theme"><Palette className="h-4 w-4" />{!isMobile && " Theme"}</TabsTrigger>
               <TabsTrigger value="seo" className="gap-2 rounded-lg" title="SEO"><Search className="h-4 w-4" />{!isMobile && " SEO"}</TabsTrigger>
               <TabsTrigger value="social" className="gap-2 rounded-lg" title="Social"><Share2 className="h-4 w-4" />{!isMobile && " Social"}</TabsTrigger>
               <TabsTrigger value="advanced" className="gap-2 rounded-lg" title="Advanced"><Code className="h-4 w-4" />{!isMobile && " Advanced"}</TabsTrigger>
@@ -296,6 +313,109 @@ export default function AdminSettings() {
                 </>
               ) : (
                 <p className="text-muted-foreground">Failed to load settings.</p>
+              )}
+            </TabsContent>
+
+            {/* THEME TAB */}
+            <TabsContent value="theme" className="space-y-6">
+              {settings && (
+                <>
+                  <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)] sm:p-6 space-y-6">
+                    <div>
+                      <h2 className="font-display text-lg font-semibold text-card-foreground">Theme Color</h2>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Choose a color scheme for your entire website. Changes apply to buttons, links, gradients, icons, and all themed components.
+                      </p>
+                    </div>
+
+                    {/* Gradient Presets */}
+                    <div>
+                      <h3 className="mb-3 text-sm font-semibold text-card-foreground">Gradient Themes</h3>
+                      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                        {gradientPresets.map((preset) => (
+                          <button
+                            key={preset.id}
+                            onClick={() => handleThemeSelect(preset.id)}
+                            className={`group relative flex flex-col items-center gap-2.5 rounded-xl border-2 p-4 transition-all duration-200 hover:shadow-md ${
+                              settings.theme_color === preset.id
+                                ? "border-primary bg-primary/5 shadow-md"
+                                : "border-border bg-card hover:border-muted-foreground/30"
+                            }`}
+                          >
+                            <div
+                              className="h-10 w-full rounded-lg"
+                              style={{ background: preset.preview }}
+                            />
+                            <span className="text-xs font-medium text-card-foreground">{preset.name}</span>
+                            {settings.theme_color === preset.id && (
+                              <div className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Solid Presets */}
+                    <div>
+                      <h3 className="mb-3 text-sm font-semibold text-card-foreground">Solid Themes</h3>
+                      <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+                        {solidPresets.map((preset) => (
+                          <button
+                            key={preset.id}
+                            onClick={() => handleThemeSelect(preset.id)}
+                            className={`group relative flex flex-col items-center gap-2 rounded-xl border-2 p-3 transition-all duration-200 hover:shadow-md ${
+                              settings.theme_color === preset.id
+                                ? "border-primary bg-primary/5 shadow-md"
+                                : "border-border bg-card hover:border-muted-foreground/30"
+                            }`}
+                          >
+                            <div
+                              className="h-8 w-8 rounded-full"
+                              style={{ background: preset.preview }}
+                            />
+                            <span className="text-[11px] font-medium text-card-foreground">{preset.name}</span>
+                            {settings.theme_color === preset.id && (
+                              <div className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Preview */}
+                    <div className="rounded-xl border border-border bg-background p-5">
+                      <h3 className="mb-3 text-sm font-semibold text-card-foreground">Live Preview</h3>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          className="rounded-xl px-5 py-2.5 text-sm font-medium text-primary-foreground"
+                          style={{ background: "var(--gradient-primary)" }}
+                        >
+                          Primary Button
+                        </button>
+                        <span className="gradient-text text-lg font-bold font-display">Gradient Text</span>
+                        <span className="inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-3 py-1 text-xs font-semibold text-primary">
+                          <Palette className="h-3 w-3" /> Badge
+                        </span>
+                        <div className="h-3 w-24 rounded-full bg-primary/20">
+                          <div className="h-3 w-16 rounded-full" style={{ background: "var(--gradient-primary)" }} />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleSaveSettings}
+                    disabled={savingSettings}
+                    className="rounded-xl px-6 py-2.5 text-sm font-medium text-primary-foreground hover:opacity-90 disabled:opacity-50"
+                    style={{ background: "var(--gradient-primary)" }}
+                  >
+                    {savingSettings ? "Saving..." : "Save Theme"}
+                  </button>
+                </>
               )}
             </TabsContent>
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { applyTheme } from "@/lib/theme-presets";
 
 export interface SiteSettings {
   site_title: string;
@@ -15,6 +16,7 @@ export interface SiteSettings {
   social_facebook: string;
   social_instagram: string;
   social_linkedin: string;
+  theme_color: string;
 }
 
 const defaults: SiteSettings = {
@@ -31,6 +33,7 @@ const defaults: SiteSettings = {
   social_facebook: "",
   social_instagram: "",
   social_linkedin: "",
+  theme_color: "blue-purple",
 };
 
 let cached: SiteSettings | null = null;
@@ -40,6 +43,8 @@ async function fetchSettings(): Promise<SiteSettings> {
   const { data } = await supabase.from("site_settings").select("*").limit(1).single();
   const result = data ? { ...defaults, ...data } as SiteSettings : defaults;
   cached = result;
+  // Apply theme as soon as settings load
+  applyTheme(result.theme_color || "blue-purple");
   return result;
 }
 
@@ -47,10 +52,20 @@ export function useSiteSettings() {
   const [settings, setSettings] = useState<SiteSettings>(cached || defaults);
 
   useEffect(() => {
-    if (cached) { setSettings(cached); return; }
+    if (cached) {
+      setSettings(cached);
+      applyTheme(cached.theme_color || "blue-purple");
+      return;
+    }
     if (!fetchPromise) fetchPromise = fetchSettings();
     fetchPromise.then(setSettings);
   }, []);
 
   return settings;
+}
+
+/** Force re-fetch settings (call after admin saves) */
+export function invalidateSiteSettings() {
+  cached = null;
+  fetchPromise = null;
 }
