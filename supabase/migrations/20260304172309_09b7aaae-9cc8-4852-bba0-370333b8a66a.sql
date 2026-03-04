@@ -1,0 +1,1 @@
+ALTER TABLE public.site_settings ADD COLUMN theme_color text NOT NULL DEFAULT 'blue-purple';
