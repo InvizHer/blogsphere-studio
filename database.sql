@@ -113,6 +113,7 @@ CREATE TABLE IF NOT EXISTS public.site_settings (
   social_facebook      TEXT DEFAULT '',
   social_instagram     TEXT DEFAULT '',
   social_linkedin      TEXT DEFAULT '',
+  theme_color          TEXT NOT NULL DEFAULT 'blue-purple',
   created_at           TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at           TIMESTAMPTZ NOT NULL DEFAULT now()
 );
