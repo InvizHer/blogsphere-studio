@@ -303,37 +303,61 @@ export default function Index() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
-                  {visibleTopics.slice(0, 8).map((cat, i) => (
-                    <motion.div
-                      key={cat.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.35, delay: i * 0.05 }}
-                    >
-                      <Link
-                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                        className="group relative flex aspect-square flex-col justify-between overflow-hidden rounded-2xl border border-border bg-card p-5 transition-all duration-300 hover:border-primary/25 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
+                  {visibleTopics.slice(0, 8).map((cat, i) => {
+                    // Soft gradient tints per card for visual variety
+                    const tints = [
+                      "from-primary/8 to-accent/5",
+                      "from-accent/8 to-primary/5",
+                      "from-primary/6 to-transparent",
+                      "from-accent/6 to-transparent",
+                      "from-primary/8 to-accent/5",
+                      "from-accent/8 to-primary/5",
+                      "from-primary/6 to-transparent",
+                      "from-accent/6 to-transparent",
+                    ];
+                    return (
+                      <motion.div
+                        key={cat.id}
+                        initial={{ opacity: 0, y: 16 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.35, delay: i * 0.05 }}
                       >
-                        {/* Subtle gradient on hover */}
-                        <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "var(--gradient-subtle)" }} />
+                        <Link
+                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                          className="group relative flex aspect-square flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:border-primary/30 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]"
+                        >
+                          {/* Top gradient band */}
+                          <div className={`h-1.5 w-full bg-gradient-to-r ${tints[i % tints.length]}`} />
 
-                        {/* Top row: icon */}
-                        <div className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10">
-                          <i className={getTopicIcon(cat.name)}></i>
-                        </div>
+                          <div className="flex flex-1 flex-col justify-between p-4 sm:p-5">
+                            {/* Icon + count row */}
+                            <div className="flex items-start justify-between">
+                              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/10 to-accent/5 text-xl text-primary ring-1 ring-primary/10 transition-all duration-300 group-hover:scale-110 group-hover:ring-primary/25 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.12)]">
+                                <i className={getTopicIcon(cat.name)}></i>
+                              </div>
+                              <span className="rounded-lg bg-secondary px-2.5 py-1 font-mono text-xs font-bold text-foreground/60">
+                                {cat.postCount}
+                              </span>
+                            </div>
 
-                        {/* Bottom: name + meta */}
-                        <div className="relative">
-                          <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base line-clamp-1">{cat.name}</h3>
-                          <div className="mt-1.5 flex items-center justify-between">
-                            <span className="text-xs text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</span>
-                            <ArrowRight className="h-3.5 w-3.5 text-muted-foreground/50 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
+                            {/* Name + article count + arrow */}
+                            <div>
+                              <h3 className="font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base line-clamp-1">{cat.name}</h3>
+                              <p className="mt-1 text-[11px] text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</p>
+
+                              <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-3">
+                                <span className="text-[11px] font-medium text-primary/70">Explore</span>
+                                <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/5 transition-all duration-300 group-hover:bg-primary/10 group-hover:scale-110">
+                                  <ArrowRight className="h-3.5 w-3.5 text-primary/50 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  ))}
+                        </Link>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
 
