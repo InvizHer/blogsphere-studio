@@ -283,35 +283,29 @@ export default function Index() {
 
         {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
-          <section className="relative overflow-hidden">
-            {/* Dark contrast background */}
-            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
-            {/* Animated mesh */}
-            <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, hsl(var(--primary)), transparent 50%), radial-gradient(circle at 80% 70%, hsl(var(--accent)), transparent 50%)" }} />
-
-            <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
-              {/* Section header - left aligned, editorial */}
-              <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-                <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                  <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/60 backdrop-blur-sm">
-                    <Sparkles className="h-3 w-3" /> Categories
-                  </span>
-                  <h2 className="font-display text-3xl font-extrabold text-white sm:text-4xl md:text-5xl">
-                    Explore Topics
+          <section className="border-t border-border/40">
+            <div className="mx-auto max-w-7xl px-5 py-16 sm:px-8 md:py-24">
+              {/* Header */}
+              <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-3.5 py-1.5">
+                    <Code2 className="h-3.5 w-3.5 text-primary" />
+                    <span className="text-[11px] font-semibold uppercase tracking-wider text-primary">Browse by Topic</span>
+                  </div>
+                  <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl md:text-4xl">
+                    Explore <span className="gradient-text">Topics</span>
                   </h2>
-                </motion.div>
-                <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
-                  <Link
-                    to="/posts"
-                    className="group inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-semibold text-white/80 backdrop-blur-sm transition-all hover:bg-white/10 hover:text-white"
-                  >
-                    View All
-                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white/10 px-1.5 text-[11px] font-bold">
-                      {categories.filter(c => c.postCount > 0).length}
-                    </span>
-                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                </motion.div>
+                </div>
+                <Link
+                  to="/posts"
+                  className="group inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary/30 hover:bg-muted"
+                >
+                  View All
+                  <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-primary/10 px-1.5 text-[11px] font-bold text-primary">
+                    {categories.filter(c => c.postCount > 0).length}
+                  </span>
+                  <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
+                </Link>
               </div>
 
               {loading ? (
@@ -319,89 +313,34 @@ export default function Index() {
                   {Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)}
                 </div>
               ) : (
-                /* Bento grid */
-                <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:auto-rows-[160px] sm:gap-4 lg:grid-cols-4">
-                  {visibleTopics.slice(0, 8).map((cat, i) => {
-                    // First item spans 2 cols + 2 rows on desktop for hero effect
-                    const isHero = i === 0;
-                    const spanClass = isHero
-                      ? "col-span-2 row-span-2"
-                      : "";
-
-                    // Rotating accent colors for variety
-                    const accents = [
-                      { bg: "hsl(217, 91%, 60%)", glow: "hsl(217, 91%, 60% / 0.3)" },
-                      { bg: "hsl(271, 81%, 56%)", glow: "hsl(271, 81%, 56% / 0.3)" },
-                      { bg: "hsl(160, 84%, 39%)", glow: "hsl(160, 84%, 39% / 0.3)" },
-                      { bg: "hsl(32, 95%, 55%)", glow: "hsl(32, 95%, 55% / 0.3)" },
-                      { bg: "hsl(340, 82%, 52%)", glow: "hsl(340, 82%, 52% / 0.3)" },
-                      { bg: "hsl(199, 89%, 48%)", glow: "hsl(199, 89%, 48% / 0.3)" },
-                      { bg: "hsl(47, 96%, 53%)", glow: "hsl(47, 96%, 53% / 0.3)" },
-                      { bg: "hsl(262, 83%, 58%)", glow: "hsl(262, 83%, 58% / 0.3)" },
-                    ];
-                    const accent = accents[i % accents.length];
-
-                    return (
-                      <motion.div
-                        key={cat.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        whileInView={{ opacity: 1, scale: 1 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: i * 0.05 }}
-                        className={spanClass}
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
+                  {visibleTopics.slice(0, 8).map((cat, i) => (
+                    <motion.div
+                      key={cat.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.35, delay: i * 0.05 }}
+                    >
+                      <Link
+                        to={`/posts?category=${encodeURIComponent(cat.slug)}`}
+                        className="group flex flex-col gap-3 rounded-2xl border border-border bg-card p-4 transition-all duration-300 hover:border-primary/25 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)] sm:p-5"
                       >
-                        <Link
-                          to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                          className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.08] p-5 transition-all duration-500 hover:border-white/20 hover:-translate-y-1 sm:p-6 ${isHero ? "sm:p-8" : ""}`}
-                          style={{ background: "linear-gradient(145deg, hsl(225, 30%, 10%) 0%, hsl(225, 30%, 7%) 100%)" }}
-                        >
-                          {/* Hover gradient glow */}
-                          <div
-                            className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
-                            style={{ background: `radial-gradient(ellipse at 30% 0%, ${accent.glow}, transparent 70%)` }}
-                          />
-
-                          {/* Top: icon + count */}
-                          <div className="relative flex items-start justify-between">
-                            <div
-                              className={`flex items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg ${isHero ? "h-14 w-14 text-2xl sm:h-16 sm:w-16 sm:text-3xl" : "h-10 w-10 text-lg sm:h-11 sm:w-11"}`}
-                              style={{ color: accent.bg, boxShadow: `0 0 0px ${accent.glow}` }}
-                            >
-                              <i className={getTopicIcon(cat.name)}></i>
-                            </div>
-                            <span
-                              className={`rounded-lg bg-white/5 px-2.5 py-1 font-mono font-bold text-white/50 ${isHero ? "text-sm" : "text-[11px]"}`}
-                            >
-                              {cat.postCount}
-                            </span>
+                        <div className="flex items-center justify-between">
+                          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/8 text-lg text-primary transition-transform duration-300 group-hover:scale-110">
+                            <i className={getTopicIcon(cat.name)}></i>
                           </div>
-
-                          {/* Bottom: name + arrow */}
-                          <div className="relative mt-auto">
-                            <h3 className={`font-display font-bold text-white transition-colors group-hover:text-white ${isHero ? "text-lg sm:text-xl md:text-2xl" : "text-sm sm:text-base"}`}>
-                              {cat.name}
-                            </h3>
-                            <div className="mt-2 flex items-center justify-between">
-                              <span className="text-[11px] font-medium text-white/30">
-                                {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
-                              </span>
-                              <div
-                                className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 transition-all duration-300 group-hover:bg-white/10 group-hover:scale-110"
-                              >
-                                <ArrowRight className="h-3.5 w-3.5 text-white/40 transition-all group-hover:text-white group-hover:translate-x-0.5" />
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Decorative accent line at top */}
-                          <div
-                            className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
-                            style={{ background: `linear-gradient(90deg, ${accent.bg}, transparent)` }}
-                          />
-                        </Link>
-                      </motion.div>
-                    );
-                  })}
+                          <span className="rounded-md bg-secondary px-2 py-0.5 text-[11px] font-bold text-muted-foreground">
+                            {cat.postCount}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 className="font-display text-sm font-bold text-foreground group-hover:text-primary transition-colors sm:text-base">{cat.name}</h3>
+                          <p className="mt-0.5 text-xs text-muted-foreground">{cat.postCount} {cat.postCount === 1 ? "article" : "articles"}</p>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
                 </div>
               )}
             </div>
