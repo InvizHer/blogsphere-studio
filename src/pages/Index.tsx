@@ -283,23 +283,35 @@ export default function Index() {
 
         {/* ───── Explore Topics ───── */}
         {visibleTopics.length > 0 && (
-          <section className="relative overflow-hidden py-20 md:py-28">
-            {/* Ambient blobs */}
-            <div className="pointer-events-none absolute -left-40 top-0 h-[500px] w-[500px] rounded-full opacity-[0.04]" style={{ background: "hsl(var(--primary))", filter: "blur(120px)" }} />
-            <div className="pointer-events-none absolute -right-40 bottom-0 h-[400px] w-[400px] rounded-full opacity-[0.04]" style={{ background: "hsl(var(--accent))", filter: "blur(120px)" }} />
+          <section className="relative overflow-hidden">
+            {/* Dark contrast background */}
+            <div className="absolute inset-0" style={{ background: "var(--gradient-hero)" }} />
+            {/* Animated mesh */}
+            <div className="pointer-events-none absolute inset-0 opacity-[0.07]" style={{ backgroundImage: "radial-gradient(circle at 20% 30%, hsl(var(--primary)), transparent 50%), radial-gradient(circle at 80% 70%, hsl(var(--accent)), transparent 50%)" }} />
 
-            <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
-              {/* Header */}
-              <div className="mb-14 flex flex-col items-center text-center">
-                <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} className="mb-5 flex h-12 w-12 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10">
-                  <Sparkles className="h-5 w-5 text-primary" />
+            <div className="relative mx-auto max-w-7xl px-5 py-20 sm:px-8 md:py-28">
+              {/* Section header - left aligned, editorial */}
+              <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                  <span className="mb-3 inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white/60 backdrop-blur-sm">
+                    <Sparkles className="h-3 w-3" /> Categories
+                  </span>
+                  <h2 className="font-display text-3xl font-extrabold text-white sm:text-4xl md:text-5xl">
+                    Explore Topics
+                  </h2>
                 </motion.div>
-                <motion.h2 initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.1 }} className="font-display text-3xl font-extrabold text-foreground sm:text-4xl md:text-5xl">
-                  Explore <span className="gradient-text">Topics</span>
-                </motion.h2>
-                <motion.p initial={{ opacity: 0, y: 12 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-muted-foreground sm:text-base">
-                  Dive into curated collections across technologies, frameworks, and concepts.
-                </motion.p>
+                <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+                  <Link
+                    to="/posts"
+                    className="group inline-flex items-center gap-2.5 rounded-full border border-white/15 bg-white/5 px-6 py-2.5 text-sm font-semibold text-white/80 backdrop-blur-sm transition-all hover:bg-white/10 hover:text-white"
+                  >
+                    View All
+                    <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-white/10 px-1.5 text-[11px] font-bold">
+                      {categories.filter(c => c.postCount > 0).length}
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
+                  </Link>
+                </motion.div>
               </div>
 
               {loading ? (
@@ -307,95 +319,91 @@ export default function Index() {
                   {Array.from({ length: 8 }).map((_, i) => <TopicCardSkeleton key={i} />)}
                 </div>
               ) : (
-                <>
-                  {/* Featured topic (first one) */}
-                  {visibleTopics.length > 0 && (
-                    <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mb-5">
-                      <Link
-                        to={`/posts?category=${encodeURIComponent(visibleTopics[0].slug)}`}
-                        className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/60 p-6 sm:p-8 md:flex-row md:items-center md:p-10 transition-all duration-500 hover:border-primary/30 hover:shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.15)]"
-                        style={{ background: "var(--gradient-card)" }}
-                      >
-                        {/* Decorative gradient orb */}
-                        <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full opacity-[0.08] transition-opacity duration-500 group-hover:opacity-[0.15]" style={{ background: "var(--gradient-primary)", filter: "blur(60px)" }} />
-                        <div className="pointer-events-none absolute -bottom-10 -left-10 h-40 w-40 rounded-full opacity-[0.05]" style={{ background: "hsl(var(--accent))", filter: "blur(50px)" }} />
+                /* Bento grid */
+                <div className="grid auto-rows-[140px] grid-cols-2 gap-3 sm:auto-rows-[160px] sm:gap-4 lg:grid-cols-4">
+                  {visibleTopics.slice(0, 8).map((cat, i) => {
+                    // First item spans 2 cols + 2 rows on desktop for hero effect
+                    const isHero = i === 0;
+                    const spanClass = isHero
+                      ? "col-span-2 row-span-2"
+                      : "";
 
-                        <div className="relative flex items-center gap-5 sm:gap-6">
-                          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-primary/15 bg-primary/8 text-2xl text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/15 group-hover:shadow-[0_0_30px_hsl(var(--primary)/0.25)] sm:h-20 sm:w-20 sm:text-3xl">
-                            <i className={getTopicIcon(visibleTopics[0].name)}></i>
-                          </div>
-                          <div>
-                            <span className="mb-1 inline-block text-[10px] font-bold uppercase tracking-[0.2em] text-primary/70">Featured Topic</span>
-                            <h3 className="font-display text-xl font-extrabold text-foreground transition-colors group-hover:text-primary sm:text-2xl md:text-3xl">{visibleTopics[0].name}</h3>
-                            <p className="mt-1 text-sm text-muted-foreground">{visibleTopics[0].postCount} {visibleTopics[0].postCount === 1 ? "article" : "articles"} available</p>
-                          </div>
-                        </div>
+                    // Rotating accent colors for variety
+                    const accents = [
+                      { bg: "hsl(217, 91%, 60%)", glow: "hsl(217, 91%, 60% / 0.3)" },
+                      { bg: "hsl(271, 81%, 56%)", glow: "hsl(271, 81%, 56% / 0.3)" },
+                      { bg: "hsl(160, 84%, 39%)", glow: "hsl(160, 84%, 39% / 0.3)" },
+                      { bg: "hsl(32, 95%, 55%)", glow: "hsl(32, 95%, 55% / 0.3)" },
+                      { bg: "hsl(340, 82%, 52%)", glow: "hsl(340, 82%, 52% / 0.3)" },
+                      { bg: "hsl(199, 89%, 48%)", glow: "hsl(199, 89%, 48% / 0.3)" },
+                      { bg: "hsl(47, 96%, 53%)", glow: "hsl(47, 96%, 53% / 0.3)" },
+                      { bg: "hsl(262, 83%, 58%)", glow: "hsl(262, 83%, 58% / 0.3)" },
+                    ];
+                    const accent = accents[i % accents.length];
 
-                        <div className="relative mt-5 flex items-center gap-2 md:mt-0">
-                          <span className="inline-flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all group-hover:scale-105" style={{ background: "var(--gradient-primary)" }}>
-                            Explore <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                          </span>
-                        </div>
-                      </Link>
-                    </motion.div>
-                  )}
-
-                  {/* Remaining topics — magazine-style numbered cards */}
-                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {visibleTopics.slice(1, 7).map((cat, i) => (
+                    return (
                       <motion.div
                         key={cat.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        whileInView={{ opacity: 1, y: 0 }}
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: i * 0.06 }}
+                        transition={{ duration: 0.4, delay: i * 0.05 }}
+                        className={spanClass}
                       >
                         <Link
                           to={`/posts?category=${encodeURIComponent(cat.slug)}`}
-                          className="group relative flex items-center gap-4 overflow-hidden rounded-2xl border border-border/60 bg-card p-4 sm:p-5 transition-all duration-300 hover:border-primary/25 hover:-translate-y-0.5 hover:shadow-[0_12px_40px_-12px_hsl(var(--primary)/0.12)]"
+                          className={`group relative flex h-full flex-col justify-between overflow-hidden rounded-2xl border border-white/[0.08] p-5 transition-all duration-500 hover:border-white/20 hover:-translate-y-1 sm:p-6 ${isHero ? "sm:p-8" : ""}`}
+                          style={{ background: "linear-gradient(145deg, hsl(225, 30%, 10%) 0%, hsl(225, 30%, 7%) 100%)" }}
                         >
-                          {/* Number watermark */}
-                          <span className="pointer-events-none absolute -bottom-3 -right-1 font-display text-[4.5rem] font-black leading-none text-foreground/[0.03] transition-all group-hover:text-primary/[0.06]">
-                            {String(i + 2).padStart(2, "0")}
-                          </span>
+                          {/* Hover gradient glow */}
+                          <div
+                            className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                            style={{ background: `radial-gradient(ellipse at 30% 0%, ${accent.glow}, transparent 70%)` }}
+                          />
 
-                          {/* Icon */}
-                          <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-primary/10 bg-primary/5 text-lg text-primary transition-all duration-300 group-hover:scale-110 group-hover:bg-primary/10 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.18)]">
-                            <i className={getTopicIcon(cat.name)}></i>
+                          {/* Top: icon + count */}
+                          <div className="relative flex items-start justify-between">
+                            <div
+                              className={`flex items-center justify-center rounded-xl border border-white/10 bg-white/5 transition-all duration-300 group-hover:scale-110 group-hover:shadow-lg ${isHero ? "h-14 w-14 text-2xl sm:h-16 sm:w-16 sm:text-3xl" : "h-10 w-10 text-lg sm:h-11 sm:w-11"}`}
+                              style={{ color: accent.bg, boxShadow: `0 0 0px ${accent.glow}` }}
+                            >
+                              <i className={getTopicIcon(cat.name)}></i>
+                            </div>
+                            <span
+                              className={`rounded-lg bg-white/5 px-2.5 py-1 font-mono font-bold text-white/50 ${isHero ? "text-sm" : "text-[11px]"}`}
+                            >
+                              {cat.postCount}
+                            </span>
                           </div>
 
-                          {/* Content */}
-                          <div className="relative min-w-0 flex-1">
-                            <h3 className="truncate font-display text-sm font-bold text-foreground transition-colors group-hover:text-primary sm:text-base">{cat.name}</h3>
-                            <div className="mt-1 flex items-center gap-2">
-                              <span className="rounded-md bg-primary/8 px-2 py-0.5 text-[11px] font-semibold text-primary">{cat.postCount} {cat.postCount === 1 ? "post" : "posts"}</span>
+                          {/* Bottom: name + arrow */}
+                          <div className="relative mt-auto">
+                            <h3 className={`font-display font-bold text-white transition-colors group-hover:text-white ${isHero ? "text-lg sm:text-xl md:text-2xl" : "text-sm sm:text-base"}`}>
+                              {cat.name}
+                            </h3>
+                            <div className="mt-2 flex items-center justify-between">
+                              <span className="text-[11px] font-medium text-white/30">
+                                {cat.postCount} {cat.postCount === 1 ? "article" : "articles"}
+                              </span>
+                              <div
+                                className="flex h-7 w-7 items-center justify-center rounded-full bg-white/5 transition-all duration-300 group-hover:bg-white/10 group-hover:scale-110"
+                              >
+                                <ArrowRight className="h-3.5 w-3.5 text-white/40 transition-all group-hover:text-white group-hover:translate-x-0.5" />
+                              </div>
                             </div>
                           </div>
 
-                          {/* Arrow */}
-                          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground/40 transition-all group-hover:text-primary group-hover:translate-x-0.5" />
+                          {/* Decorative accent line at top */}
+                          <div
+                            className="absolute left-0 top-0 h-[2px] w-0 transition-all duration-500 group-hover:w-full"
+                            style={{ background: `linear-gradient(90deg, ${accent.bg}, transparent)` }}
+                          />
                         </Link>
                       </motion.div>
-                    ))}
-                  </div>
-                </>
+                    );
+                  })}
+                </div>
               )}
-
-              {/* View All button */}
-              <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="mt-12 flex justify-center">
-                <Link
-                  to="/posts"
-                  className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-border bg-card px-8 py-3.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-[var(--shadow-elevated)]"
-                >
-                  <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" style={{ background: "linear-gradient(135deg, hsl(var(--primary) / 0.05), hsl(var(--accent) / 0.05))" }} />
-                  <Hash className="relative h-4 w-4 text-primary" />
-                  <span className="relative">View All Categories</span>
-                  <span className="relative flex h-6 min-w-[24px] items-center justify-center rounded-full bg-primary/10 px-2 text-[11px] font-bold text-primary">
-                    {categories.filter(c => c.postCount > 0).length}
-                  </span>
-                  <ArrowRight className="relative h-3.5 w-3.5 text-muted-foreground transition-transform group-hover:translate-x-1" />
-                </Link>
-              </motion.div>
             </div>
           </section>
         )}
