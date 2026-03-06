@@ -44,7 +44,7 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 
 Before you begin, make sure you have:
 
-- **Node.js** v18 or later — [Download](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
+- **Node.js** v20 or later — [Download](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
 - **npm** (comes with Node.js)
 - **Git** — [Download](https://git-scm.com/)
 - **Supabase account** (free) — [Sign up](https://supabase.com/)
@@ -52,7 +52,7 @@ Before you begin, make sure you have:
 Verify your installations:
 
 ```bash
-node --version    # Should show v18.x.x or higher
+node --version    # Should show v20.x.x or higher
 npm --version     # Should show 9.x.x or higher
 git --version     # Should show git version 2.x.x
 ```
@@ -667,8 +667,8 @@ No additional configuration needed.
 7. **Add Environment Variables**
    - Click "Add variable" for each:
      ```
-     Variable name: NODE_VERSION
-     Value: 18
+      Variable name: NODE_VERSION
+      Value: 20
 
      Variable name: VITE_SUPABASE_URL
      Value: https://YOUR_PROJECT_REF.supabase.co
