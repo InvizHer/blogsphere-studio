@@ -2,7 +2,6 @@
 
 ---
 
-````markdown
 ## Deploy to Cloudflare Pages (Using Command Prompt / Wrangler CLI)
 
 This project can be deployed to **Cloudflare Pages** using the **Wrangler CLI** from the command prompt.  
@@ -45,7 +44,6 @@ Verify installation:
 wrangler --version
 ```
 
----
 
 ## 2. Login to Cloudflare
 
@@ -237,10 +235,6 @@ This setup provides:
 * Automatic SSL
 * Fast static site delivery
 * Scalable backend services
-
-```
-
----
 
 
 ```
