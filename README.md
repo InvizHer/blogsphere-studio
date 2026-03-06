@@ -44,7 +44,7 @@ A full-featured, modern blog platform built with React, TypeScript, Tailwind CSS
 
 Before you begin, make sure you have:
 
-- **Node.js** v18 or later — [Download](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
+- **Node.js** v20 or later — [Download](https://nodejs.org/) or use [nvm](https://github.com/nvm-sh/nvm)
 - **npm** (comes with Node.js)
 - **Git** — [Download](https://git-scm.com/)
 - **Supabase account** (free) — [Sign up](https://supabase.com/)
