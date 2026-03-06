@@ -511,7 +511,7 @@ Navigate to [http://localhost:4173](http://localhost:4173) to verify.
 
 The build output is a static site (HTML + JS + CSS). It can be hosted on any static hosting platform.
 
-> **IMPORTANT:** All deployment platforms must use `npm install` (not `bun install`) as the install command to avoid lockfile compatibility issues.
+> **IMPORTANT:** For Cloudflare Pages, use `npm install && npm run build` as the build command to avoid lockfile sync issues. Other platforms can use `npm run build` directly.
 
 ---
 
@@ -626,27 +626,11 @@ No additional configuration needed.
 
 ### Deploy to Cloudflare Pages
 
-> **⚠️ CRITICAL PRE-STEP — Remove `bun.lockb` before deploying to Cloudflare!**
-> Cloudflare detects `bun.lockb` and tries `bun install --frozen-lockfile`, which fails. You MUST switch to npm first:
-> ```bash
-> # Remove bun lockfile from repo
-> git rm --cached bun.lockb 2>/dev/null; rm -f bun.lockb
->
-> # Add bun.lockb to .gitignore
-> echo "bun.lockb" >> .gitignore
->
-> # Generate npm lockfile
-> npm install
->
-> # Commit
-> git add package-lock.json .gitignore
-> git commit -m "Switch to npm for Cloudflare compatibility"
-> git push
-> ```
+> **Note:** This project already includes a `.node-version` file (set to Node 20) and a `wrangler.toml` that tells Cloudflare to use the `dist` output directory. No CLI setup is needed.
 
-#### Option A: Via Cloudflare Dashboard (Recommended)
+#### Via Cloudflare Dashboard (Recommended)
 
-1. **Push your code to GitHub/GitLab** (make sure `bun.lockb` is removed per above)
+1. **Push your code to GitHub/GitLab**
 
 2. **Go to [dash.cloudflare.com](https://dash.cloudflare.com)**
 
@@ -656,20 +640,17 @@ No additional configuration needed.
 
 5. **Select your repository**
 
-6. **Configure build settings**
-   - **Project name:** `inkwell`
-   - **Production branch:** `main`
-   - **Framework preset:** None
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - **Root directory:** `/` (leave empty)
+6. **Build settings are auto-detected** from `wrangler.toml`:
+   - Cloudflare reads `pages_build_output_dir: dist` automatically
+   - Node version is picked up from `.node-version` (v20)
+   - If prompted for **Build command**, use: `npm install && npm run build`
+   - If prompted for **Build output directory**, use: `dist`
+
+   > **⚠️ Important:** Cloudflare defaults to `npm ci` for installing dependencies, which requires `package-lock.json` to be perfectly in sync. Using `npm install && npm run build` as the build command avoids this issue. If your dashboard doesn't show a separate "Install command" field, put the full command `npm install && npm run build` in the **Build command** field.
 
 7. **Add Environment Variables**
    - Click "Add variable" for each:
      ```
-      Variable name: NODE_VERSION
-      Value: 20
-
      Variable name: VITE_SUPABASE_URL
      Value: https://YOUR_PROJECT_REF.supabase.co
 
@@ -684,7 +665,7 @@ No additional configuration needed.
 
 9. **Your site is live** at `https://inkwell.pages.dev`
 
-#### Option B: Via Wrangler CLI
+#### Via Wrangler CLI (Optional)
 
 ```bash
 # Step 1: Install Wrangler CLI
@@ -694,7 +675,7 @@ npm install -g wrangler
 wrangler login
 
 # Step 3: Build your project
-npm run build
+npm install && npm run build
 
 # Step 4: Create and deploy the project
 wrangler pages project create inkwell
