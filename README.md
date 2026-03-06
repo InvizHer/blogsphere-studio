@@ -511,7 +511,7 @@ Navigate to [http://localhost:4173](http://localhost:4173) to verify.
 
 The build output is a static site (HTML + JS + CSS). It can be hosted on any static hosting platform.
 
-> **IMPORTANT:** All deployment platforms must use `npm install` (not `bun install`) as the install command to avoid lockfile compatibility issues.
+> **IMPORTANT:** For Cloudflare Pages, use `npm install && npm run build` as the build command to avoid lockfile sync issues. Other platforms can use `npm run build` directly.
 
 ---
 
