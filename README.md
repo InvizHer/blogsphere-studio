@@ -52,7 +52,7 @@ Before you begin, make sure you have:
 Verify your installations:
 
 ```bash
-node --version    # Should show v18.x.x or higher
+node --version    # Should show v20.x.x or higher
 npm --version     # Should show 9.x.x or higher
 git --version     # Should show git version 2.x.x
 ```
