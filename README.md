@@ -667,8 +667,8 @@ No additional configuration needed.
 7. **Add Environment Variables**
    - Click "Add variable" for each:
      ```
-     Variable name: NODE_VERSION
-     Value: 18
+      Variable name: NODE_VERSION
+      Value: 20
 
      Variable name: VITE_SUPABASE_URL
      Value: https://YOUR_PROJECT_REF.supabase.co

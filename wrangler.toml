@@ -1,7 +1,4 @@
-# Cloudflare Pages configuration (optional — Pages auto-detects Vite)
-# This file is only needed if you use `wrangler pages deploy`
+# Cloudflare Pages configuration
 name = "inkwell-blog"
 compatibility_date = "2024-09-23"
-
-[site]
-bucket = "./dist"
+pages_build_output_dir = "dist"
