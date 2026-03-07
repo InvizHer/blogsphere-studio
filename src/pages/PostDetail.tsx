@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Eye, Calendar, BookOpen, Bookmark, BookmarkCheck } from "lucide-react";
+import { Eye, Calendar, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -239,46 +239,45 @@ export default function PostDetail() {
               </button>
             </div>
 
-            {/* Mobile metadata — sleek horizontal bar */}
-            <div className="flex sm:hidden items-center rounded-xl border border-border bg-muted/40 divide-x divide-border">
-              <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1">
-                <Calendar className="h-4 w-4 text-primary shrink-0" />
-                <time dateTime={postDate} className="text-[13px] font-medium text-foreground">
+            {/* Mobile metadata */}
+            <div className="flex sm:hidden items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Calendar className="h-4 w-4 text-primary" />
+                <time dateTime={postDate} className="font-medium text-foreground">
                   {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </time>
               </div>
 
-              <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1">
-                <Eye className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-[13px] font-medium text-foreground">{post.view_count.toLocaleString()} views</span>
+              <span className="text-border">·</span>
+
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Eye className="h-4 w-4 text-primary" />
+                <span className="font-medium text-foreground">{post.view_count.toLocaleString()} views</span>
               </div>
+
+              <span className="ml-auto" />
 
               <button
                 onClick={handleBookmark}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1 transition-colors"
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
+                  saved
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-border bg-muted/50 text-foreground hover:border-primary/30 hover:text-primary"
+                }`}
               >
                 {saved
-                  ? <BookmarkCheck className="h-4 w-4 text-primary shrink-0" />
-                  : <Bookmark className="h-4 w-4 text-muted-foreground shrink-0" />
+                  ? <BookmarkCheck className="h-4 w-4" />
+                  : <Bookmark className="h-4 w-4" />
                 }
-                <span className={`text-[13px] font-medium ${saved ? "text-primary" : "text-foreground"}`}>
-                  {saved ? "Saved" : "Save"}
-                </span>
+                {saved ? "Saved" : "Save"}
               </button>
             </div>
           </motion.div>
         </div>
 
         {/* Divider */}
-        <div className="relative">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
-            <div className="h-px w-full bg-border/60" />
-          </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background">
-              <BookOpen className="h-4 w-4 text-primary" />
-            </div>
-          </div>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="h-px w-full bg-border/60" />
         </div>
       </div>
 

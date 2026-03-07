@@ -32,17 +32,15 @@ export function PostDetailSkeleton() {
                 </div>
               </div>
             </div>
-            {/* Mobile metadata skeleton — horizontal bar */}
-            <div className="sm:hidden">
-              <Skeleton className="h-11 w-full rounded-xl" />
+            {/* Mobile metadata skeleton */}
+            <div className="flex sm:hidden items-center gap-4">
+              <Skeleton className="h-5 w-28" />
+              <Skeleton className="h-5 w-20" />
+              <span className="ml-auto" />
+              <Skeleton className="h-8 w-16 rounded-lg" />
             </div>
           </div>
-          <div className="relative">
-            <div className="h-px w-full bg-border/60" />
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Skeleton className="h-9 w-9 rounded-full" />
-            </div>
-          </div>
+          <div className="h-px w-full bg-border/60" />
         </div>
       </div>
       <div className="mx-auto max-w-7xl px-5 py-10 sm:px-8 md:py-14">
