@@ -186,7 +186,7 @@ export default function PostDetail() {
             transition={{ duration: 0.4 }}
             className="py-10 md:py-14"
           >
-            <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight sm:text-4xl md:text-5xl gradient-text">
+            <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight sm:text-4xl md:text-5xl text-foreground">
               {post.title}
             </h1>
 
