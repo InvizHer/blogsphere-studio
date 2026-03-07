@@ -32,12 +32,11 @@ export function PostDetailSkeleton() {
                 </div>
               </div>
             </div>
-            {/* Mobile metadata skeleton */}
-            <div className="flex sm:hidden items-center gap-3">
-              <Skeleton className="h-4 w-24 rounded-md" />
-              <Skeleton className="h-4 w-12 rounded-md" />
-              <span className="ml-auto" />
-              <Skeleton className="h-7 w-16 rounded-full" />
+            {/* Mobile metadata skeleton — three equal cards */}
+            <div className="grid sm:hidden grid-cols-3 gap-2.5 mt-1">
+              <Skeleton className="h-20 rounded-xl" />
+              <Skeleton className="h-20 rounded-xl" />
+              <Skeleton className="h-20 rounded-xl" />
             </div>
           </div>
           <div className="relative">
