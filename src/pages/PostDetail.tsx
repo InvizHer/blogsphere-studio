@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Eye, Calendar, BookOpen, Bookmark, BookmarkCheck } from "lucide-react";
+import { Eye, Calendar, Bookmark, BookmarkCheck } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -190,95 +190,60 @@ export default function PostDetail() {
               {post.title}
             </h1>
 
-            {/* Desktop metadata */}
-            <div className="hidden sm:flex flex-wrap items-center gap-6">
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Calendar className="h-4 w-4 text-primary" />
+            {/* Metadata — unified row, scaled down on mobile */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
                   <time dateTime={postDate} className="font-medium text-foreground">
                     {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </time>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-7 sm:h-8 w-px bg-border" />
 
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-                  <Eye className="h-4 w-4 text-accent" />
+              <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-accent/10">
+                  <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
                   <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-7 sm:h-8 w-px bg-border" />
 
               <button
                 onClick={handleBookmark}
-                className="flex items-center gap-2.5 text-sm text-muted-foreground group"
+                className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground group"
               >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                <div className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg transition-colors ${
                   saved ? "bg-primary/15" : "bg-muted hover:bg-primary/10"
                 }`}>
                   {saved
-                    ? <BookmarkCheck className="h-4 w-4 text-primary" />
-                    : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    ? <BookmarkCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                    : <Bookmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   }
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
                   <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                     {saved ? "Saved" : "Save"}
                   </span>
                 </div>
               </button>
             </div>
-
-            {/* Mobile metadata — sleek horizontal bar */}
-            <div className="flex sm:hidden items-center rounded-xl border border-border bg-muted/40 divide-x divide-border">
-              <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1">
-                <Calendar className="h-4 w-4 text-primary shrink-0" />
-                <time dateTime={postDate} className="text-[13px] font-medium text-foreground">
-                  {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </time>
-              </div>
-
-              <div className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1">
-                <Eye className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-[13px] font-medium text-foreground">{post.view_count.toLocaleString()} views</span>
-              </div>
-
-              <button
-                onClick={handleBookmark}
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 px-1 transition-colors"
-              >
-                {saved
-                  ? <BookmarkCheck className="h-4 w-4 text-primary shrink-0" />
-                  : <Bookmark className="h-4 w-4 text-muted-foreground shrink-0" />
-                }
-                <span className={`text-[13px] font-medium ${saved ? "text-primary" : "text-foreground"}`}>
-                  {saved ? "Saved" : "Save"}
-                </span>
-              </button>
-            </div>
           </motion.div>
         </div>
 
         {/* Divider */}
-        <div className="relative">
-          <div className="mx-auto max-w-7xl px-5 sm:px-8">
-            <div className="h-px w-full bg-border/60" />
-          </div>
-          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-border/60 bg-background">
-              <BookOpen className="h-4 w-4 text-primary" />
-            </div>
-          </div>
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="h-px w-full bg-border/60" />
         </div>
       </div>
 
