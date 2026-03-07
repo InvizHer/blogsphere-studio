@@ -14,7 +14,8 @@ export function PostDetailSkeleton() {
             </div>
             <Skeleton className="h-12 w-4/5 mb-3" />
             <Skeleton className="h-10 w-3/5 mb-8" />
-            <div className="flex items-center gap-6">
+            {/* Desktop metadata skeleton */}
+            <div className="hidden sm:flex items-center gap-6">
               <div className="flex items-center gap-2.5">
                 <Skeleton className="h-8 w-8 rounded-lg" />
                 <div>
@@ -30,6 +31,13 @@ export function PostDetailSkeleton() {
                   <Skeleton className="h-4 w-16" />
                 </div>
               </div>
+            </div>
+            {/* Mobile metadata skeleton */}
+            <div className="flex sm:hidden items-center gap-3">
+              <Skeleton className="h-4 w-24 rounded-md" />
+              <Skeleton className="h-4 w-12 rounded-md" />
+              <span className="ml-auto" />
+              <Skeleton className="h-7 w-16 rounded-full" />
             </div>
           </div>
           <div className="relative">

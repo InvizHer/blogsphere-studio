@@ -186,11 +186,12 @@ export default function PostDetail() {
             transition={{ duration: 0.4 }}
             className="py-10 md:py-14"
           >
-            <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight text-foreground sm:text-4xl md:text-5xl">
+            <h1 className="mb-8 max-w-3xl lg:max-w-none font-display text-3xl font-bold leading-tight sm:text-4xl md:text-5xl gradient-text">
               {post.title}
             </h1>
 
-            <div className="flex flex-wrap items-center gap-6">
+            {/* Desktop metadata */}
+            <div className="hidden sm:flex flex-wrap items-center gap-6">
               <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
                 <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
                   <Calendar className="h-4 w-4 text-primary" />
@@ -217,7 +218,6 @@ export default function PostDetail() {
 
               <div className="h-8 w-px bg-border" />
 
-              {/* Save / Bookmark button */}
               <button
                 onClick={handleBookmark}
                 className="flex items-center gap-2.5 text-sm text-muted-foreground group"
@@ -230,12 +230,46 @@ export default function PostDetail() {
                     : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   }
                 </div>
-                <div className="hidden md:block">
+                <div>
                   <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
                   <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                     {saved ? "Saved" : "Save"}
                   </span>
                 </div>
+              </button>
+            </div>
+
+            {/* Mobile metadata — compact inline row */}
+            <div className="flex sm:hidden items-center gap-3 text-xs text-muted-foreground">
+              <div className="flex items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 text-primary" />
+                <time dateTime={postDate} className="font-medium text-foreground">
+                  {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                </time>
+              </div>
+
+              <span className="text-border">•</span>
+
+              <div className="flex items-center gap-1.5">
+                <Eye className="h-3.5 w-3.5 text-accent" />
+                <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
+              </div>
+
+              <span className="ml-auto" />
+
+              <button
+                onClick={handleBookmark}
+                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                  saved
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-border bg-muted text-muted-foreground hover:border-primary/30 hover:text-primary"
+                }`}
+              >
+                {saved
+                  ? <BookmarkCheck className="h-3.5 w-3.5" />
+                  : <Bookmark className="h-3.5 w-3.5" />
+                }
+                {saved ? "Saved" : "Save"}
               </button>
             </div>
           </motion.div>
