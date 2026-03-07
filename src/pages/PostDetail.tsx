@@ -239,37 +239,38 @@ export default function PostDetail() {
               </button>
             </div>
 
-            {/* Mobile metadata — compact inline row */}
-            <div className="flex sm:hidden items-center gap-3 text-xs text-muted-foreground">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-3.5 w-3.5 text-primary" />
-                <time dateTime={postDate} className="font-medium text-foreground">
+            {/* Mobile metadata — equal three-column cards */}
+            <div className="grid sm:hidden grid-cols-3 gap-2.5 mt-1">
+              <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-muted/50 px-2 py-3">
+                <Calendar className="h-4.5 w-4.5 text-primary" />
+                <time dateTime={postDate} className="text-sm font-semibold text-foreground text-center leading-tight">
                   {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                 </time>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Published</span>
               </div>
 
-              <span className="text-border">•</span>
-
-              <div className="flex items-center gap-1.5">
-                <Eye className="h-3.5 w-3.5 text-accent" />
-                <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
+              <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-muted/50 px-2 py-3">
+                <Eye className="h-4.5 w-4.5 text-primary" />
+                <span className="text-sm font-semibold text-foreground">{post.view_count.toLocaleString()}</span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Views</span>
               </div>
-
-              <span className="ml-auto" />
 
               <button
                 onClick={handleBookmark}
-                className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors ${
                   saved
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "border-border bg-muted text-muted-foreground hover:border-primary/30 hover:text-primary"
+                    ? "border-primary/30 bg-primary/10"
+                    : "border-border bg-muted/50 hover:border-primary/30 hover:bg-primary/5"
                 }`}
               >
                 {saved
-                  ? <BookmarkCheck className="h-3.5 w-3.5" />
-                  : <Bookmark className="h-3.5 w-3.5" />
+                  ? <BookmarkCheck className="h-4.5 w-4.5 text-primary" />
+                  : <Bookmark className="h-4.5 w-4.5 text-muted-foreground" />
                 }
-                {saved ? "Saved" : "Save"}
+                <span className={`text-sm font-semibold ${saved ? "text-primary" : "text-foreground"}`}>
+                  {saved ? "Saved" : "Save"}
+                </span>
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground">Bookmark</span>
               </button>
             </div>
           </motion.div>
