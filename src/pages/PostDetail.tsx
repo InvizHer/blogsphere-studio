@@ -190,86 +190,52 @@ export default function PostDetail() {
               {post.title}
             </h1>
 
-            {/* Desktop metadata */}
-            <div className="hidden sm:flex flex-wrap items-center gap-6">
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                  <Calendar className="h-4 w-4 text-primary" />
+            {/* Metadata — unified row, scaled down on mobile */}
+            <div className="flex flex-wrap items-center gap-3 sm:gap-6">
+              <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Published</p>
                   <time dateTime={postDate} className="font-medium text-foreground">
                     {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                   </time>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-7 sm:h-8 w-px bg-border" />
 
-              <div className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-accent/10">
-                  <Eye className="h-4 w-4 text-accent" />
+              <div className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground">
+                <div className="flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg bg-accent/10">
+                  <Eye className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent" />
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Views</p>
                   <span className="font-medium text-foreground">{post.view_count.toLocaleString()}</span>
                 </div>
               </div>
 
-              <div className="h-8 w-px bg-border" />
+              <div className="h-7 sm:h-8 w-px bg-border" />
 
               <button
                 onClick={handleBookmark}
-                className="flex items-center gap-2.5 text-sm text-muted-foreground group"
+                className="flex items-center gap-2 sm:gap-2.5 text-xs sm:text-sm text-muted-foreground group"
               >
-                <div className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
+                <div className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg transition-colors ${
                   saved ? "bg-primary/15" : "bg-muted hover:bg-primary/10"
                 }`}>
                   {saved
-                    ? <BookmarkCheck className="h-4 w-4 text-primary" />
-                    : <Bookmark className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                    ? <BookmarkCheck className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary" />
+                    : <Bookmark className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   }
                 </div>
                 <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
+                  <p className="text-[10px] sm:text-[11px] uppercase tracking-wider text-muted-foreground/60">Bookmark</p>
                   <span className={`font-medium transition-colors ${saved ? "text-primary" : "text-foreground group-hover:text-primary"}`}>
                     {saved ? "Saved" : "Save"}
                   </span>
                 </div>
-              </button>
-            </div>
-
-            {/* Mobile metadata */}
-            <div className="flex sm:hidden items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4 text-primary" />
-                <time dateTime={postDate} className="font-medium text-foreground">
-                  {new Date(postDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                </time>
-              </div>
-
-              <span className="text-border">·</span>
-
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Eye className="h-4 w-4 text-primary" />
-                <span className="font-medium text-foreground">{post.view_count.toLocaleString()} views</span>
-              </div>
-
-              <span className="ml-auto" />
-
-              <button
-                onClick={handleBookmark}
-                className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors ${
-                  saved
-                    ? "border-primary/30 bg-primary/10 text-primary"
-                    : "border-border bg-muted/50 text-foreground hover:border-primary/30 hover:text-primary"
-                }`}
-              >
-                {saved
-                  ? <BookmarkCheck className="h-4 w-4" />
-                  : <Bookmark className="h-4 w-4" />
-                }
-                {saved ? "Saved" : "Save"}
               </button>
             </div>
           </motion.div>
