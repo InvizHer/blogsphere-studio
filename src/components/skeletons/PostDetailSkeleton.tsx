@@ -14,30 +14,31 @@ export function PostDetailSkeleton() {
             </div>
             <Skeleton className="h-12 w-4/5 mb-3" />
             <Skeleton className="h-10 w-3/5 mb-8" />
-            {/* Desktop metadata skeleton */}
-            <div className="hidden sm:flex items-center gap-6">
-              <div className="flex items-center gap-2.5">
-                <Skeleton className="h-8 w-8 rounded-lg" />
+            {/* Metadata skeleton — unified */}
+            <div className="flex items-center gap-3 sm:gap-6">
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
                 <div>
-                  <Skeleton className="h-3 w-16 mb-1" />
-                  <Skeleton className="h-4 w-24" />
+                  <Skeleton className="h-2.5 w-14 mb-1" />
+                  <Skeleton className="h-3.5 w-20 sm:w-24" />
                 </div>
               </div>
-              <Skeleton className="h-8 w-px" />
-              <div className="flex items-center gap-2.5">
-                <Skeleton className="h-8 w-8 rounded-lg" />
+              <Skeleton className="h-7 sm:h-8 w-px" />
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
                 <div>
-                  <Skeleton className="h-3 w-12 mb-1" />
-                  <Skeleton className="h-4 w-16" />
+                  <Skeleton className="h-2.5 w-10 mb-1" />
+                  <Skeleton className="h-3.5 w-12 sm:w-16" />
                 </div>
               </div>
-            </div>
-            {/* Mobile metadata skeleton */}
-            <div className="flex sm:hidden items-center gap-4">
-              <Skeleton className="h-5 w-28" />
-              <Skeleton className="h-5 w-20" />
-              <span className="ml-auto" />
-              <Skeleton className="h-8 w-16 rounded-lg" />
+              <Skeleton className="h-7 sm:h-8 w-px" />
+              <div className="flex items-center gap-2 sm:gap-2.5">
+                <Skeleton className="h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
+                <div>
+                  <Skeleton className="h-2.5 w-14 mb-1" />
+                  <Skeleton className="h-3.5 w-10" />
+                </div>
+              </div>
             </div>
           </div>
           <div className="h-px w-full bg-border/60" />
