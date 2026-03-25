@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, FolderOpen, Eye, Plus, CheckCircle, Clock, MessageSquare } from "lucide-react";
+import { FileText, FolderOpen, Eye, Plus, CheckCircle, Clock, MessageSquare, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
