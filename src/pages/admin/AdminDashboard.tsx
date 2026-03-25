@@ -36,6 +36,7 @@ export default function AdminDashboard() {
         drafts: posts.filter((p) => p.status === "draft").length,
         totalViews,
         totalComments: commentsCountRes.count || 0,
+        totalApps: appsCountRes.count || 0,
       });
       setRecentPosts(recentRes.data || []);
 
