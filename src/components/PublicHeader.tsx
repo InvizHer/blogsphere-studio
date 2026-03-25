@@ -56,6 +56,7 @@ export function PublicHeader() {
     { to: "/", icon: FileText, label: "Home", desc: "Back to homepage" },
     { to: "/posts", icon: Code2, label: "Articles", desc: "Read all posts" },
     { to: "/projects", icon: LayoutGrid, label: "Projects", desc: "View projects" },
+    { to: "/app", icon: Package, label: "Apps", desc: "Browse app store" },
   ];
 
   return (
