@@ -85,6 +85,7 @@ export function PublicHeader() {
                 { to: "/", label: "Home" },
                 { to: "/posts", label: "Articles" },
                 { to: "/projects", label: "Projects" },
+                { to: "/app", label: "Apps" },
               ].map((link) => (
                 <Link
                   key={link.label}
