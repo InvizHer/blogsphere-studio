@@ -123,7 +123,7 @@ export default function AppDetail() {
       <SEOHead
         title={`${app.name} - Download Free`}
         description={app.description || `Download ${app.name} for free. Get the latest version with all features.`}
-        canonical={`/app/${app.slug}`}
+        canonicalUrl={`/app/${app.slug}`}
       />
       <PublicHeader />
       <main className="min-h-screen pt-14 md:pt-16">

@@ -46,7 +46,7 @@ export default function AppStore() {
       <SEOHead
         title="App Store - Download Best Apps"
         description="Discover and download the best apps curated for you. Free downloads with detailed previews and reviews."
-        canonical="/app"
+        canonicalUrl="/app"
       />
       <PublicHeader />
       <main className="min-h-screen pt-14 md:pt-16">

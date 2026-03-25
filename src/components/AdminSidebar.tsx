@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { LayoutDashboard, FileText, FolderOpen, LogOut, Settings, Menu, X, Globe, BarChart3, MessageCircle, Link2 } from "lucide-react";
+import { LayoutDashboard, FileText, FolderOpen, LogOut, Settings, Menu, X, Globe, BarChart3, MessageCircle, Link2, Package } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 import { useState } from "react";
 
@@ -8,6 +8,7 @@ const navItems = [
   { title: "Posts", url: "/inz/posts", icon: FileText },
   { title: "Categories", url: "/inz/categories", icon: FolderOpen },
   { title: "Comments", url: "/inz/comments", icon: MessageCircle },
+  { title: "App Store", url: "/inz/apps", icon: Package },
   { title: "Analytics", url: "/inz/analytics", icon: BarChart3 },
   { title: "Link Shortener", url: "/inz/link-shortener", icon: Link2 },
   { title: "Settings", url: "/inz/settings", icon: Settings },

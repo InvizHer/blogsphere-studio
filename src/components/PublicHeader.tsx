@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail, Bookmark } from "lucide-react";
+import { Search, Menu, X, FileText, Code2, LayoutGrid, Info, Mail, Bookmark, Package } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSiteSettings } from "@/hooks/use-site-settings";
