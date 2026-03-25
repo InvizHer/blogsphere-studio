@@ -14,7 +14,7 @@ interface RecentComment {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalComments: 0 });
+  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalComments: 0, totalApps: 0 });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
 
