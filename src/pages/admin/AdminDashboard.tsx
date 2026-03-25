@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { FileText, FolderOpen, Eye, Plus, CheckCircle, Clock, MessageSquare } from "lucide-react";
+import { FileText, FolderOpen, Eye, Plus, CheckCircle, Clock, MessageSquare, Package } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { AdminSidebar } from "@/components/AdminSidebar";
 
@@ -14,17 +14,18 @@ interface RecentComment {
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalComments: 0 });
+  const [stats, setStats] = useState({ totalPosts: 0, published: 0, drafts: 0, totalViews: 0, totalComments: 0, totalApps: 0 });
   const [recentPosts, setRecentPosts] = useState<any[]>([]);
   const [recentComments, setRecentComments] = useState<RecentComment[]>([]);
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [postsRes, recentRes, commentsCountRes, recentCommentsRes] = await Promise.all([
+      const [postsRes, recentRes, commentsCountRes, recentCommentsRes, appsCountRes] = await Promise.all([
         supabase.from("posts").select("id, view_count, status"),
         supabase.from("posts").select("id, title, slug, status, created_at, view_count").order("created_at", { ascending: false }).limit(5),
         supabase.from("comments").select("id", { count: "exact", head: true }),
         supabase.from("comments").select("id, author_name, content, created_at, post_id").order("created_at", { ascending: false }).limit(5),
+        supabase.from("apps").select("id", { count: "exact", head: true }),
       ]);
 
       const posts = postsRes.data || [];
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
         drafts: posts.filter((p) => p.status === "draft").length,
         totalViews,
         totalComments: commentsCountRes.count || 0,
+        totalApps: appsCountRes.count || 0,
       });
       setRecentPosts(recentRes.data || []);
 
@@ -55,6 +57,7 @@ export default function AdminDashboard() {
     { label: "Drafts", value: stats.drafts, icon: Clock, gradient: "from-accent to-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, gradient: "from-primary to-primary" },
     { label: "Comments", value: stats.totalComments, icon: MessageSquare, gradient: "from-primary to-accent" },
+    { label: "Apps", value: stats.totalApps, icon: Package, gradient: "from-accent to-primary" },
   ];
 
   return (

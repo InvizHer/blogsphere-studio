@@ -28,6 +28,10 @@ import AdminComments from "./pages/admin/AdminComments";
 import AdminPostDetail from "./pages/admin/AdminPostDetail";
 import AdminLinkShortener from "./pages/admin/AdminLinkShortener";
 import NotFound from "./pages/NotFound";
+import AppStore from "./pages/AppStore";
+import AppDetail from "./pages/AppDetail";
+import AdminApps from "./pages/admin/AdminApps";
+import AdminAppEditor from "./pages/admin/AdminAppEditor";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +50,8 @@ const App = () => (
               <Route path="/posts" element={<Posts />} />
               <Route path="/projects" element={<Projects />} />
               <Route path="/posts/:slug" element={<PostDetail />} />
+              <Route path="/app" element={<AppStore />} />
+              <Route path="/app/:slug" element={<AppDetail />} />
               <Route path="/faq" element={<FAQ />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               <Route path="/disclaimer" element={<Disclaimer />} />
@@ -63,6 +69,9 @@ const App = () => (
               <Route path="/inz/comments" element={<ProtectedRoute><AdminComments /></ProtectedRoute>} />
               <Route path="/inz/categories" element={<ProtectedRoute><AdminCategories /></ProtectedRoute>} />
               <Route path="/inz/link-shortener" element={<ProtectedRoute><AdminLinkShortener /></ProtectedRoute>} />
+              <Route path="/inz/apps" element={<ProtectedRoute><AdminApps /></ProtectedRoute>} />
+              <Route path="/inz/apps/new" element={<ProtectedRoute><AdminAppEditor /></ProtectedRoute>} />
+              <Route path="/inz/apps/:id/edit" element={<ProtectedRoute><AdminAppEditor /></ProtectedRoute>} />
               <Route path="/inz/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
 
               <Route path="*" element={<NotFound />} />

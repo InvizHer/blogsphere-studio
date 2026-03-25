@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      apps: {
+        Row: {
+          author_id: string | null
+          created_at: string
+          description: string | null
+          download_url: string | null
+          icon_url: string | null
+          id: string
+          name: string
+          preview_images: string[] | null
+          slug: string
+          status: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          author_id?: string | null
+          created_at?: string
+          description?: string | null
+          download_url?: string | null
+          icon_url?: string | null
+          id?: string
+          name: string
+          preview_images?: string[] | null
+          slug: string
+          status?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          author_id?: string | null
+          created_at?: string
+          description?: string | null
+          download_url?: string | null
+          icon_url?: string | null
+          id?: string
+          name?: string
+          preview_images?: string[] | null
+          slug?: string
+          status?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string
@@ -343,6 +388,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_app_views: { Args: { p_app_id: string }; Returns: undefined }
       increment_link_clicks: { Args: { p_link_id: string }; Returns: undefined }
       increment_post_views: { Args: { p_post_id: string }; Returns: undefined }
     }
