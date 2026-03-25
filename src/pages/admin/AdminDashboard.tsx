@@ -57,6 +57,7 @@ export default function AdminDashboard() {
     { label: "Drafts", value: stats.drafts, icon: Clock, gradient: "from-accent to-primary" },
     { label: "Total Views", value: stats.totalViews, icon: Eye, gradient: "from-primary to-primary" },
     { label: "Comments", value: stats.totalComments, icon: MessageSquare, gradient: "from-primary to-accent" },
+    { label: "Apps", value: stats.totalApps, icon: Package, gradient: "from-accent to-primary" },
   ];
 
   return (
