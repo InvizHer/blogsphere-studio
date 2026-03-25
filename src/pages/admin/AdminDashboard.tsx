@@ -20,11 +20,12 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchAll = async () => {
-      const [postsRes, recentRes, commentsCountRes, recentCommentsRes] = await Promise.all([
+      const [postsRes, recentRes, commentsCountRes, recentCommentsRes, appsCountRes] = await Promise.all([
         supabase.from("posts").select("id, view_count, status"),
         supabase.from("posts").select("id, title, slug, status, created_at, view_count").order("created_at", { ascending: false }).limit(5),
         supabase.from("comments").select("id", { count: "exact", head: true }),
         supabase.from("comments").select("id, author_name, content, created_at, post_id").order("created_at", { ascending: false }).limit(5),
+        supabase.from("apps").select("id", { count: "exact", head: true }),
       ]);
 
       const posts = postsRes.data || [];
