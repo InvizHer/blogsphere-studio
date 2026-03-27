@@ -42,6 +42,7 @@ export default function AdminAppEditor() {
         setIconUrl(app.icon_url || "");
         setDownloadUrl(app.download_url || "");
         setPreviewImages((app.preview_images as string[]) || []);
+        setVersion((app as any).version || "1.0.0");
         setStatus(app.status);
       }
       setLoading(false);
