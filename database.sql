@@ -232,7 +232,45 @@ BEGIN
 END;
 $$;
 
+CREATE OR REPLACE FUNCTION public.increment_app_views(p_app_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.apps SET view_count = view_count + 1 WHERE id = p_app_id;
+END;
+$$;
 
+CREATE OR REPLACE FUNCTION public.increment_app_downloads(p_app_id UUID)
+RETURNS VOID
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  UPDATE public.apps SET download_count = download_count + 1 WHERE id = p_app_id;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION public.validate_app_status()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SET search_path = public
+AS $$
+BEGIN
+  IF NEW.status NOT IN ('draft', 'published') THEN
+    RAISE EXCEPTION 'Invalid app status: %', NEW.status;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 4. TRIGGERS
+-- ────────────────────────────────────────────────────────────
 
 CREATE OR REPLACE TRIGGER update_posts_updated_at
   BEFORE UPDATE ON public.posts
@@ -250,9 +288,17 @@ CREATE OR REPLACE TRIGGER update_shortened_links_updated_at
   BEFORE UPDATE ON public.shortened_links
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+CREATE OR REPLACE TRIGGER update_apps_updated_at
+  BEFORE UPDATE ON public.apps
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
 CREATE OR REPLACE TRIGGER validate_post_status_trigger
   BEFORE UPDATE ON public.posts
   FOR EACH ROW EXECUTE FUNCTION public.validate_post_status();
+
+CREATE OR REPLACE TRIGGER validate_app_status_trigger
+  BEFORE INSERT OR UPDATE ON public.apps
+  FOR EACH ROW EXECUTE FUNCTION public.validate_app_status();
 
 CREATE OR REPLACE TRIGGER generate_link_token_trigger
   BEFORE INSERT ON public.shortened_links
