@@ -318,6 +318,7 @@ ALTER TABLE public.comment_likes   ENABLE ROW LEVEL SECURITY;
 
 ALTER TABLE public.site_settings   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.shortened_links ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.apps            ENABLE ROW LEVEL SECURITY;
 
 -- user_roles
 CREATE POLICY "Admins can view all roles"
