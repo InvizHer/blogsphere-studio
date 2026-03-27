@@ -199,6 +199,17 @@ export default function AdminAppEditor() {
                 />
               </div>
 
+              {/* Version */}
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+                <label className="mb-2 block text-sm font-semibold text-card-foreground">Version</label>
+                <input
+                  value={version}
+                  onChange={(e) => setVersion(e.target.value)}
+                  placeholder="e.g. 1.0.0"
+                  className="h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none focus:border-primary/30 focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+
               {/* Preview Images */}
               <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
                 <label className="mb-3 block text-sm font-semibold text-card-foreground">Preview Screenshots</label>
