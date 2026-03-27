@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Calendar, Download, Share2, Check, ExternalLink, ArrowLeft, Clock, Shield, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Download, Share2, Check, ExternalLink, ArrowLeft, Clock, Shield, ChevronLeft, ChevronRight, Calendar, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -23,7 +23,7 @@ interface AppData {
   updated_at: string;
 }
 
-const DOWNLOAD_TIMER = 10; // seconds
+const DOWNLOAD_TIMER = 10;
 
 export default function AppDetail() {
   const { slug } = useParams();
@@ -31,8 +31,6 @@ export default function AppDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [currentPreview, setCurrentPreview] = useState(0);
-
-  // Download timer state
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [countdown, setCountdown] = useState(DOWNLOAD_TIMER);
   const [downloadReady, setDownloadReady] = useState(false);
@@ -60,7 +58,6 @@ export default function AppDetail() {
     fetchApp();
   }, [slug]);
 
-  // Countdown timer
   useEffect(() => {
     if (!downloadStarted || downloadReady) return;
     if (countdown <= 0) {
@@ -79,7 +76,6 @@ export default function AppDetail() {
 
   const handleFinalDownload = useCallback(async () => {
     if (!app?.download_url || !app?.id) return;
-    // Increment download count
     await supabase.rpc("increment_app_downloads", { p_app_id: app.id });
     setApp((prev) => prev ? { ...prev, download_count: prev.download_count + 1 } : prev);
     window.open(app.download_url, "_blank", "noopener,noreferrer");
@@ -107,30 +103,43 @@ export default function AppDetail() {
 
   const progressPercent = downloadStarted ? ((DOWNLOAD_TIMER - countdown) / DOWNLOAD_TIMER) * 100 : 0;
 
+  const previewCount = app?.preview_images.length || 0;
+  const publishedDate = app ? new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+  const updatedDate = app ? new Date(app.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "";
+
   if (loading) {
     return (
       <>
         <PublicHeader />
         <main className="min-h-screen pt-14 md:pt-16">
-          <div className="mx-auto max-w-4xl px-5 py-10">
-            <div className="animate-pulse space-y-6">
-              <div className="flex items-center gap-5">
-                <div className="h-20 w-20 shrink-0 rounded-2xl bg-muted" />
-                <div className="space-y-3 flex-1">
-                  <div className="h-6 w-1/3 rounded bg-muted" />
-                  <div className="h-4 w-1/4 rounded bg-muted" />
-                </div>
-              </div>
-              <div className="h-12 w-full rounded-2xl bg-muted" />
+          <div className="border-b border-border bg-card">
+            <div className="mx-auto max-w-7xl px-5 py-3">
+              <div className="h-4 w-48 rounded bg-muted animate-pulse" />
+            </div>
+          </div>
+          <div className="mx-auto max-w-2xl px-5 py-8">
+            {/* Hero skeleton */}
+            <div className="flex flex-col items-center text-center animate-pulse">
+              <div className="h-24 w-24 rounded-3xl bg-muted" />
+              <div className="mt-5 h-7 w-40 rounded bg-muted" />
+              <div className="mt-3 h-5 w-32 rounded bg-muted" />
+              <div className="mt-6 h-12 w-full max-w-xs rounded-2xl bg-muted" />
+              <div className="mt-3 h-4 w-44 rounded bg-muted" />
+            </div>
+            {/* Preview skeleton */}
+            <div className="mt-10 animate-pulse">
+              <div className="h-5 w-40 rounded bg-muted mb-4" />
               <div className="flex gap-3 overflow-hidden">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-48 w-28 shrink-0 rounded-xl bg-muted" />
+                {[1, 2].map((i) => (
+                  <div key={i} className="h-56 w-44 shrink-0 rounded-2xl bg-muted" />
                 ))}
               </div>
-              <div className="space-y-2">
-                <div className="h-4 w-full rounded bg-muted" />
-                <div className="h-4 w-3/4 rounded bg-muted" />
-              </div>
+            </div>
+            {/* Info skeleton */}
+            <div className="mt-8 grid grid-cols-2 gap-3 animate-pulse">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="h-20 rounded-xl bg-muted" />
+              ))}
             </div>
           </div>
         </main>
@@ -158,10 +167,6 @@ export default function AppDetail() {
     );
   }
 
-  const previewCount = app.preview_images.length;
-  const publishedDate = new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-  const updatedDate = new Date(app.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-
   return (
     <>
       <SEOHead
@@ -184,175 +189,228 @@ export default function AppDetail() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-4xl px-5 py-6 md:py-10">
-          {/* App Header Card */}
-          <motion.div
+        <div className="mx-auto max-w-2xl px-5 py-6 md:py-10">
+          {/* ─── Hero: Centered App Card ─── */}
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="rounded-2xl border border-border bg-card p-5 md:p-6 shadow-[var(--shadow-card)]"
+            className="flex flex-col items-center text-center"
           >
-            <div className="flex items-start gap-4">
-              {app.icon_url ? (
-                <img src={app.icon_url} alt={app.name} className="h-[72px] w-[72px] md:h-20 md:w-20 rounded-2xl object-cover border border-border shadow-sm shrink-0" />
-              ) : (
-                <div className="flex h-[72px] w-[72px] md:h-20 md:w-20 items-center justify-center rounded-2xl bg-primary/10 border border-border shrink-0">
-                  <i className="fa-solid fa-cube text-2xl md:text-3xl text-primary"></i>
-                </div>
-              )}
-              <div className="flex-1 min-w-0">
-                <h1 className="font-display text-xl font-bold text-foreground md:text-2xl leading-tight">{app.name}</h1>
-                {app.version && (
-                  <span className="mt-1 inline-block rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
-                    v{app.version}
-                  </span>
-                )}
-                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <Download className="h-3.5 w-3.5" /> {app.download_count.toLocaleString()} downloads
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-3.5 w-3.5" /> {publishedDate}
-                  </span>
-                </div>
+            {/* Icon */}
+            {app.icon_url ? (
+              <img
+                src={app.icon_url}
+                alt={app.name}
+                className="h-24 w-24 md:h-28 md:w-28 rounded-3xl object-cover border border-border shadow-lg"
+              />
+            ) : (
+              <div className="flex h-24 w-24 md:h-28 md:w-28 items-center justify-center rounded-3xl bg-primary/10 border border-border shadow-lg">
+                <i className="fa-solid fa-cube text-3xl md:text-4xl text-primary"></i>
               </div>
+            )}
+
+            {/* Name */}
+            <h1 className="mt-5 font-display text-2xl font-bold text-foreground md:text-3xl">{app.name}</h1>
+
+            {/* Version & Downloads */}
+            <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+              {app.version && (
+                <>
+                  <span className="font-medium">v{app.version}</span>
+                  <span className="text-border">•</span>
+                </>
+              )}
+              <span>{app.download_count.toLocaleString()} downloads</span>
             </div>
 
             {/* Download Section */}
             {app.download_url && (
-              <div className="mt-5">
+              <div className="mt-6 w-full max-w-sm">
                 {!downloadStarted ? (
                   <button
                     onClick={startDownload}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:opacity-90 hover:shadow-xl active:scale-[0.98]"
                     style={{ background: "var(--gradient-primary)" }}
                   >
-                    <Download className="h-4 w-4" /> Download Now — Free
+                    <Download className="h-4.5 w-4.5" />
+                    Download Now
                   </button>
                 ) : !downloadReady ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between text-sm">
+                  <div className="rounded-2xl border border-border bg-card p-4 shadow-sm">
+                    <div className="flex items-center justify-between text-sm mb-2.5">
                       <span className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="h-4 w-4 text-primary animate-pulse" />
-                        Preparing your download...
+                        Preparing download...
                       </span>
                       <span className="font-mono font-bold text-primary">{countdown}s</span>
                     </div>
                     <Progress value={progressPercent} className="h-2" />
-                    <p className="text-xs text-muted-foreground text-center">
-                      Please wait while we verify the file and prepare your secure download link.
+                    <p className="mt-2.5 text-xs text-muted-foreground text-center">
+                      Verifying file & preparing secure link
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
-                      <Shield className="h-4 w-4" />
-                      <span className="font-medium">Download ready! File verified & safe.</span>
-                    </div>
                     <button
                       onClick={handleFinalDownload}
-                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 animate-pulse"
+                      className="flex w-full items-center justify-center gap-2.5 rounded-2xl py-3.5 text-sm font-semibold text-primary-foreground shadow-lg transition-all hover:opacity-90 hover:shadow-xl active:scale-[0.98]"
                       style={{ background: "var(--gradient-primary)" }}
                     >
-                      <Download className="h-4 w-4" /> Click to Download
+                      <Download className="h-4.5 w-4.5" />
+                      Click to Download
                     </button>
                   </div>
                 )}
               </div>
             )}
-          </motion.div>
 
-          {/* Preview Screenshots - Horizontal scroll */}
+            {/* Safe badge */}
+            <div className="mt-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Shield className="h-3.5 w-3.5" />
+              <span>Safe & Verified</span>
+              {app.version && (
+                <>
+                  <span>•</span>
+                  <span>v{app.version}</span>
+                </>
+              )}
+            </div>
+          </motion.section>
+
+          {/* ─── Preview Screenshots ─── */}
           {previewCount > 0 && (
-            <motion.div
+            <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="mt-6"
+              className="mt-10"
             >
-              <h2 className="mb-3 font-display text-base font-bold text-foreground">Screenshots</h2>
-              <div className="relative">
-                <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
-                  {app.preview_images.map((img, i) => (
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="font-display text-lg font-bold text-foreground flex items-center gap-2">
+                    <i className="fa-solid fa-images text-primary text-base"></i>
+                    Preview Screenshots
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">{previewCount} screens</p>
+                </div>
+                {previewCount > 2 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setCurrentPreview(Math.max(0, currentPreview - 1))}
+                      disabled={currentPreview === 0}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentPreview(Math.min(previewCount - 1, currentPreview + 1))}
+                      disabled={currentPreview === previewCount - 1}
+                      className="flex h-8 w-8 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-muted disabled:opacity-30"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Scrollable preview row */}
+              <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory -mx-5 px-5">
+                {app.preview_images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setCurrentPreview(i)}
+                    className={`shrink-0 snap-start overflow-hidden rounded-2xl border-2 transition-all ${
+                      currentPreview === i ? "border-primary shadow-lg" : "border-border hover:border-primary/30"
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${app.name} screenshot ${i + 1}`}
+                      className="h-56 w-[170px] object-cover bg-muted/30"
+                      loading="lazy"
+                    />
+                  </button>
+                ))}
+              </div>
+
+              {/* Dots indicator */}
+              {previewCount > 1 && (
+                <div className="flex justify-center gap-1.5 mt-3">
+                  {app.preview_images.map((_, i) => (
                     <button
                       key={i}
                       onClick={() => setCurrentPreview(i)}
-                      className={`shrink-0 snap-start overflow-hidden rounded-xl border-2 transition-all ${
-                        currentPreview === i ? "border-primary shadow-md" : "border-border hover:border-primary/30"
+                      className={`h-2 rounded-full transition-all ${
+                        currentPreview === i ? "w-5 bg-primary" : "w-2 bg-muted-foreground/20"
                       }`}
-                    >
-                      <img
-                        src={img}
-                        alt={`${app.name} screenshot ${i + 1}`}
-                        className="h-52 w-32 md:h-64 md:w-40 object-cover"
-                        loading="lazy"
-                      />
-                    </button>
+                    />
                   ))}
                 </div>
-              </div>
+              )}
+
               {/* Enlarged preview */}
-              <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+              <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-muted/20 shadow-sm">
                 <img
                   src={app.preview_images[currentPreview]}
                   alt={`${app.name} preview`}
-                  className="w-full max-h-[400px] md:max-h-[500px] object-contain bg-muted/30"
+                  className="w-full max-h-[420px] md:max-h-[500px] object-contain"
                 />
               </div>
-            </motion.div>
+            </motion.section>
           )}
 
-          {/* App Info Cards */}
-          <motion.div
+          {/* ─── Info Cards ─── */}
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
+            className="mt-8 grid grid-cols-2 gap-3"
           >
-            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-              <Download className="mx-auto h-4 w-4 text-primary mb-1" />
+            <div className="rounded-xl border border-border bg-card p-3.5 text-center">
+              <Download className="mx-auto h-4 w-4 text-primary mb-1.5" />
               <p className="text-sm font-bold text-foreground">{app.download_count.toLocaleString()}</p>
               <p className="text-[11px] text-muted-foreground">Downloads</p>
             </div>
-            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-              <Calendar className="mx-auto h-4 w-4 text-primary mb-1" />
+            <div className="rounded-xl border border-border bg-card p-3.5 text-center">
+              <Calendar className="mx-auto h-4 w-4 text-primary mb-1.5" />
               <p className="text-sm font-bold text-foreground">{publishedDate}</p>
               <p className="text-[11px] text-muted-foreground">Published</p>
             </div>
-            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-              <RefreshCw className="mx-auto h-4 w-4 text-primary mb-1" />
+            <div className="rounded-xl border border-border bg-card p-3.5 text-center">
+              <RefreshCw className="mx-auto h-4 w-4 text-primary mb-1.5" />
               <p className="text-sm font-bold text-foreground">{updatedDate}</p>
               <p className="text-[11px] text-muted-foreground">Updated</p>
             </div>
             {app.version && (
-              <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
-                <Shield className="mx-auto h-4 w-4 text-primary mb-1" />
+              <div className="rounded-xl border border-border bg-card p-3.5 text-center">
+                <Shield className="mx-auto h-4 w-4 text-primary mb-1.5" />
                 <p className="text-sm font-bold text-foreground">v{app.version}</p>
                 <p className="text-[11px] text-muted-foreground">Version</p>
               </div>
             )}
-          </motion.div>
+          </motion.section>
 
-          {/* Description */}
+          {/* ─── Description ─── */}
           {app.description && (
-            <motion.div
+            <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
+              className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm"
             >
               <h2 className="mb-3 font-display text-base font-bold text-foreground">About this app</h2>
               <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-line leading-relaxed">
                 {app.description}
               </div>
-            </motion.div>
+            </motion.section>
           )}
 
-          {/* Share */}
-          <motion.div
+          {/* ─── Share ─── */}
+          <motion.section
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
+            className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm"
           >
             <div className="mb-3 flex items-center gap-2">
               <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
@@ -381,7 +439,7 @@ export default function AppDetail() {
                 {copied ? "Copied!" : "Copy"}
               </button>
             </div>
-          </motion.div>
+          </motion.section>
         </div>
       </main>
       <PublicFooter />
