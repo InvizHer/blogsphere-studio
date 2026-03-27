@@ -132,6 +132,23 @@ CREATE TABLE IF NOT EXISTS public.shortened_links (
   updated_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE TABLE IF NOT EXISTS public.apps (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name            TEXT NOT NULL,
+  slug            TEXT NOT NULL UNIQUE,
+  icon_url        TEXT,
+  description     TEXT,
+  download_url    TEXT,
+  preview_images  TEXT[] DEFAULT '{}',
+  status          TEXT NOT NULL DEFAULT 'draft',
+  version         TEXT DEFAULT '1.0.0',
+  view_count      BIGINT NOT NULL DEFAULT 0,
+  download_count  BIGINT NOT NULL DEFAULT 0,
+  author_id       UUID,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 
 -- ────────────────────────────────────────────────────────────
 -- 3. DATABASE FUNCTIONS
