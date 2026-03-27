@@ -440,6 +440,23 @@ CREATE POLICY "Admins can delete shortened_links"
   ON public.shortened_links FOR DELETE
   USING (has_role(auth.uid(), 'admin'));
 
+-- apps
+CREATE POLICY "Anyone can read published apps"
+  ON public.apps FOR SELECT
+  USING ((status = 'published') OR has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can insert apps"
+  ON public.apps FOR INSERT
+  WITH CHECK (has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can update apps"
+  ON public.apps FOR UPDATE
+  USING (has_role(auth.uid(), 'admin'));
+
+CREATE POLICY "Admins can delete apps"
+  ON public.apps FOR DELETE
+  USING (has_role(auth.uid(), 'admin'));
+
 
 -- ────────────────────────────────────────────────────────────
 -- 6. STORAGE BUCKET
