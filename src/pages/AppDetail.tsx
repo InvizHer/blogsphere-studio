@@ -1,11 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
-import { Eye, Calendar, Download, Share2, Check, ExternalLink, ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import { Calendar, Download, Share2, Check, ExternalLink, ArrowLeft, Clock, Shield, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
 import { PublicFooter } from "@/components/PublicFooter";
 import { SEOHead } from "@/components/SEOHead";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 
 interface AppData {
@@ -16,10 +17,13 @@ interface AppData {
   description: string | null;
   download_url: string | null;
   preview_images: string[];
-  view_count: number;
+  download_count: number;
+  version: string | null;
   created_at: string;
   updated_at: string;
 }
+
+const DOWNLOAD_TIMER = 10; // seconds
 
 export default function AppDetail() {
   const { slug } = useParams();
@@ -27,6 +31,11 @@ export default function AppDetail() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [currentPreview, setCurrentPreview] = useState(0);
+
+  // Download timer state
+  const [downloadStarted, setDownloadStarted] = useState(false);
+  const [countdown, setCountdown] = useState(DOWNLOAD_TIMER);
+  const [downloadReady, setDownloadReady] = useState(false);
 
   useEffect(() => {
     const fetchApp = async () => {
@@ -41,14 +50,40 @@ export default function AppDetail() {
         setApp({
           ...data,
           preview_images: (data.preview_images as string[]) || [],
+          download_count: (data as any).download_count ?? 0,
+          version: (data as any).version ?? null,
         });
-        // Increment views
         supabase.rpc("increment_app_views", { p_app_id: data.id });
       }
       setLoading(false);
     };
     fetchApp();
   }, [slug]);
+
+  // Countdown timer
+  useEffect(() => {
+    if (!downloadStarted || downloadReady) return;
+    if (countdown <= 0) {
+      setDownloadReady(true);
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [downloadStarted, countdown, downloadReady]);
+
+  const startDownload = () => {
+    setDownloadStarted(true);
+    setCountdown(DOWNLOAD_TIMER);
+    setDownloadReady(false);
+  };
+
+  const handleFinalDownload = useCallback(async () => {
+    if (!app?.download_url || !app?.id) return;
+    // Increment download count
+    await supabase.rpc("increment_app_downloads", { p_app_id: app.id });
+    setApp((prev) => prev ? { ...prev, download_count: prev.download_count + 1 } : prev);
+    window.open(app.download_url, "_blank", "noopener,noreferrer");
+  }, [app]);
 
   const shareUrl = `${window.location.origin}/app/${slug}`;
 
@@ -70,6 +105,8 @@ export default function AppDetail() {
     { icon: "fa-solid fa-envelope", label: "Email", href: `mailto:?subject=${encodeURIComponent(app?.name || "")}&body=${encodeURIComponent(shareUrl)}`, accent: "hover:bg-orange-500/10 hover:text-orange-500 hover:border-orange-500/30" },
   ];
 
+  const progressPercent = downloadStarted ? ((DOWNLOAD_TIMER - countdown) / DOWNLOAD_TIMER) * 100 : 0;
+
   if (loading) {
     return (
       <>
@@ -78,13 +115,18 @@ export default function AppDetail() {
           <div className="mx-auto max-w-4xl px-5 py-10">
             <div className="animate-pulse space-y-6">
               <div className="flex items-center gap-5">
-                <div className="h-20 w-20 rounded-2xl bg-muted" />
+                <div className="h-20 w-20 shrink-0 rounded-2xl bg-muted" />
                 <div className="space-y-3 flex-1">
                   <div className="h-6 w-1/3 rounded bg-muted" />
                   <div className="h-4 w-1/4 rounded bg-muted" />
                 </div>
               </div>
-              <div className="h-64 rounded-2xl bg-muted" />
+              <div className="h-12 w-full rounded-2xl bg-muted" />
+              <div className="flex gap-3 overflow-hidden">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-48 w-28 shrink-0 rounded-xl bg-muted" />
+                ))}
+              </div>
               <div className="space-y-2">
                 <div className="h-4 w-full rounded bg-muted" />
                 <div className="h-4 w-3/4 rounded bg-muted" />
@@ -117,6 +159,8 @@ export default function AppDetail() {
   }
 
   const previewCount = app.preview_images.length;
+  const publishedDate = new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  const updatedDate = new Date(app.updated_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
   return (
     <>
@@ -140,188 +184,204 @@ export default function AppDetail() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-5 py-8 md:py-12">
-          <div className="grid gap-8 lg:grid-cols-3">
-            {/* Main Content */}
-            <div className="lg:col-span-2 space-y-8">
-              {/* App Header */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col sm:flex-row items-start gap-5"
-              >
-                {app.icon_url ? (
-                  <img src={app.icon_url} alt={app.name} className="h-24 w-24 rounded-3xl object-cover border border-border shadow-[var(--shadow-card)]" />
-                ) : (
-                  <div className="flex h-24 w-24 items-center justify-center rounded-3xl bg-primary/10 border border-border">
-                    <i className="fa-solid fa-cube text-3xl text-primary"></i>
-                  </div>
-                )}
-                <div className="flex-1">
-                  <h1 className="font-display text-2xl font-bold text-foreground md:text-3xl">{app.name}</h1>
-                  <div className="mt-2 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <Eye className="h-4 w-4" /> {app.view_count.toLocaleString()} views
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <Calendar className="h-4 w-4" /> {new Date(app.created_at).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </span>
-                  </div>
-                  {app.download_url && (
-                    <a
-                      href={app.download_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-4 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                      style={{ background: "var(--gradient-primary)" }}
-                    >
-                      <Download className="h-4 w-4" /> Download Now
-                    </a>
-                  )}
+        <div className="mx-auto max-w-4xl px-5 py-6 md:py-10">
+          {/* App Header Card */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-2xl border border-border bg-card p-5 md:p-6 shadow-[var(--shadow-card)]"
+          >
+            <div className="flex items-start gap-4">
+              {app.icon_url ? (
+                <img src={app.icon_url} alt={app.name} className="h-[72px] w-[72px] md:h-20 md:w-20 rounded-2xl object-cover border border-border shadow-sm shrink-0" />
+              ) : (
+                <div className="flex h-[72px] w-[72px] md:h-20 md:w-20 items-center justify-center rounded-2xl bg-primary/10 border border-border shrink-0">
+                  <i className="fa-solid fa-cube text-2xl md:text-3xl text-primary"></i>
                 </div>
-              </motion.div>
-
-              {/* Preview Images */}
-              {previewCount > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 }}
-                  className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
-                >
-                  <h2 className="mb-4 font-display text-lg font-bold text-foreground">Screenshots</h2>
-                  <div className="relative">
-                    <div className="overflow-hidden rounded-xl">
-                      <img
-                        src={app.preview_images[currentPreview]}
-                        alt={`${app.name} screenshot ${currentPreview + 1}`}
-                        className="w-full rounded-xl object-cover"
-                      />
-                    </div>
-                    {previewCount > 1 && (
-                      <>
-                        <button
-                          onClick={() => setCurrentPreview((prev) => (prev === 0 ? previewCount - 1 : prev - 1))}
-                          className="absolute left-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur-sm hover:bg-background"
-                        >
-                          <ChevronLeft className="h-5 w-5" />
-                        </button>
-                        <button
-                          onClick={() => setCurrentPreview((prev) => (prev === previewCount - 1 ? 0 : prev + 1))}
-                          className="absolute right-2 top-1/2 -translate-y-1/2 flex h-9 w-9 items-center justify-center rounded-full bg-background/90 text-foreground shadow-md backdrop-blur-sm hover:bg-background"
-                        >
-                          <ChevronRight className="h-5 w-5" />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                  {previewCount > 1 && (
-                    <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                      {app.preview_images.map((img, i) => (
-                        <button
-                          key={i}
-                          onClick={() => setCurrentPreview(i)}
-                          className={`shrink-0 overflow-hidden rounded-lg border-2 transition-all ${
-                            currentPreview === i ? "border-primary" : "border-transparent opacity-60 hover:opacity-100"
-                          }`}
-                        >
-                          <img src={img} alt={`Thumb ${i + 1}`} className="h-14 w-20 object-cover" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </motion.div>
               )}
-
-              {/* Description */}
-              {app.description && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
-                >
-                  <h2 className="mb-3 font-display text-lg font-bold text-foreground">About this app</h2>
-                  <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-line leading-relaxed">
-                    {app.description}
-                  </div>
-                </motion.div>
-              )}
+              <div className="flex-1 min-w-0">
+                <h1 className="font-display text-xl font-bold text-foreground md:text-2xl leading-tight">{app.name}</h1>
+                {app.version && (
+                  <span className="mt-1 inline-block rounded-md bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                    v{app.version}
+                  </span>
+                )}
+                <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1">
+                    <Download className="h-3.5 w-3.5" /> {app.download_count.toLocaleString()} downloads
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <Calendar className="h-3.5 w-3.5" /> {publishedDate}
+                  </span>
+                </div>
+              </div>
             </div>
 
-            {/* Sidebar */}
-            <div className="space-y-5">
-              {/* Download card */}
-              {app.download_url && (
-                <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                  <h3 className="mb-3 font-display text-sm font-bold text-foreground">Download</h3>
-                  <a
-                    href={app.download_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
+            {/* Download Section */}
+            {app.download_url && (
+              <div className="mt-5">
+                {!downloadStarted ? (
+                  <button
+                    onClick={startDownload}
                     className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
                     style={{ background: "var(--gradient-primary)" }}
                   >
-                    <Download className="h-4 w-4" /> Download Free
-                  </a>
-                </div>
-              )}
-
-              {/* Share */}
-              <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                <div className="mb-3 flex items-center gap-2">
-                  <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
-                    <Share2 className="h-3.5 w-3.5 text-primary-foreground" />
+                    <Download className="h-4 w-4" /> Download Now — Free
+                  </button>
+                ) : !downloadReady ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="flex items-center gap-2 text-muted-foreground">
+                        <Clock className="h-4 w-4 text-primary animate-pulse" />
+                        Preparing your download...
+                      </span>
+                      <span className="font-mono font-bold text-primary">{countdown}s</span>
+                    </div>
+                    <Progress value={progressPercent} className="h-2" />
+                    <p className="text-xs text-muted-foreground text-center">
+                      Please wait while we verify the file and prepare your secure download link.
+                    </p>
                   </div>
-                  <h3 className="font-display text-sm font-bold text-foreground">Share this app</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {sharePlatforms.map((p) => (
-                    <a
-                      key={p.label}
-                      href={p.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Share on ${p.label}`}
-                      className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-all duration-200 ${p.accent}`}
+                ) : (
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-green-600 dark:text-green-400">
+                      <Shield className="h-4 w-4" />
+                      <span className="font-medium">Download ready! File verified & safe.</span>
+                    </div>
+                    <button
+                      onClick={handleFinalDownload}
+                      className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-primary-foreground transition-all hover:opacity-90 animate-pulse"
+                      style={{ background: "var(--gradient-primary)" }}
                     >
-                      <i className={`${p.icon} text-sm`}></i>
-                    </a>
+                      <Download className="h-4 w-4" /> Click to Download
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </motion.div>
+
+          {/* Preview Screenshots - Horizontal scroll */}
+          {previewCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="mt-6"
+            >
+              <h2 className="mb-3 font-display text-base font-bold text-foreground">Screenshots</h2>
+              <div className="relative">
+                <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x snap-mandatory">
+                  {app.preview_images.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setCurrentPreview(i)}
+                      className={`shrink-0 snap-start overflow-hidden rounded-xl border-2 transition-all ${
+                        currentPreview === i ? "border-primary shadow-md" : "border-border hover:border-primary/30"
+                      }`}
+                    >
+                      <img
+                        src={img}
+                        alt={`${app.name} screenshot ${i + 1}`}
+                        className="h-52 w-32 md:h-64 md:w-40 object-cover"
+                        loading="lazy"
+                      />
+                    </button>
                   ))}
                 </div>
-                <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
-                  <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <span className="flex-1 truncate text-xs text-muted-foreground">{shareUrl}</span>
-                  <button onClick={copyLink} className="shrink-0 text-xs font-medium text-primary hover:text-primary/80">
-                    {copied ? "Copied!" : "Copy"}
-                  </button>
-                </div>
               </div>
+              {/* Enlarged preview */}
+              <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card shadow-[var(--shadow-card)]">
+                <img
+                  src={app.preview_images[currentPreview]}
+                  alt={`${app.name} preview`}
+                  className="w-full max-h-[400px] md:max-h-[500px] object-contain bg-muted/30"
+                />
+              </div>
+            </motion.div>
+          )}
 
-              {/* App Info */}
-              <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                <h3 className="mb-3 font-display text-sm font-bold text-foreground">App Info</h3>
-                <dl className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Views</dt>
-                    <dd className="font-medium text-foreground">{app.view_count.toLocaleString()}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Added</dt>
-                    <dd className="font-medium text-foreground">{new Date(app.created_at).toLocaleDateString()}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Updated</dt>
-                    <dd className="font-medium text-foreground">{new Date(app.updated_at).toLocaleDateString()}</dd>
-                  </div>
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Screenshots</dt>
-                    <dd className="font-medium text-foreground">{previewCount}</dd>
-                  </div>
-                </dl>
-              </div>
+          {/* App Info Cards */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4"
+          >
+            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+              <Download className="mx-auto h-4 w-4 text-primary mb-1" />
+              <p className="text-sm font-bold text-foreground">{app.download_count.toLocaleString()}</p>
+              <p className="text-[11px] text-muted-foreground">Downloads</p>
             </div>
-          </div>
+            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+              <Calendar className="mx-auto h-4 w-4 text-primary mb-1" />
+              <p className="text-sm font-bold text-foreground">{publishedDate}</p>
+              <p className="text-[11px] text-muted-foreground">Published</p>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+              <RefreshCw className="mx-auto h-4 w-4 text-primary mb-1" />
+              <p className="text-sm font-bold text-foreground">{updatedDate}</p>
+              <p className="text-[11px] text-muted-foreground">Updated</p>
+            </div>
+            {app.version && (
+              <div className="rounded-xl border border-border bg-card p-3 text-center shadow-sm">
+                <Shield className="mx-auto h-4 w-4 text-primary mb-1" />
+                <p className="text-sm font-bold text-foreground">v{app.version}</p>
+                <p className="text-[11px] text-muted-foreground">Version</p>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Description */}
+          {app.description && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
+            >
+              <h2 className="mb-3 font-display text-base font-bold text-foreground">About this app</h2>
+              <div className="prose prose-sm max-w-none text-muted-foreground whitespace-pre-line leading-relaxed">
+                {app.description}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Share */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="mt-6 rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]"
+          >
+            <div className="mb-3 flex items-center gap-2">
+              <div className="flex h-7 w-7 items-center justify-center rounded-lg" style={{ background: "var(--gradient-primary)" }}>
+                <Share2 className="h-3.5 w-3.5 text-primary-foreground" />
+              </div>
+              <h3 className="font-display text-sm font-bold text-foreground">Share this app</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {sharePlatforms.map((p) => (
+                <a
+                  key={p.label}
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Share on ${p.label}`}
+                  className={`flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-background text-muted-foreground transition-all duration-200 ${p.accent}`}
+                >
+                  <i className={`${p.icon} text-sm`}></i>
+                </a>
+              ))}
+            </div>
+            <div className="mt-3 flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2">
+              <ExternalLink className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
+              <span className="flex-1 truncate text-xs text-muted-foreground">{shareUrl}</span>
+              <button onClick={copyLink} className="shrink-0 text-xs font-medium text-primary hover:text-primary/80">
+                {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          </motion.div>
         </div>
       </main>
       <PublicFooter />

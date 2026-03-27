@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Eye, Download } from "lucide-react";
+import { Search, Download } from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader } from "@/components/PublicHeader";
@@ -14,7 +14,8 @@ interface AppItem {
   icon_url: string | null;
   description: string | null;
   download_url: string | null;
-  view_count: number;
+  download_count: number;
+  version: string | null;
 }
 
 export default function AppStore() {
@@ -26,10 +27,10 @@ export default function AppStore() {
     const fetchApps = async () => {
       const { data } = await supabase
         .from("apps")
-        .select("id, name, slug, icon_url, description, download_url, view_count")
+        .select("id, name, slug, icon_url, description, download_url, download_count, version")
         .eq("status", "published")
         .order("created_at", { ascending: false });
-      setApps(data || []);
+      setApps((data as any[]) || []);
       setLoading(false);
     };
     fetchApps();
@@ -61,12 +62,8 @@ export default function AppStore() {
               animate={{ opacity: 1, y: 0 }}
               className="mx-auto max-w-2xl text-center"
             >
-              <h1 className="font-display text-3xl font-bold text-white md:text-5xl">
-                App Store
-              </h1>
-              <p className="mt-4 text-base text-white/70 md:text-lg">
-                Discover and download the best apps curated just for you
-              </p>
+              <h1 className="font-display text-3xl font-bold text-white md:text-5xl">App Store</h1>
+              <p className="mt-4 text-base text-white/70 md:text-lg">Discover and download the best apps curated just for you</p>
               <div className="relative mx-auto mt-8 max-w-md">
                 <input
                   value={query}
@@ -89,7 +86,7 @@ export default function AppStore() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="animate-pulse rounded-2xl border border-border bg-card p-5">
                   <div className="flex items-center gap-4">
-                    <div className="h-16 w-16 rounded-2xl bg-muted" />
+                    <div className="h-14 w-14 rounded-2xl bg-muted shrink-0" />
                     <div className="flex-1 space-y-2">
                       <div className="h-4 w-2/3 rounded bg-muted" />
                       <div className="h-3 w-1/3 rounded bg-muted" />
@@ -127,11 +124,11 @@ export default function AppStore() {
                         <img
                           src={app.icon_url}
                           alt={app.name}
-                          className="h-16 w-16 rounded-2xl object-cover border border-border transition-transform group-hover:scale-105"
+                          className="h-14 w-14 rounded-2xl object-cover border border-border transition-transform group-hover:scale-105"
                           loading="lazy"
                         />
                       ) : (
-                        <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10">
                           <i className="fa-solid fa-cube text-xl text-primary"></i>
                         </div>
                       )}
@@ -140,8 +137,8 @@ export default function AppStore() {
                           {app.name}
                         </h3>
                         <div className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1"><Eye className="h-3 w-3" /> {app.view_count}</span>
-                          {app.download_url && <span className="flex items-center gap-1"><Download className="h-3 w-3" /> Free</span>}
+                          <span className="flex items-center gap-1"><Download className="h-3 w-3" /> {app.download_count.toLocaleString()}</span>
+                          {app.version && <span>v{app.version}</span>}
                         </div>
                       </div>
                     </div>

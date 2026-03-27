@@ -25,6 +25,7 @@ export default function AdminAppEditor() {
   const [downloadUrl, setDownloadUrl] = useState("");
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [status, setStatus] = useState("draft");
+  const [version, setVersion] = useState("1.0.0");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEditing);
   const [uploadingIcon, setUploadingIcon] = useState(false);
@@ -41,6 +42,7 @@ export default function AdminAppEditor() {
         setIconUrl(app.icon_url || "");
         setDownloadUrl(app.download_url || "");
         setPreviewImages((app.preview_images as string[]) || []);
+        setVersion((app as any).version || "1.0.0");
         setStatus(app.status);
       }
       setLoading(false);
@@ -101,9 +103,10 @@ export default function AdminAppEditor() {
       icon_url: iconUrl || null,
       download_url: downloadUrl.trim() || null,
       preview_images: previewImages,
+      version: version.trim() || "1.0.0",
       status: saveStatus,
       author_id: user?.id || null,
-    };
+    } as any;
 
     let error;
     if (isEditing) {
@@ -192,6 +195,17 @@ export default function AdminAppEditor() {
                   value={downloadUrl}
                   onChange={(e) => setDownloadUrl(e.target.value)}
                   placeholder="https://play.google.com/store/apps/details?id=..."
+                  className="h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none focus:border-primary/30 focus:ring-2 focus:ring-ring/20"
+                />
+              </div>
+
+              {/* Version */}
+              <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
+                <label className="mb-2 block text-sm font-semibold text-card-foreground">Version</label>
+                <input
+                  value={version}
+                  onChange={(e) => setVersion(e.target.value)}
+                  placeholder="e.g. 1.0.0"
                   className="h-11 w-full rounded-xl border border-input bg-background px-4 text-sm outline-none focus:border-primary/30 focus:ring-2 focus:ring-ring/20"
                 />
               </div>

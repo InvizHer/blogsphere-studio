@@ -19,6 +19,7 @@ export type Database = {
           author_id: string | null
           created_at: string
           description: string | null
+          download_count: number
           download_url: string | null
           icon_url: string | null
           id: string
@@ -27,12 +28,14 @@ export type Database = {
           slug: string
           status: string
           updated_at: string
+          version: string | null
           view_count: number
         }
         Insert: {
           author_id?: string | null
           created_at?: string
           description?: string | null
+          download_count?: number
           download_url?: string | null
           icon_url?: string | null
           id?: string
@@ -41,12 +44,14 @@ export type Database = {
           slug: string
           status?: string
           updated_at?: string
+          version?: string | null
           view_count?: number
         }
         Update: {
           author_id?: string | null
           created_at?: string
           description?: string | null
+          download_count?: number
           download_url?: string | null
           icon_url?: string | null
           id?: string
@@ -55,6 +60,7 @@ export type Database = {
           slug?: string
           status?: string
           updated_at?: string
+          version?: string | null
           view_count?: number
         }
         Relationships: []
@@ -387,6 +393,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      increment_app_downloads: {
+        Args: { p_app_id: string }
+        Returns: undefined
       }
       increment_app_views: { Args: { p_app_id: string }; Returns: undefined }
       increment_link_clicks: { Args: { p_link_id: string }; Returns: undefined }
