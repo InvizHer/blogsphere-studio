@@ -103,9 +103,10 @@ export default function AdminAppEditor() {
       icon_url: iconUrl || null,
       download_url: downloadUrl.trim() || null,
       preview_images: previewImages,
+      version: version.trim() || "1.0.0",
       status: saveStatus,
       author_id: user?.id || null,
-    };
+    } as any;
 
     let error;
     if (isEditing) {
