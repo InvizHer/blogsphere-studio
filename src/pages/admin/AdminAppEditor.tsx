@@ -25,6 +25,7 @@ export default function AdminAppEditor() {
   const [downloadUrl, setDownloadUrl] = useState("");
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [status, setStatus] = useState("draft");
+  const [version, setVersion] = useState("1.0.0");
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEditing);
   const [uploadingIcon, setUploadingIcon] = useState(false);
