@@ -212,10 +212,14 @@ export default function AdminAppEditor() {
 
               {/* Preview Images */}
               <div className="rounded-2xl border border-border bg-card p-5 shadow-[var(--shadow-card)]">
-                <label className="mb-3 block text-sm font-semibold text-card-foreground">Preview Screenshots</label>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                <label className="mb-2 block text-sm font-semibold text-card-foreground">Preview Screenshots</label>
+                <p className="mb-3 flex items-start gap-1.5 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs text-muted-foreground">
+                  <ImageIcon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                  <span>Upload images in <strong>9:16 portrait ratio</strong> (e.g. 1080×1920) for the best display on the app page.</span>
+                </p>
+                <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
                   {previewImages.map((url, i) => (
-                    <div key={i} className="group relative aspect-video overflow-hidden rounded-xl border border-border">
+                    <div key={i} className="group relative aspect-[9/16] overflow-hidden rounded-xl border border-border">
                       <img src={url} alt={`Preview ${i + 1}`} className="h-full w-full object-cover" />
                       <button
                         onClick={() => removePreviewImage(i)}
@@ -228,7 +232,7 @@ export default function AdminAppEditor() {
                   <button
                     onClick={() => previewInputRef.current?.click()}
                     disabled={uploadingPreview}
-                    className="flex aspect-video flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
+                    className="flex aspect-[9/16] flex-col items-center justify-center rounded-xl border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-primary/30 hover:text-primary"
                   >
                     {uploadingPreview ? (
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
